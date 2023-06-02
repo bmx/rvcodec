@@ -16,6 +16,17 @@ BEGIN {
 	bits["d"] = "1101"
 	bits["e"] = "1110"
 	bits["f"] = "1111"
+	
+	FRAG["UNSD"] = 1
+	FRAG["CSR"] = 2
+	FRAG["IMM"] = 3
+	FRAG["OPC"] = 4
+	FRAG["PRED"] = 5
+	FRAG["RD"] = 6
+	FRAG["RS1"] = 7
+	FRAG["RS2"] = 8
+	FRAG["RS3"] = 9
+	FRAG["SUCC"] = 10
 
 	valid_hex_len[4]=1
 	valid_hex_len[6]=1
@@ -2133,13 +2144,77 @@ BEGIN {
 	FIELD["c_shamt_0"]["pos"] = "12,1"
 	FIELD["c_shamt_1"]["pos"] = "6,5"
 
+	# RV32I 
+	ISA_OP[isa["funct7"]["add"] isa["funct3"]["add"]] = "add"
+	ISA_OP[isa["funct7"]["sub"] isa["funct3"]["sub"]] = "sub"
+	ISA_OP[isa["funct7"]["sll"] isa["funct3"]["sll"]] = "sll"
+	ISA_OP[isa["funct7"]["slt"] isa["funct3"]["slt"]] = "slt"
+	ISA_OP[isa["funct7"]["sltu"] isa["funct3"]["sltu"]] = "sltu"
+	ISA_OP[isa["funct7"]["xor"] isa["funct3"]["xor"]] = "xor"
+	ISA_OP[isa["funct7"]["srl"] isa["funct3"]["srl"]] = "srl"
+	ISA_OP[isa["funct7"]["sra"] isa["funct3"]["sra"]] = "sra"
+	ISA_OP[isa["funct7"]["or"] isa["funct3"]["or"]] = "or"
+	ISA_OP[isa["funct7"]["and"] isa["funct3"]["and"]] = "and"
+	# RV32M
+	ISA_OP[isa["funct7"]["mul"] isa["funct3"]["mul"]] = "mul"
+	ISA_OP[isa["funct7"]["mulh"] isa["funct3"]["mulh"]] = "mulh"
+	ISA_OP[isa["funct7"]["mulhsu"] isa["funct3"]["mulhsu"]] = "mulhsu"
+	ISA_OP[isa["funct7"]["mulhu"] isa["funct3"]["mulhu"]] = "mulhu"
+	ISA_OP[isa["funct7"]["div"] isa["funct3"]["div"]] = "div"
+	ISA_OP[isa["funct7"]["divu"] isa["funct3"]["divu"]] = "divu"
+	ISA_OP[isa["funct7"]["rem"] isa["funct3"]["rem"]] = "rem"
+	ISA_OP[isa["funct7"]["remu"] isa["funct3"]["remu"]] = "remu"
 
-	ISA_OP_64[ISA_RV128I["addd"]["funct7"] ISA_RV128I["addd"]["funct3"]] = "addd"
-	ISA_OP_64[ISA_RV128I["subd"]["funct7"] ISA_RV128I["subd"]["funct3"]] = "subd"
-	ISA_OP_64[ISA_RV128I["slld"]["funct7"] ISA_RV128I["slld"]["funct3"]] = "slld"
-	ISA_OP_64[ISA_RV128I["srld"]["funct7"] ISA_RV128I["srld"]["funct3"]] = "srld"
-	ISA_OP_64[ISA_RV128I["srad"]["funct7"] ISA_RV128I["srad"]["funct3"]] = "srad"
+	# RV64I
+	ISA_OP_32[isa["funct7"]["addw"] isa["funct3"]["addw"]] = "addw"
+	ISA_OP_32[isa["funct7"]["subw"] isa["funct3"]["subw"]] = "subw"
+	ISA_OP_32[isa["funct7"]["sllw"] isa["funct3"]["sllw"]] = "sllw"
+	ISA_OP_32[isa["funct7"]["srlw"] isa["funct3"]["srlw"]] = "srlw"
+	ISA_OP_32[isa["funct7"]["sraw"] isa["funct3"]["sraw"]] = "sraw"
+	# RV64M
+	ISA_OP_32[isa["funct7"]["mulw"] isa["funct3"]["mulw"]] = "mulw"
+	ISA_OP_32[isa["funct7"]["divw"] isa["funct3"]["divw"]] = "divw"
+	ISA_OP_32[isa["funct7"]["divuw"] isa["funct3"]["divuw"]] = "divuw"
+	ISA_OP_32[isa["funct7"]["remw"] isa["funct3"]["remw"]] = "remw"
+	ISA_OP_32[isa["funct7"]["remuw"] isa["funct3"]["remuw"]] = "remuw"
 
+	# RV128I
+	ISA_OP_64[isa["funct7"]["addd"] isa["funct3"]["addd"]] = "addd"
+	ISA_OP_64[isa["funct7"]["subd"] isa["funct3"]["subd"]] = "subd"
+	ISA_OP_64[isa["funct7"]["slld"] isa["funct3"]["slld"]] = "slld"
+	ISA_OP_64[isa["funct7"]["srld"] isa["funct3"]["srld"]] = "srld"
+	ISA_OP_64[isa["funct7"]["srad"] isa["funct3"]["srad"]] = "srad"
+	# RV128M
+	ISA_OP_64[isa["funct7"]["muld"] isa["funct3"]["muld"]] = "muld"
+	ISA_OP_64[isa["funct7"]["divd"] isa["funct3"]["divd"]] = "divd"
+	ISA_OP_64[isa["funct7"]["divud"] isa["funct3"]["divud"]] = "divud"
+	ISA_OP_64[isa["funct7"]["remd"] isa["funct3"]["remd"]] = "remd"
+	ISA_OP_64[isa["funct7"]["remud"] isa["funct3"]["remud"]] = "remud"
+
+	ISA_LOAD[isa["funct3"]["lb"]] = "lb"
+	ISA_LOAD[isa["funct3"]["lh"]] = "lh"
+	ISA_LOAD[isa["funct3"]["lw"]] = "lw"
+	ISA_LOAD[isa["funct3"]["ld"]] = "ld"
+	ISA_LOAD[isa["funct3"]["lbu"]] = "lbu"
+	ISA_LOAD[isa["funct3"]["lhu"]] = "lhu"
+	ISA_LOAD[isa["funct3"]["lwu"]] = "lwu"
+	ISA_LOAD[isa["funct3"]["ldu"]] = "ldu"
+
+	ISA_STORE[isa["funct3"]["sb"]] = "sb"
+	ISA_STORE[isa["funct3"]["sh"]] = "sh"
+	ISA_STORE[isa["funct3"]["sw"]] = "sw"
+	ISA_STORE[isa["funct3"]["sd"]] = "sd"
+	ISA_STORE[isa["funct3"]["sq"]] = "sq"
+
+	ISA_OP_IMM[isa["funct3"]["addi"]] = "addi"
+	ISA_OP_IMM[isa["funct3"]["slti"]] = "slti"
+	ISA_OP_IMM[isa["funct3"]["sltiu"]] = "sltiu"
+	ISA_OP_IMM[isa["funct3"]["xori"]] = "xori"
+	ISA_OP_IMM[isa["funct3"]["ori"]] = "ori"
+	ISA_OP_IMM[isa["funct3"]["andi"]] = "andi"
+
+
+	
 }
 {
 	input=$0
@@ -2871,6 +2946,10 @@ function getBits(binary, pos) {
 
 	return substr(binary, length(binary)-apos[1], apos[2])
 }
+function decReg(reg, floatReg) {
+	return (floatReg ? "f" : "x") b2n(reg)
+}
+
 function extractRFields(binary, a) {
 	a["rs2"] = getBits(binary, FIELD["rs2"]["pos"])
 	a["rs1"] = getBits(binary, FIELD["rs1"]["pos"])
@@ -2886,6 +2965,7 @@ function decodeOP(bin) {
 	print "decodeOP", opcode
 	print "bin", bin
 	extractRFields(bin, fields)
+	funct7 = fields["funct7"]
 	funct3 = fields["funct3"]
 	rs2 = fields["rs2"]
 	rs1 = fields["rs1"]
@@ -2893,7 +2973,26 @@ function decodeOP(bin) {
 
 	if (opcode == OPCODE["OP_64"]) {
 		# RV128I
-	}		
+		mne = ISA_OP_64[funct7 funct3]
+		opcodeName = "OP-64"
+	} else if (opcode == OPCODE["OP_32"]) {
+		# RV64I
+		mne = ISA_OP_32[funct7 funct3]
+		opcodeName = "OP-32"
+	} else {
+		mne = ISA_OP[funct7 funct3]
+		opcodeName = "OP"
+	}
+	if (mne == "") {
+		printf "Detected %s instruction but invalid funct7 and funct3 fields", opcodeName
+		exit
+	}
+
+	src1 = decReg(rs1)
+	src2 = decReg(rs2)
+	dest = decReg(rd)
+
+	printf "%s %s, %s, %s\n", mne, dest, src1, src2
 }
 function decodeOP_FP() { print "decodeOP_FP" }
 function decodeAMO() { print "decodeAMO" }
