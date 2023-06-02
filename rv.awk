@@ -150,6 +150,7 @@ BEGIN {
 	OPCODE["C1"]="01"
 	OPCODE["C2"]="10"
 
+	# RV32I instruction set
 	isa["isa"]["lui"] = 	"RV32I"
 	isa["isa"]["auipc"] = 	"RV32I"
 	isa["isa"]["jal"] = 	"RV32I"
@@ -336,7 +337,7 @@ BEGIN {
 	isa["funct12"]["ecall"] = "000000000000"
 	isa["funct12"]["ebreak"] = "000000000001"
 
-
+	# C instruction set
 	isa["fmt"]["c.add"] = "CR"
 	isa["fmt"]["c.addi"] = "CI"
 	isa["fmt"]["c.addi16sp"] = "CI"
@@ -707,6 +708,1036 @@ BEGIN {
 	isa["xlens"]["c.swsp"] = "111"
 	isa["xlens"]["c.xor"] = "111"
 
+	# RV64I instruction set
+	isa["fmt"]["addiw"] = "I"
+	isa["fmt"]["addw"] = "R"
+	isa["fmt"]["ld"] = "I"
+	isa["fmt"]["lwu"] = "I"
+	isa["fmt"]["sd"] = "S"
+	isa["fmt"]["slliw"] = "I"
+	isa["fmt"]["sllw"] = "R"
+	isa["fmt"]["sraiw"] = "I"
+	isa["fmt"]["sraw"] = "R"
+	isa["fmt"]["srliw"] = "I"
+	isa["fmt"]["srlw"] = "R"
+	isa["fmt"]["subw"] = "R"
+	isa["funct3"]["addiw"] = "000"
+	isa["funct3"]["addw"] = "000"
+	isa["funct3"]["ld"] = "011"
+	isa["funct3"]["lwu"] = "110"
+	isa["funct3"]["sd"] = "011"
+	isa["funct3"]["slliw"] = "001"
+	isa["funct3"]["sllw"] = "001"
+	isa["funct3"]["sraiw"] = "101"
+	isa["funct3"]["sraw"] = "101"
+	isa["funct3"]["srliw"] = "101"
+	isa["funct3"]["srlw"] = "101"
+	isa["funct3"]["subw"] = "000"
+	isa["funct7"]["addw"] = "0000000"
+	isa["funct7"]["sllw"] = "0000000"
+	isa["funct7"]["sraw"] = "0100000"
+	isa["funct7"]["srlw"] = "0000000"
+	isa["funct7"]["subw"] = "0100000"
+	isa["isa"]["addiw"] = "RV64I"
+	isa["isa"]["addw"] = "RV64I"
+	isa["isa"]["ld"] = "RV64I"
+	isa["isa"]["lwu"] = "RV64I"
+	isa["isa"]["sd"] = "RV64I"
+	isa["isa"]["slliw"] = "RV64I"
+	isa["isa"]["sllw"] = "RV64I"
+	isa["isa"]["sraiw"] = "RV64I"
+	isa["isa"]["sraw"] = "RV64I"
+	isa["isa"]["srliw"] = "RV64I"
+	isa["isa"]["srlw"] = "RV64I"
+	isa["isa"]["subw"] = "RV64I"
+	isa["opcode"]["addiw"] = OPCODE["OP_IMM_32"]
+	isa["opcode"]["addw"] = OPCODE["OP_32"]
+	isa["opcode"]["ld"] = OPCODE["LOAD"]
+	isa["opcode"]["lwu"] = OPCODE["LOAD"]
+	isa["opcode"]["sd"] = OPCODE["STORE"]
+	isa["opcode"]["slliw"] = OPCODE["OP_IMM_32"]
+	isa["opcode"]["sllw"] = OPCODE["OP_32"]
+	isa["opcode"]["sraiw"] = OPCODE["OP_IMM_32"]
+	isa["opcode"]["sraw"] = OPCODE["OP_32"]
+	isa["opcode"]["srliw"] = OPCODE["OP_IMM_32"]
+	isa["opcode"]["srlw"] = OPCODE["OP_32"]
+	isa["opcode"]["subw"] = OPCODE["OP_32"]
+	isa["shtyp"]["slliw"] = "0"
+	isa["shtyp"]["sraiw"] = "1"
+	isa["shtyp"]["srliw"] = "0"
+
+	# RV6128I instruction set
+ 	isa["isa"]["addid"] = "RV128I" 
+ 	isa["isa"]["sllid"] = "RV128I" 
+ 	isa["isa"]["srlid"] = "RV128I" 
+ 	isa["isa"]["sraid"] = "RV128I" 
+ 	isa["isa"]["addd"] = "RV128I" 
+ 	isa["isa"]["subd"] = "RV128I" 
+ 	isa["isa"]["slld"] = "RV128I" 
+ 	isa["isa"]["srld"] = "RV128I" 
+ 	isa["isa"]["srad"] = "RV128I" 
+ 	isa["isa"]["lq"] = "RV128I" 
+ 	isa["isa"]["ldu"] = "RV128I" 
+ 	isa["isa"]["sq"] = "RV128I" 
+ 	isa["fmt"]["addid"] = "I" 
+ 	isa["fmt"]["sllid"] = "I" 
+ 	isa["fmt"]["srlid"] = "I" 
+ 	isa["fmt"]["sraid"] = "I" 
+ 	isa["fmt"]["addd"] = "R" 
+ 	isa["fmt"]["subd"] = "R" 
+ 	isa["fmt"]["slld"] = "R" 
+ 	isa["fmt"]["srld"] = "R" 
+ 	isa["fmt"]["srad"] = "R" 
+ 	isa["fmt"]["lq"] = "I" 
+ 	isa["fmt"]["ldu"] = "I" 
+ 	isa["fmt"]["sq"] = "S" 
+ 	isa["shtyp"]["sllid"] = "0" 
+ 	isa["shtyp"]["srlid"] = "0" 
+ 	isa["shtyp"]["sraid"] = "1" 
+ 	isa["funct3"]["addid"] = "000" 
+ 	isa["funct3"]["sllid"] = "001" 
+ 	isa["funct3"]["srlid"] = "101" 
+ 	isa["funct3"]["sraid"] = "101" 
+ 	isa["funct3"]["addd"] = "000" 
+ 	isa["funct3"]["subd"] = "000" 
+ 	isa["funct3"]["slld"] = "001" 
+ 	isa["funct3"]["srld"] = "101" 
+ 	isa["funct3"]["srad"] = "101" 
+ 	isa["funct3"]["lq"] = "010" 
+ 	isa["funct3"]["ldu"] = "111" 
+ 	isa["funct3"]["sq"] = "100" 
+ 	isa["funct7"]["addd"] = "0000000" 
+ 	isa["funct7"]["subd"] = "0100000" 
+ 	isa["funct7"]["slld"] = "0000000" 
+ 	isa["funct7"]["srld"] = "0000000" 
+ 	isa["funct7"]["srad"] = "0100000" 
+ 	isa["opcode"]["addid"] = OPCODE["OP_IMM_64"]
+ 	isa["opcode"]["sllid"] = OPCODE["OP_IMM_64"]
+ 	isa["opcode"]["srlid"] = OPCODE["OP_IMM_64"]
+ 	isa["opcode"]["sraid"] = OPCODE["OP_IMM_64"]
+ 	isa["opcode"]["addd"] = OPCODE["OP_64"]
+ 	isa["opcode"]["subd"] = OPCODE["OP_64"]
+ 	isa["opcode"]["slld"] = OPCODE["OP_64"]
+ 	isa["opcode"]["srld"] = OPCODE["OP_64"]
+ 	isa["opcode"]["srad"] = OPCODE["OP_64"]
+ 	isa["opcode"]["lq"] = OPCODE["MISC_MEM"]
+ 	isa["opcode"]["ldu"] = OPCODE["LOAD"]
+ 	isa["opcode"]["sq"] = OPCODE["STORE"]
+
+	# Zifence instruction set
+	isa["isa"]["fence.i"] = "Zifencei"
+	isa["fmt"]["fence.i"] = "I"
+	isa["funct3"]["fence.i"] = "001"
+	isa["opcode"]["fence.i"] = OPCODE["MISC_MEM"]
+
+	# Zicsr instruction set
+	isa["fmt"]["csrrs"] = "I"
+	isa["fmt"]["csrrw"] = "I"
+	isa["fmt"]["csrrc"] = "I"
+	isa["fmt"]["csrrwi"] = "I"
+	isa["fmt"]["csrrsi"] = "I"
+	isa["fmt"]["csrrci"] = "I"
+	isa["funct3"]["csrrs"] = "001"
+	isa["funct3"]["csrrw"] = "010"
+	isa["funct3"]["csrrc"] = "011"
+	isa["funct3"]["csrrwi"] = "101"
+	isa["funct3"]["csrrsi"] = "110"
+	isa["funct3"]["csrrci"] = "111"
+	isa["isa"]["csrrs"] = "Zicsr"
+	isa["isa"]["csrrw"] = "Zicsr"
+	isa["isa"]["csrrc"] = "Zicsr"
+	isa["isa"]["csrrwi"] = "Zicsr"
+	isa["isa"]["csrrsi"] = "Zicsr"
+	isa["isa"]["csrrci"] = "Zicsr"
+	isa["opcode"]["csrrs"] = OPCODE["SYSTEM"]
+	isa["opcode"]["csrrw"] = OPCODE["SYSTEM"]
+	isa["opcode"]["csrrc"] = OPCODE["SYSTEM"]
+	isa["opcode"]["csrrwi"] = OPCODE["SYSTEM"]
+	isa["opcode"]["csrrsi"] = OPCODE["SYSTEM"]
+	isa["opcode"]["csrrci"] = OPCODE["SYSTEM"]
+
+	# M instruction set
+	isa["fmt"]["div"] = "R"
+	isa["fmt"]["divd"] = "R"
+	isa["fmt"]["divu"] = "R"
+	isa["fmt"]["divud"] = "R"
+	isa["fmt"]["divuw"] = "R"
+	isa["fmt"]["divw"] = "R"
+	isa["fmt"]["mul"] = "R"
+	isa["fmt"]["muld"] = "R"
+	isa["fmt"]["mulh"] = "R"
+	isa["fmt"]["mulhsu"] = "R"
+	isa["fmt"]["mulhu"] = "R"
+	isa["fmt"]["mulw"] = "R"
+	isa["fmt"]["rem"] = "R"
+	isa["fmt"]["remd"] = "R"
+	isa["fmt"]["remu"] = "R"
+	isa["fmt"]["remud"] = "R"
+	isa["fmt"]["remuw"] = "R"
+	isa["fmt"]["remw"] = "R"
+	isa["funct3"]["div"] = "100"
+	isa["funct3"]["divd"] = "100"
+	isa["funct3"]["divu"] = "101"
+	isa["funct3"]["divud"] = "101"
+	isa["funct3"]["divuw"] = "101"
+	isa["funct3"]["divw"] = "100"
+	isa["funct3"]["mul"] = "000"
+	isa["funct3"]["muld"] = "000"
+	isa["funct3"]["mulh"] = "001"
+	isa["funct3"]["mulhsu"] = "010"
+	isa["funct3"]["mulhu"] = "011"
+	isa["funct3"]["mulw"] = "000"
+	isa["funct3"]["rem"] = "110"
+	isa["funct3"]["remd"] = "110"
+	isa["funct3"]["remu"] = "111"
+	isa["funct3"]["remud"] = "111"
+	isa["funct3"]["remuw"] = "111"
+	isa["funct3"]["remw"] = "110"
+	isa["funct7"]["div"] = "0000001"
+	isa["funct7"]["divd"] = "0000001"
+	isa["funct7"]["divu"] = "0000001"
+	isa["funct7"]["divud"] = "0000001"
+	isa["funct7"]["divuw"] = "0000001"
+	isa["funct7"]["divw"] = "0000001"
+	isa["funct7"]["mul"] = "0000001"
+	isa["funct7"]["muld"] = "0000001"
+	isa["funct7"]["mulh"] = "0000001"
+	isa["funct7"]["mulhsu"] = "0000001"
+	isa["funct7"]["mulhu"] = "0000001"
+	isa["funct7"]["mulw"] = "0000001"
+	isa["funct7"]["rem"] = "0000001"
+	isa["funct7"]["remd"] = "0000001"
+	isa["funct7"]["remu"] = "0000001"
+	isa["funct7"]["remud"] = "0000001"
+	isa["funct7"]["remuw"] = "0000001"
+	isa["funct7"]["remw"] = "0000001"
+	isa["isa"]["div"] = "RV32M"
+	isa["isa"]["divd"] = "RV128M"
+	isa["isa"]["divu"] = "RV32M"
+	isa["isa"]["divud"] = "RV128M"
+	isa["isa"]["divuw"] = "RV64M"
+	isa["isa"]["divw"] = "RV64M"
+	isa["isa"]["mul"] = "RV32M"
+	isa["isa"]["muld"] = "RV128M"
+	isa["isa"]["mulh"] = "RV32M"
+	isa["isa"]["mulhsu"] = "RV32M"
+	isa["isa"]["mulhu"] = "RV32M"
+	isa["isa"]["mulw"] = "RV64M"
+	isa["isa"]["rem"] = "RV32M"
+	isa["isa"]["remd"] = "RV128M"
+	isa["isa"]["remu"] = "RV32M"
+	isa["isa"]["remud"] = "RV128M"
+	isa["isa"]["remuw"] = "RV64M"
+	isa["isa"]["remw"] = "RV64M"
+	isa["opcode"]["div"] = OPCODE["OP"]
+	isa["opcode"]["divd"] = OPCODE["OP_64"]
+	isa["opcode"]["divu"] = OPCODE["OP"]
+	isa["opcode"]["divud"] = OPCODE["OP_64"]
+	isa["opcode"]["divuw"] = OPCODE["OP_32"]
+	isa["opcode"]["divw"] = OPCODE["OP_32"]
+	isa["opcode"]["mul"] = OPCODE["OP"]
+	isa["opcode"]["muld"] = OPCODE["OP_64"]
+	isa["opcode"]["mulh"] = OPCODE["OP"]
+	isa["opcode"]["mulhsu"] = OPCODE["OP"]
+	isa["opcode"]["mulhu"] = OPCODE["OP"]
+	isa["opcode"]["mulw"] = OPCODE["OP_32"]
+	isa["opcode"]["rem"] = OPCODE["OP"]
+	isa["opcode"]["remd"] = OPCODE["OP_64"]
+	isa["opcode"]["remu"] = OPCODE["OP"]
+	isa["opcode"]["remud"] = OPCODE["OP_64"]
+	isa["opcode"]["remuw"] = OPCODE["OP_32"]
+	isa["opcode"]["remw"] = OPCODE["OP_32"]
+
+	# A instruction set
+	isa["fmt"]["amoadd.d"] = "R"
+	isa["fmt"]["amoadd.q"] = "R"
+	isa["fmt"]["amoadd.w"] = "R"
+	isa["fmt"]["amoand.d"] = "R"
+	isa["fmt"]["amoand.q"] = "R"
+	isa["fmt"]["amoand.w"] = "R"
+	isa["fmt"]["amomax.d"] = "R"
+	isa["fmt"]["amomax.q"] = "R"
+	isa["fmt"]["amomax.w"] = "R"
+	isa["fmt"]["amomaxu.d"] = "R"
+	isa["fmt"]["amomaxu.q"] = "R"
+	isa["fmt"]["amomaxu.w"] = "R"
+	isa["fmt"]["amomin.d"] = "R"
+	isa["fmt"]["amomin.q"] = "R"
+	isa["fmt"]["amomin.w"] = "R"
+	isa["fmt"]["amominu.d"] = "R"
+	isa["fmt"]["amominu.q"] = "R"
+	isa["fmt"]["amominu.w"] = "R"
+	isa["fmt"]["amoor.d"] = "R"
+	isa["fmt"]["amoor.q"] = "R"
+	isa["fmt"]["amoor.w"] = "R"
+	isa["fmt"]["amoswap.d"] = "R"
+	isa["fmt"]["amoswap.q"] = "R"
+	isa["fmt"]["amoswap.w"] = "R"
+	isa["fmt"]["amoxor.d"] = "R"
+	isa["fmt"]["amoxor.q"] = "R"
+	isa["fmt"]["amoxor.w"] = "R"
+	isa["fmt"]["lr.d"] = "R"
+	isa["fmt"]["lr.q"] = "R"
+	isa["fmt"]["lr.w"] = "R"
+	isa["fmt"]["sc.d"] = "R"
+	isa["fmt"]["sc.q"] = "R"
+	isa["fmt"]["sc.w"] = "R"
+	isa["funct3"]["amoadd.d"] = "011"
+	isa["funct3"]["amoadd.q"] = "100"
+	isa["funct3"]["amoadd.w"] = "010"
+	isa["funct3"]["amoand.d"] = "011"
+	isa["funct3"]["amoand.q"] = "100"
+	isa["funct3"]["amoand.w"] = "010"
+	isa["funct3"]["amomax.d"] = "011"
+	isa["funct3"]["amomax.q"] = "100"
+	isa["funct3"]["amomax.w"] = "010"
+	isa["funct3"]["amomaxu.d"] = "011"
+	isa["funct3"]["amomaxu.q"] = "100"
+	isa["funct3"]["amomaxu.w"] = "010"
+	isa["funct3"]["amomin.d"] = "011"
+	isa["funct3"]["amomin.q"] = "100"
+	isa["funct3"]["amomin.w"] = "010"
+	isa["funct3"]["amominu.d"] = "011"
+	isa["funct3"]["amominu.q"] = "100"
+	isa["funct3"]["amominu.w"] = "010"
+	isa["funct3"]["amoor.d"] = "011"
+	isa["funct3"]["amoor.q"] = "100"
+	isa["funct3"]["amoor.w"] = "010"
+	isa["funct3"]["amoswap.d"] = "011"
+	isa["funct3"]["amoswap.q"] = "100"
+	isa["funct3"]["amoswap.w"] = "010"
+	isa["funct3"]["amoxor.d"] = "011"
+	isa["funct3"]["amoxor.q"] = "100"
+	isa["funct3"]["amoxor.w"] = "010"
+	isa["funct3"]["lr.d"] = "011"
+	isa["funct3"]["lr.q"] = "100"
+	isa["funct3"]["lr.w"] = "010"
+	isa["funct3"]["sc.d"] = "011"
+	isa["funct3"]["sc.q"] = "100"
+	isa["funct3"]["sc.w"] = "010"
+	isa["funct5"]["amoadd.d"] = "00000"
+	isa["funct5"]["amoadd.q"] = "00000"
+	isa["funct5"]["amoadd.w"] = "00000"
+	isa["funct5"]["amoand.d"] = "01100"
+	isa["funct5"]["amoand.q"] = "01100"
+	isa["funct5"]["amoand.w"] = "01100"
+	isa["funct5"]["amomax.d"] = "10100"
+	isa["funct5"]["amomax.q"] = "10100"
+	isa["funct5"]["amomax.w"] = "10100"
+	isa["funct5"]["amomaxu.d"] = "11100"
+	isa["funct5"]["amomaxu.q"] = "11100"
+	isa["funct5"]["amomaxu.w"] = "11100"
+	isa["funct5"]["amomin.d"] = "10000"
+	isa["funct5"]["amomin.q"] = "10000"
+	isa["funct5"]["amomin.w"] = "10000"
+	isa["funct5"]["amominu.d"] = "11000"
+	isa["funct5"]["amominu.q"] = "11000"
+	isa["funct5"]["amominu.w"] = "11000"
+	isa["funct5"]["amoor.d"] = "01000"
+	isa["funct5"]["amoor.q"] = "01000"
+	isa["funct5"]["amoor.w"] = "01000"
+	isa["funct5"]["amoswap.d"] = "00001"
+	isa["funct5"]["amoswap.q"] = "00001"
+	isa["funct5"]["amoswap.w"] = "00001"
+	isa["funct5"]["amoxor.d"] = "00100"
+	isa["funct5"]["amoxor.q"] = "00100"
+	isa["funct5"]["amoxor.w"] = "00100"
+	isa["funct5"]["lr.d"] = "00010"
+	isa["funct5"]["lr.q"] = "00010"
+	isa["funct5"]["lr.w"] = "00010"
+	isa["funct5"]["sc.d"] = "00011"
+	isa["funct5"]["sc.q"] = "00011"
+	isa["funct5"]["sc.w"] = "00011"
+	isa["isa"]["amoadd.d"] = "RV64A"
+	isa["isa"]["amoadd.q"] = "RV128A"
+	isa["isa"]["amoadd.w"] = "RV32A"
+	isa["isa"]["amoand.d"] = "RV64A"
+	isa["isa"]["amoand.q"] = "RV128A"
+	isa["isa"]["amoand.w"] = "RV32A"
+	isa["isa"]["amomax.d"] = "RV64A"
+	isa["isa"]["amomax.q"] = "RV128A"
+	isa["isa"]["amomax.w"] = "RV32A"
+	isa["isa"]["amomaxu.d"] = "RV64A"
+	isa["isa"]["amomaxu.q"] = "RV128A"
+	isa["isa"]["amomaxu.w"] = "RV32A"
+	isa["isa"]["amomin.d"] = "RV64A"
+	isa["isa"]["amomin.q"] = "RV128A"
+	isa["isa"]["amomin.w"] = "RV32A"
+	isa["isa"]["amominu.d"] = "RV64A"
+	isa["isa"]["amominu.q"] = "RV128A"
+	isa["isa"]["amominu.w"] = "RV32A"
+	isa["isa"]["amoor.d"] = "RV64A"
+	isa["isa"]["amoor.q"] = "RV128A"
+	isa["isa"]["amoor.w"] = "RV32A"
+	isa["isa"]["amoswap.d"] = "RV64A"
+	isa["isa"]["amoswap.q"] = "RV128A"
+	isa["isa"]["amoswap.w"] = "RV32A"
+	isa["isa"]["amoxor.d"] = "RV64A"
+	isa["isa"]["amoxor.q"] = "RV128A"
+	isa["isa"]["amoxor.w"] = "RV32A"
+	isa["isa"]["lr.d"] = "RV64A"
+	isa["isa"]["lr.q"] = "RV128A"
+	isa["isa"]["lr.w"] = "RV32A"
+	isa["isa"]["sc.d"] = "RV64A"
+	isa["isa"]["sc.q"] = "RV128A"
+	isa["isa"]["sc.w"] = "RV32A"
+	isa["opcode"]["amoadd.d"] = OPCODE["AMO"]
+	isa["opcode"]["amoadd.q"] = OPCODE["AMO"]
+	isa["opcode"]["amoadd.w"] = OPCODE["AMO"]
+	isa["opcode"]["amoand.d"] = OPCODE["AMO"]
+	isa["opcode"]["amoand.q"] = OPCODE["AMO"]
+	isa["opcode"]["amoand.w"] = OPCODE["AMO"]
+	isa["opcode"]["amomax.d"] = OPCODE["AMO"]
+	isa["opcode"]["amomax.q"] = OPCODE["AMO"]
+	isa["opcode"]["amomax.w"] = OPCODE["AMO"]
+	isa["opcode"]["amomaxu.d"] = OPCODE["AMO"]
+	isa["opcode"]["amomaxu.q"] = OPCODE["AMO"]
+	isa["opcode"]["amomaxu.w"] = OPCODE["AMO"]
+	isa["opcode"]["amomin.d"] = OPCODE["AMO"]
+	isa["opcode"]["amomin.q"] = OPCODE["AMO"]
+	isa["opcode"]["amomin.w"] = OPCODE["AMO"]
+	isa["opcode"]["amominu.d"] = OPCODE["AMO"]
+	isa["opcode"]["amominu.q"] = OPCODE["AMO"]
+	isa["opcode"]["amominu.w"] = OPCODE["AMO"]
+	isa["opcode"]["amoor.d"] = OPCODE["AMO"]
+	isa["opcode"]["amoor.q"] = OPCODE["AMO"]
+	isa["opcode"]["amoor.w"] = OPCODE["AMO"]
+	isa["opcode"]["amoswap.d"] = OPCODE["AMO"]
+	isa["opcode"]["amoswap.q"] = OPCODE["AMO"]
+	isa["opcode"]["amoswap.w"] = OPCODE["AMO"]
+	isa["opcode"]["amoxor.d"] = OPCODE["AMO"]
+	isa["opcode"]["amoxor.q"] = OPCODE["AMO"]
+	isa["opcode"]["amoxor.w"] = OPCODE["AMO"]
+	isa["opcode"]["lr.d"] = OPCODE["AMO"]
+	isa["opcode"]["lr.q"] = OPCODE["AMO"]
+	isa["opcode"]["lr.w"] = OPCODE["AMO"]
+	isa["opcode"]["sc.d"] = OPCODE["AMO"]
+	isa["opcode"]["sc.q"] = OPCODE["AMO"]
+	isa["opcode"]["sc.w"] = OPCODE["AMO"]
+
+	# F instruction set
+	isa["fmt"]["fadd.s"] = "R"
+	isa["fmt"]["fclass.s"] = "R"
+	isa["fmt"]["fcvt.l.s"] = "R"
+	isa["fmt"]["fcvt.lu.s"] = "R"
+	isa["fmt"]["fcvt.s.l"] = "R"
+	isa["fmt"]["fcvt.s.lu"] = "R"
+	isa["fmt"]["fcvt.s.t"] = "R"
+	isa["fmt"]["fcvt.s.tu"] = "R"
+	isa["fmt"]["fcvt.s.w"] = "R"
+	isa["fmt"]["fcvt.s.wu"] = "R"
+	isa["fmt"]["fcvt.t.s"] = "R"
+	isa["fmt"]["fcvt.tu.s"] = "R"
+	isa["fmt"]["fcvt.w.s"] = "R"
+	isa["fmt"]["fcvt.wu.s"] = "R"
+	isa["fmt"]["fdiv.s"] = "R"
+	isa["fmt"]["feq.s"] = "R"
+	isa["fmt"]["fle.s"] = "R"
+	isa["fmt"]["flt.s"] = "R"
+	isa["fmt"]["flw"] = "I"
+	isa["fmt"]["fmadd.s"] = "R4"
+	isa["fmt"]["fmax.s"] = "R"
+	isa["fmt"]["fmin.s"] = "R"
+	isa["fmt"]["fmsub.s"] = "R4"
+	isa["fmt"]["fmul.s"] = "R"
+	isa["fmt"]["fmv.w.x"] = "R"
+	isa["fmt"]["fmv.x.w"] = "R"
+	isa["fmt"]["fnmadd.s"] = "R4"
+	isa["fmt"]["fnmsub.s"] = "R4"
+	isa["fmt"]["fsgnj.s"] = "R"
+	isa["fmt"]["fsgnjn.s"] = "R"
+	isa["fmt"]["fsgnjx.s"] = "R"
+	isa["fmt"]["fsqrt.s"] = "R"
+	isa["fmt"]["fsub.s"] = "R"
+	isa["fmt"]["fsw"] = "S"
+	isa["fp_fmt"]["fadd.s"] = FP_FMT["S"]
+	isa["fp_fmt"]["fclass.s"] = FP_FMT["S"]
+	isa["fp_fmt"]["fcvt.l.s"] = FP_FMT["S"]
+	isa["fp_fmt"]["fcvt.lu.s"] = FP_FMT["S"]
+	isa["fp_fmt"]["fcvt.s.l"] = FP_FMT["S"]
+	isa["fp_fmt"]["fcvt.s.lu"] = FP_FMT["S"]
+	isa["fp_fmt"]["fcvt.s.t"] = FP_FMT["S"]
+	isa["fp_fmt"]["fcvt.s.tu"] = FP_FMT["S"]
+	isa["fp_fmt"]["fcvt.s.w"] = FP_FMT["S"]
+	isa["fp_fmt"]["fcvt.s.wu"] = FP_FMT["S"]
+	isa["fp_fmt"]["fcvt.t.s"] = FP_FMT["S"]
+	isa["fp_fmt"]["fcvt.tu.s"] = FP_FMT["S"]
+	isa["fp_fmt"]["fcvt.w.s"] = FP_FMT["S"]
+	isa["fp_fmt"]["fcvt.wu.s"] = FP_FMT["S"]
+	isa["fp_fmt"]["fdiv.s"] = FP_FMT["S"]
+	isa["fp_fmt"]["feq.s"] = FP_FMT["S"]
+	isa["fp_fmt"]["fle.s"] = FP_FMT["S"]
+	isa["fp_fmt"]["flt.s"] = FP_FMT["S"]
+	isa["fp_fmt"]["fmadd.s"] = FP_FMT["S"]
+	isa["fp_fmt"]["fmax.s"] = FP_FMT["S"]
+	isa["fp_fmt"]["fmin.s"] = FP_FMT["S"]
+	isa["fp_fmt"]["fmsub.s"] = FP_FMT["S"]
+	isa["fp_fmt"]["fmul.s"] = FP_FMT["S"]
+	isa["fp_fmt"]["fmv.w.x"] = FP_FMT["S"]
+	isa["fp_fmt"]["fmv.x.w"] = FP_FMT["S"]
+	isa["fp_fmt"]["fnmadd.s"] = FP_FMT["S"]
+	isa["fp_fmt"]["fnmsub.s"] = FP_FMT["S"]
+	isa["fp_fmt"]["fsgnj.s"] = FP_FMT["S"]
+	isa["fp_fmt"]["fsgnjn.s"] = FP_FMT["S"]
+	isa["fp_fmt"]["fsgnjx.s"] = FP_FMT["S"]
+	isa["fp_fmt"]["fsqrt.s"] = FP_FMT["S"]
+	isa["fp_fmt"]["fsub.s"] = FP_FMT["S"]
+	isa["funct3"]["fclass.s"] = "001"
+	isa["funct3"]["feq.s"] = "010"
+	isa["funct3"]["fle.s"] = "000"
+	isa["funct3"]["flt.s"] = "001"
+	isa["funct3"]["flw"] = FP_WIDTH["S"]
+	isa["funct3"]["fmax.s"] = "001"
+	isa["funct3"]["fmin.s"] = "000"
+	isa["funct3"]["fmv.w.x"] = "000"
+	isa["funct3"]["fmv.x.w"] = "000"
+	isa["funct3"]["fsgnj.s"] = "000"
+	isa["funct3"]["fsgnjn.s"] = "001"
+	isa["funct3"]["fsgnjx.s"] = "010"
+	isa["funct3"]["fsw"] = FP_WIDTH["S"]
+	isa["funct5"]["fadd.s"] = "00000"
+	isa["funct5"]["fclass.s"] = "11100"
+	isa["funct5"]["fcvt.l.s"] = "11000"
+	isa["funct5"]["fcvt.lu.s"] = "11000"
+	isa["funct5"]["fcvt.s.l"] = "11010"
+	isa["funct5"]["fcvt.s.lu"] = "11010"
+	isa["funct5"]["fcvt.s.t"] = "11010"
+	isa["funct5"]["fcvt.s.tu"] = "11010"
+	isa["funct5"]["fcvt.s.w"] = "11010"
+	isa["funct5"]["fcvt.s.wu"] = "11010"
+	isa["funct5"]["fcvt.t.s"] = "11000"
+	isa["funct5"]["fcvt.tu.s"] = "11000"
+	isa["funct5"]["fcvt.w.s"] = "11000"
+	isa["funct5"]["fcvt.wu.s"] = "11000"
+	isa["funct5"]["fdiv.s"] = "00011"
+	isa["funct5"]["feq.s"] = "10100"
+	isa["funct5"]["fle.s"] = "10100"
+	isa["funct5"]["flt.s"] = "10100"
+	isa["funct5"]["fmax.s"] = "00101"
+	isa["funct5"]["fmin.s"] = "00101"
+	isa["funct5"]["fmul.s"] = "00010"
+	isa["funct5"]["fmv.w.x"] = "11110"
+	isa["funct5"]["fmv.x.w"] = "11100"
+	isa["funct5"]["fsgnj.s"] = "00100"
+	isa["funct5"]["fsgnjn.s"] = "00100"
+	isa["funct5"]["fsgnjx.s"] = "00100"
+	isa["funct5"]["fsqrt.s"] = "01011"
+	isa["funct5"]["fsub.s"] = "00001"
+	isa["isa"]["fadd.s"] = "RV32F"
+	isa["isa"]["fclass.s"] = "RV32F"
+	isa["isa"]["fcvt.l.s"] = "RV64F"
+	isa["isa"]["fcvt.lu.s"] = "RV64F"
+	isa["isa"]["fcvt.s.l"] = "RV64F"
+	isa["isa"]["fcvt.s.lu"] = "RV64F"
+	isa["isa"]["fcvt.s.t"] = "RV128F"
+	isa["isa"]["fcvt.s.tu"] = "RV128F"
+	isa["isa"]["fcvt.s.w"] = "RV32F"
+	isa["isa"]["fcvt.s.wu"] = "RV32F"
+	isa["isa"]["fcvt.t.s"] = "RV128F"
+	isa["isa"]["fcvt.tu.s"] = "RV128F"
+	isa["isa"]["fcvt.w.s"] = "RV32F"
+	isa["isa"]["fcvt.wu.s"] = "RV32F"
+	isa["isa"]["fdiv.s"] = "RV32F"
+	isa["isa"]["feq.s"] = "RV32F"
+	isa["isa"]["fle.s"] = "RV32F"
+	isa["isa"]["flt.s"] = "RV32F"
+	isa["isa"]["flw"] = "RV32F"
+	isa["isa"]["fmadd.s"] = "RV32F"
+	isa["isa"]["fmax.s"] = "RV32F"
+	isa["isa"]["fmin.s"] = "RV32F"
+	isa["isa"]["fmsub.s"] = "RV32F"
+	isa["isa"]["fmul.s"] = "RV32F"
+	isa["isa"]["fmv.w.x"] = "RV32F"
+	isa["isa"]["fmv.x.w"] = "RV32F"
+	isa["isa"]["fnmadd.s"] = "RV32F"
+	isa["isa"]["fnmsub.s"] = "RV32F"
+	isa["isa"]["fsgnj.s"] = "RV32F"
+	isa["isa"]["fsgnjn.s"] = "RV32F"
+	isa["isa"]["fsgnjx.s"] = "RV32F"
+	isa["isa"]["fsqrt.s"] = "RV32F"
+	isa["isa"]["fsub.s"] = "RV32F"
+	isa["isa"]["fsw"] = "RV32F"
+	isa["opcode"]["fadd.s"] = OPCODE["OP_FP"]
+	isa["opcode"]["fclass.s"] = OPCODE["OP_FP"]
+	isa["opcode"]["fcvt.l.s"] = OPCODE["OP_FP"]
+	isa["opcode"]["fcvt.lu.s"] = OPCODE["OP_FP"]
+	isa["opcode"]["fcvt.s.l"] = OPCODE["OP_FP"]
+	isa["opcode"]["fcvt.s.lu"] = OPCODE["OP_FP"]
+	isa["opcode"]["fcvt.s.t"] = OPCODE["OP_FP"]
+	isa["opcode"]["fcvt.s.tu"] = OPCODE["OP_FP"]
+	isa["opcode"]["fcvt.s.w"] = OPCODE["OP_FP"]
+	isa["opcode"]["fcvt.s.wu"] = OPCODE["OP_FP"]
+	isa["opcode"]["fcvt.t.s"] = OPCODE["OP_FP"]
+	isa["opcode"]["fcvt.tu.s"] = OPCODE["OP_FP"]
+	isa["opcode"]["fcvt.w.s"] = OPCODE["OP_FP"]
+	isa["opcode"]["fcvt.wu.s"] = OPCODE["OP_FP"]
+	isa["opcode"]["fdiv.s"] = OPCODE["OP_FP"]
+	isa["opcode"]["feq.s"] = OPCODE["OP_FP"]
+	isa["opcode"]["fle.s"] = OPCODE["OP_FP"]
+	isa["opcode"]["flt.s"] = OPCODE["OP_FP"]
+	isa["opcode"]["flw"] = OPCODE["LOAD_FP"]
+	isa["opcode"]["fmadd.s"] = OPCODE["MADD"]
+	isa["opcode"]["fmax.s"] = OPCODE["OP_FP"]
+	isa["opcode"]["fmin.s"] = OPCODE["OP_FP"]
+	isa["opcode"]["fmsub.s"] = OPCODE["MSUB"]
+	isa["opcode"]["fmul.s"] = OPCODE["OP_FP"]
+	isa["opcode"]["fmv.w.x"] = OPCODE["OP_FP"]
+	isa["opcode"]["fmv.x.w"] = OPCODE["OP_FP"]
+	isa["opcode"]["fnmadd.s"] = OPCODE["NMADD"]
+	isa["opcode"]["fnmsub.s"] = OPCODE["NMSUB"]
+	isa["opcode"]["fsgnj.s"] = OPCODE["OP_FP"]
+	isa["opcode"]["fsgnjn.s"] = OPCODE["OP_FP"]
+	isa["opcode"]["fsgnjx.s"] = OPCODE["OP_FP"]
+	isa["opcode"]["fsqrt.s"] = OPCODE["OP_FP"]
+	isa["opcode"]["fsub.s"] = OPCODE["OP_FP"]
+	isa["opcode"]["fsw"] = OPCODE["STORE_FP"]
+	isa["rs2"]["fclass.s"] = "00000"
+	isa["rs2"]["fcvt.l.s"] = "00010"
+	isa["rs2"]["fcvt.lu.s"] = "00011"
+	isa["rs2"]["fcvt.s.l"] = "00010"
+	isa["rs2"]["fcvt.s.lu"] = "00011"
+	isa["rs2"]["fcvt.s.t"] = "00100"
+	isa["rs2"]["fcvt.s.tu"] = "00101"
+	isa["rs2"]["fcvt.s.w"] = "00000"
+	isa["rs2"]["fcvt.s.wu"] = "00001"
+	isa["rs2"]["fcvt.t.s"] = "00100"
+	isa["rs2"]["fcvt.tu.s"] = "00101"
+	isa["rs2"]["fcvt.w.s"] = "00000"
+	isa["rs2"]["fcvt.wu.s"] = "00001"
+	isa["rs2"]["fmv.w.x"] = "00000"
+	isa["rs2"]["fmv.x.w"] = "00000"
+	isa["rs2"]["fsqrt.s"] = "00000"
+
+	# D instruction set
+	isa["fmt"]["fadd.d"] = "R"
+	isa["fmt"]["fclass.d"] = "R"
+	isa["fmt"]["fcvt.d.l"] = "R"
+	isa["fmt"]["fcvt.d.lu"] = "R"
+	isa["fmt"]["fcvt.d.s"] = "R"
+	isa["fmt"]["fcvt.d.t"] = "R"
+	isa["fmt"]["fcvt.d.tu"] = "R"
+	isa["fmt"]["fcvt.d.w"] = "R"
+	isa["fmt"]["fcvt.d.wu"] = "R"
+	isa["fmt"]["fcvt.l.d"] = "R"
+	isa["fmt"]["fcvt.lu.d"] = "R"
+	isa["fmt"]["fcvt.s.d"] = "R"
+	isa["fmt"]["fcvt.t.d"] = "R"
+	isa["fmt"]["fcvt.tu.d"] = "R"
+	isa["fmt"]["fcvt.w.d"] = "R"
+	isa["fmt"]["fcvt.wu.d"] = "R"
+	isa["fmt"]["fdiv.d"] = "R"
+	isa["fmt"]["feq.d"] = "R"
+	isa["fmt"]["fld"] = "I"
+	isa["fmt"]["fle.d"] = "R"
+	isa["fmt"]["flt.d"] = "R"
+	isa["fmt"]["fmadd.d"] = "R4"
+	isa["fmt"]["fmax.d"] = "R"
+	isa["fmt"]["fmin.d"] = "R"
+	isa["fmt"]["fmsub.d"] = "R4"
+	isa["fmt"]["fmul.d"] = "R"
+	isa["fmt"]["fmv.d.x"] = "R"
+	isa["fmt"]["fmv.x.d"] = "R"
+	isa["fmt"]["fnmadd.d"] = "R4"
+	isa["fmt"]["fnmsub.d"] = "R4"
+	isa["fmt"]["fsd"] = "S"
+	isa["fmt"]["fsgnj.d"] = "R"
+	isa["fmt"]["fsgnjn.d"] = "R"
+	isa["fmt"]["fsgnjx.d"] = "R"
+	isa["fmt"]["fsqrt.d"] = "R"
+	isa["fmt"]["fsub.d"] = "R"
+	isa["fp_fmt"]["fadd.d"] = FP_FMT["D"]
+	isa["fp_fmt"]["fclass.d"] = FP_FMT["D"]
+	isa["fp_fmt"]["fcvt.d.l"] = FP_FMT["D"]
+	isa["fp_fmt"]["fcvt.d.lu"] = FP_FMT["D"]
+	isa["fp_fmt"]["fcvt.d.s"] = FP_FMT["D"]
+	isa["fp_fmt"]["fcvt.d.t"] = FP_FMT["D"]
+	isa["fp_fmt"]["fcvt.d.tu"] = FP_FMT["D"]
+	isa["fp_fmt"]["fcvt.d.w"] = FP_FMT["D"]
+	isa["fp_fmt"]["fcvt.d.wu"] = FP_FMT["D"]
+	isa["fp_fmt"]["fcvt.l.d"] = FP_FMT["D"]
+	isa["fp_fmt"]["fcvt.lu.d"] = FP_FMT["D"]
+	isa["fp_fmt"]["fcvt.s.d"] = FP_FMT["S"]
+	isa["fp_fmt"]["fcvt.t.d"] = FP_FMT["D"]
+	isa["fp_fmt"]["fcvt.tu.d"] = FP_FMT["D"]
+	isa["fp_fmt"]["fcvt.w.d"] = FP_FMT["D"]
+	isa["fp_fmt"]["fcvt.wu.d"] = FP_FMT["D"]
+	isa["fp_fmt"]["fdiv.d"] = FP_FMT["D"]
+	isa["fp_fmt"]["feq.d"] = FP_FMT["D"]
+	isa["fp_fmt"]["fle.d"] = FP_FMT["D"]
+	isa["fp_fmt"]["flt.d"] = FP_FMT["D"]
+	isa["fp_fmt"]["fmadd.d"] = FP_FMT["D"]
+	isa["fp_fmt"]["fmax.d"] = FP_FMT["D"]
+	isa["fp_fmt"]["fmin.d"] = FP_FMT["D"]
+	isa["fp_fmt"]["fmsub.d"] = FP_FMT["D"]
+	isa["fp_fmt"]["fmul.d"] = FP_FMT["D"]
+	isa["fp_fmt"]["fmv.d.x"] = FP_FMT["D"]
+	isa["fp_fmt"]["fmv.x.d"] = FP_FMT["D"]
+	isa["fp_fmt"]["fnmadd.d"] = FP_FMT["D"]
+	isa["fp_fmt"]["fnmsub.d"] = FP_FMT["D"]
+	isa["fp_fmt"]["fsgnj.d"] = FP_FMT["D"]
+	isa["fp_fmt"]["fsgnjn.d"] = FP_FMT["D"]
+	isa["fp_fmt"]["fsgnjx.d"] = FP_FMT["D"]
+	isa["fp_fmt"]["fsqrt.d"] = FP_FMT["D"]
+	isa["fp_fmt"]["fsub.d"] = FP_FMT["D"]
+	isa["funct3"]["fclass.d"] = "001"
+	isa["funct3"]["feq.d"] = "010"
+	isa["funct3"]["fld"] = FP_WIDTH["D"]
+	isa["funct3"]["fle.d"] = "000"
+	isa["funct3"]["flt.d"] = "001"
+	isa["funct3"]["fmax.d"] = "001"
+	isa["funct3"]["fmin.d"] = "000"
+	isa["funct3"]["fmv.d.x"] = "000"
+	isa["funct3"]["fmv.x.d"] = "000"
+	isa["funct3"]["fsd"] = FP_WIDTH["D"]
+	isa["funct3"]["fsgnj.d"] = "000"
+	isa["funct3"]["fsgnjn.d"] = "001"
+	isa["funct3"]["fsgnjx.d"] = "010"
+	isa["funct5"]["fadd.d"] = "00000"
+	isa["funct5"]["fclass.d"] = "11100"
+	isa["funct5"]["fcvt.d.l"] = "11010"
+	isa["funct5"]["fcvt.d.lu"] = "11010"
+	isa["funct5"]["fcvt.d.s"] = "01000"
+	isa["funct5"]["fcvt.d.t"] = "11010"
+	isa["funct5"]["fcvt.d.tu"] = "11010"
+	isa["funct5"]["fcvt.d.w"] = "11010"
+	isa["funct5"]["fcvt.d.wu"] = "11010"
+	isa["funct5"]["fcvt.l.d"] = "11000"
+	isa["funct5"]["fcvt.lu.d"] = "11000"
+	isa["funct5"]["fcvt.s.d"] = "01000"
+	isa["funct5"]["fcvt.t.d"] = "11000"
+	isa["funct5"]["fcvt.tu.d"] = "11000"
+	isa["funct5"]["fcvt.w.d"] = "11000"
+	isa["funct5"]["fcvt.wu.d"] = "11000"
+	isa["funct5"]["fdiv.d"] = "00011"
+	isa["funct5"]["feq.d"] = "10100"
+	isa["funct5"]["fle.d"] = "10100"
+	isa["funct5"]["flt.d"] = "10100"
+	isa["funct5"]["fmax.d"] = "00101"
+	isa["funct5"]["fmin.d"] = "00101"
+	isa["funct5"]["fmul.d"] = "00010"
+	isa["funct5"]["fmv.d.x"] = "11110"
+	isa["funct5"]["fmv.x.d"] = "11100"
+	isa["funct5"]["fsgnj.d"] = "00100"
+	isa["funct5"]["fsgnjn.d"] = "00100"
+	isa["funct5"]["fsgnjx.d"] = "00100"
+	isa["funct5"]["fsqrt.d"] = "01011"
+	isa["funct5"]["fsub.d"] = "00001"
+	isa["isa"]["fadd.d"] = "RV32D"
+	isa["isa"]["fclass.d"] = "RV32D"
+	isa["isa"]["fcvt.d.l"] = "RV64D"
+	isa["isa"]["fcvt.d.lu"] = "RV64D"
+	isa["isa"]["fcvt.d.s"] = "RV32D"
+	isa["isa"]["fcvt.d.t"] = "RV128D"
+	isa["isa"]["fcvt.d.tu"] = "RV128D"
+	isa["isa"]["fcvt.d.w"] = "RV32D"
+	isa["isa"]["fcvt.d.wu"] = "RV32D"
+	isa["isa"]["fcvt.l.d"] = "RV64D"
+	isa["isa"]["fcvt.lu.d"] = "RV64D"
+	isa["isa"]["fcvt.s.d"] = "RV32D"
+	isa["isa"]["fcvt.t.d"] = "RV128D"
+	isa["isa"]["fcvt.tu.d"] = "RV128D"
+	isa["isa"]["fcvt.w.d"] = "RV32D"
+	isa["isa"]["fcvt.wu.d"] = "RV32D"
+	isa["isa"]["fdiv.d"] = "RV32D"
+	isa["isa"]["feq.d"] = "RV32D"
+	isa["isa"]["fld"] = "RV32D"
+	isa["isa"]["fle.d"] = "RV32D"
+	isa["isa"]["flt.d"] = "RV32D"
+	isa["isa"]["fmadd.d"] = "RV32D"
+	isa["isa"]["fmax.d"] = "RV32D"
+	isa["isa"]["fmin.d"] = "RV32D"
+	isa["isa"]["fmsub.d"] = "RV32D"
+	isa["isa"]["fmul.d"] = "RV32D"
+	isa["isa"]["fmv.d.x"] = "RV64D"
+	isa["isa"]["fmv.x.d"] = "RV64D"
+	isa["isa"]["fnmadd.d"] = "RV32D"
+	isa["isa"]["fnmsub.d"] = "RV32D"
+	isa["isa"]["fsd"] = "RV32D"
+	isa["isa"]["fsgnj.d"] = "RV32D"
+	isa["isa"]["fsgnjn.d"] = "RV32D"
+	isa["isa"]["fsgnjx.d"] = "RV32D"
+	isa["isa"]["fsqrt.d"] = "RV32D"
+	isa["isa"]["fsub.d"] = "RV32D"
+	isa["opcode"]["fadd.d"] = OPCODE["OP_FP"]
+	isa["opcode"]["fclass.d"] = OPCODE["OP_FP"]
+	isa["opcode"]["fcvt.d.l"] = OPCODE["OP_FP"]
+	isa["opcode"]["fcvt.d.lu"] = OPCODE["OP_FP"]
+	isa["opcode"]["fcvt.d.s"] = OPCODE["OP_FP"]
+	isa["opcode"]["fcvt.d.t"] = OPCODE["OP_FP"]
+	isa["opcode"]["fcvt.d.tu"] = OPCODE["OP_FP"]
+	isa["opcode"]["fcvt.d.w"] = OPCODE["OP_FP"]
+	isa["opcode"]["fcvt.d.wu"] = OPCODE["OP_FP"]
+	isa["opcode"]["fcvt.l.d"] = OPCODE["OP_FP"]
+	isa["opcode"]["fcvt.lu.d"] = OPCODE["OP_FP"]
+	isa["opcode"]["fcvt.s.d"] = OPCODE["OP_FP"]
+	isa["opcode"]["fcvt.t.d"] = OPCODE["OP_FP"]
+	isa["opcode"]["fcvt.tu.d"] = OPCODE["OP_FP"]
+	isa["opcode"]["fcvt.w.d"] = OPCODE["OP_FP"]
+	isa["opcode"]["fcvt.wu.d"] = OPCODE["OP_FP"]
+	isa["opcode"]["fdiv.d"] = OPCODE["OP_FP"]
+	isa["opcode"]["feq.d"] = OPCODE["OP_FP"]
+	isa["opcode"]["fld"] = OPCODE["LOAD_FP"]
+	isa["opcode"]["fle.d"] = OPCODE["OP_FP"]
+	isa["opcode"]["flt.d"] = OPCODE["OP_FP"]
+	isa["opcode"]["fmadd.d"] = OPCODE["MADD"]
+	isa["opcode"]["fmax.d"] = OPCODE["OP_FP"]
+	isa["opcode"]["fmin.d"] = OPCODE["OP_FP"]
+	isa["opcode"]["fmsub.d"] = OPCODE["MSUB"]
+	isa["opcode"]["fmul.d"] = OPCODE["OP_FP"]
+	isa["opcode"]["fmv.d.x"] = OPCODE["OP_FP"]
+	isa["opcode"]["fmv.x.d"] = OPCODE["OP_FP"]
+	isa["opcode"]["fnmadd.d"] = OPCODE["NMADD"]
+	isa["opcode"]["fnmsub.d"] = OPCODE["NMSUB"]
+	isa["opcode"]["fsd"] = OPCODE["STORE_FP"]
+	isa["opcode"]["fsgnj.d"] = OPCODE["OP_FP"]
+	isa["opcode"]["fsgnjn.d"] = OPCODE["OP_FP"]
+	isa["opcode"]["fsgnjx.d"] = OPCODE["OP_FP"]
+	isa["opcode"]["fsqrt.d"] = OPCODE["OP_FP"]
+	isa["opcode"]["fsub.d"] = OPCODE["OP_FP"]
+	isa["rs2"]["fclass.d"] = "00000"
+	isa["rs2"]["fcvt.d.l"] = "00010"
+	isa["rs2"]["fcvt.d.lu"] = "00011"
+	isa["rs2"]["fcvt.d.s"] = "000" FP_FMT["S"]
+	isa["rs2"]["fcvt.d.t"] = "00100"
+	isa["rs2"]["fcvt.d.tu"] = "00101"
+	isa["rs2"]["fcvt.d.w"] = "00000"
+	isa["rs2"]["fcvt.d.wu"] = "00001"
+	isa["rs2"]["fcvt.l.d"] = "00010"
+	isa["rs2"]["fcvt.lu.d"] = "00011"
+	isa["rs2"]["fcvt.s.d"] = "000" FP_FMT["D"]
+	isa["rs2"]["fcvt.t.d"] = "00100"
+	isa["rs2"]["fcvt.tu.d"] = "00101"
+	isa["rs2"]["fcvt.w.d"] = "00000"
+	isa["rs2"]["fcvt.wu.d"] = "00001"
+	isa["rs2"]["fmv.d.x"] = "00000"
+	isa["rs2"]["fmv.x.d"] = "00000"
+	isa["rs2"]["fsqrt.d"] = "00000"
+
+	# Q instruction set
+	isa["fmt"]["fadd.q"] = "R"
+	isa["fmt"]["fclass.q"] = "R"
+	isa["fmt"]["fcvt.d.q"] = "R"
+	isa["fmt"]["fcvt.l.q"] = "R"
+	isa["fmt"]["fcvt.lu.q"] = "R"
+	isa["fmt"]["fcvt.q.d"] = "R"
+	isa["fmt"]["fcvt.q.l"] = "R"
+	isa["fmt"]["fcvt.q.lu"] = "R"
+	isa["fmt"]["fcvt.q.s"] = "R"
+	isa["fmt"]["fcvt.q.t"] = "R"
+	isa["fmt"]["fcvt.q.tu"] = "R"
+	isa["fmt"]["fcvt.q.w"] = "R"
+	isa["fmt"]["fcvt.q.wu"] = "R"
+	isa["fmt"]["fcvt.s.q"] = "R"
+	isa["fmt"]["fcvt.t.q"] = "R"
+	isa["fmt"]["fcvt.tu.q"] = "R"
+	isa["fmt"]["fcvt.w.q"] = "R"
+	isa["fmt"]["fcvt.wu.q"] = "R"
+	isa["fmt"]["fdiv.q"] = "R"
+	isa["fmt"]["feq.q"] = "R"
+	isa["fmt"]["fle.q"] = "R"
+	isa["fmt"]["flq"] = "I"
+	isa["fmt"]["flt.q"] = "R"
+	isa["fmt"]["fmadd.q"] = "R4"
+	isa["fmt"]["fmax.q"] = "R"
+	isa["fmt"]["fmin.q"] = "R"
+	isa["fmt"]["fmsub.q"] = "R4"
+	isa["fmt"]["fmul.q"] = "R"
+	isa["fmt"]["fmv.q.x"] = "R"
+	isa["fmt"]["fmv.x.q"] = "R"
+	isa["fmt"]["fnmadd.q"] = "R4"
+	isa["fmt"]["fnmsub.q"] = "R4"
+	isa["fmt"]["fsgnj.q"] = "R"
+	isa["fmt"]["fsgnjn.q"] = "R"
+	isa["fmt"]["fsgnjx.q"] = "R"
+	isa["fmt"]["fsq"] = "S"
+	isa["fmt"]["fsqrt.q"] = "R"
+	isa["fmt"]["fsub.q"] = "R"
+	isa["fp_fmt"]["fadd.q"] = FP_FMT["Q"]
+	isa["fp_fmt"]["fclass.q"] = FP_FMT["Q"]
+	isa["fp_fmt"]["fcvt.d.q"] = FP_FMT["D"]
+	isa["fp_fmt"]["fcvt.l.q"] = FP_FMT["Q"]
+	isa["fp_fmt"]["fcvt.lu.q"] = FP_FMT["Q"]
+	isa["fp_fmt"]["fcvt.q.d"] = FP_FMT["Q"]
+	isa["fp_fmt"]["fcvt.q.l"] = FP_FMT["Q"]
+	isa["fp_fmt"]["fcvt.q.lu"] = FP_FMT["Q"]
+	isa["fp_fmt"]["fcvt.q.s"] = FP_FMT["Q"]
+	isa["fp_fmt"]["fcvt.q.t"] = FP_FMT["Q"]
+	isa["fp_fmt"]["fcvt.q.tu"] = FP_FMT["Q"]
+	isa["fp_fmt"]["fcvt.q.w"] = FP_FMT["Q"]
+	isa["fp_fmt"]["fcvt.q.wu"] = FP_FMT["Q"]
+	isa["fp_fmt"]["fcvt.s.q"] = FP_FMT["S"]
+	isa["fp_fmt"]["fcvt.t.q"] = FP_FMT["Q"]
+	isa["fp_fmt"]["fcvt.tu.q"] = FP_FMT["Q"]
+	isa["fp_fmt"]["fcvt.w.q"] = FP_FMT["Q"]
+	isa["fp_fmt"]["fcvt.wu.q"] = FP_FMT["Q"]
+	isa["fp_fmt"]["fdiv.q"] = FP_FMT["Q"]
+	isa["fp_fmt"]["feq.q"] = FP_FMT["Q"]
+	isa["fp_fmt"]["fle.q"] = FP_FMT["Q"]
+	isa["fp_fmt"]["flt.q"] = FP_FMT["Q"]
+	isa["fp_fmt"]["fmadd.q"] = FP_FMT["Q"]
+	isa["fp_fmt"]["fmax.q"] = FP_FMT["Q"]
+	isa["fp_fmt"]["fmin.q"] = FP_FMT["Q"]
+	isa["fp_fmt"]["fmsub.q"] = FP_FMT["Q"]
+	isa["fp_fmt"]["fmul.q"] = FP_FMT["Q"]
+	isa["fp_fmt"]["fmv.q.x"] = FP_FMT["Q"]
+	isa["fp_fmt"]["fmv.x.q"] = FP_FMT["Q"]
+	isa["fp_fmt"]["fnmadd.q"] = FP_FMT["Q"]
+	isa["fp_fmt"]["fnmsub.q"] = FP_FMT["Q"]
+	isa["fp_fmt"]["fsgnj.q"] = FP_FMT["Q"]
+	isa["fp_fmt"]["fsgnjn.q"] = FP_FMT["Q"]
+	isa["fp_fmt"]["fsgnjx.q"] = FP_FMT["Q"]
+	isa["fp_fmt"]["fsqrt.q"] = FP_FMT["Q"]
+	isa["fp_fmt"]["fsub.q"] = FP_FMT["Q"]
+	isa["funct3"]["fclass.q"] = "001"
+	isa["funct3"]["feq.q"] = "010"
+	isa["funct3"]["fle.q"] = "000"
+	isa["funct3"]["flq"] = FP_WIDTH["Q"]
+	isa["funct3"]["flt.q"] = "001"
+	isa["funct3"]["fmax.q"] = "001"
+	isa["funct3"]["fmin.q"] = "000"
+	isa["funct3"]["fmv.q.x"] = "000"
+	isa["funct3"]["fmv.x.q"] = "000"
+	isa["funct3"]["fsgnj.q"] = "000"
+	isa["funct3"]["fsgnjn.q"] = "001"
+	isa["funct3"]["fsgnjx.q"] = "010"
+	isa["funct3"]["fsq"] = FP_WIDTH["Q"]
+	isa["funct5"]["fadd.q"] = "00000"
+	isa["funct5"]["fclass.q"] = "11100"
+	isa["funct5"]["fcvt.d.q"] = "01000"
+	isa["funct5"]["fcvt.l.q"] = "11000"
+	isa["funct5"]["fcvt.lu.q"] = "11000"
+	isa["funct5"]["fcvt.q.d"] = "01000"
+	isa["funct5"]["fcvt.q.l"] = "11010"
+	isa["funct5"]["fcvt.q.lu"] = "11010"
+	isa["funct5"]["fcvt.q.s"] = "01000"
+	isa["funct5"]["fcvt.q.t"] = "11010"
+	isa["funct5"]["fcvt.q.tu"] = "11010"
+	isa["funct5"]["fcvt.q.w"] = "11010"
+	isa["funct5"]["fcvt.q.wu"] = "11010"
+	isa["funct5"]["fcvt.s.q"] = "01000"
+	isa["funct5"]["fcvt.t.q"] = "11000"
+	isa["funct5"]["fcvt.tu.q"] = "11000"
+	isa["funct5"]["fcvt.w.q"] = "11000"
+	isa["funct5"]["fcvt.wu.q"] = "11000"
+	isa["funct5"]["fdiv.q"] = "00011"
+	isa["funct5"]["feq.q"] = "10100"
+	isa["funct5"]["fle.q"] = "10100"
+	isa["funct5"]["flt.q"] = "10100"
+	isa["funct5"]["fmax.q"] = "00101"
+	isa["funct5"]["fmin.q"] = "00101"
+	isa["funct5"]["fmul.q"] = "00010"
+	isa["funct5"]["fmv.q.x"] = "11110"
+	isa["funct5"]["fmv.x.q"] = "11100"
+	isa["funct5"]["fsgnj.q"] = "00100"
+	isa["funct5"]["fsgnjn.q"] = "00100"
+	isa["funct5"]["fsgnjx.q"] = "00100"
+	isa["funct5"]["fsqrt.q"] = "01011"
+	isa["funct5"]["fsub.q"] = "00001"
+	isa["isa"]["fadd.q"] = "RV32Q"
+	isa["isa"]["fclass.q"] = "RV32Q"
+	isa["isa"]["fcvt.d.q"] = "RV32Q"
+	isa["isa"]["fcvt.l.q"] = "RV64Q"
+	isa["isa"]["fcvt.lu.q"] = "RV64Q"
+	isa["isa"]["fcvt.q.d"] = "RV32Q"
+	isa["isa"]["fcvt.q.l"] = "RV64Q"
+	isa["isa"]["fcvt.q.lu"] = "RV64Q"
+	isa["isa"]["fcvt.q.s"] = "RV32Q"
+	isa["isa"]["fcvt.q.t"] = "RV128Q"
+	isa["isa"]["fcvt.q.tu"] = "RV128Q"
+	isa["isa"]["fcvt.q.w"] = "RV32Q"
+	isa["isa"]["fcvt.q.wu"] = "RV32Q"
+	isa["isa"]["fcvt.s.q"] = "RV32Q"
+	isa["isa"]["fcvt.t.q"] = "RV128Q"
+	isa["isa"]["fcvt.tu.q"] = "RV128Q"
+	isa["isa"]["fcvt.w.q"] = "RV32Q"
+	isa["isa"]["fcvt.wu.q"] = "RV32Q"
+	isa["isa"]["fdiv.q"] = "RV32Q"
+	isa["isa"]["feq.q"] = "RV32Q"
+	isa["isa"]["fle.q"] = "RV32Q"
+	isa["isa"]["flq"] = "RV32Q"
+	isa["isa"]["flt.q"] = "RV32Q"
+	isa["isa"]["fmadd.q"] = "RV32Q"
+	isa["isa"]["fmax.q"] = "RV32Q"
+	isa["isa"]["fmin.q"] = "RV32Q"
+	isa["isa"]["fmsub.q"] = "RV32Q"
+	isa["isa"]["fmul.q"] = "RV32Q"
+	isa["isa"]["fmv.q.x"] = "RV128Q"
+	isa["isa"]["fmv.x.q"] = "RV128Q"
+	isa["isa"]["fnmadd.q"] = "RV32Q"
+	isa["isa"]["fnmsub.q"] = "RV32Q"
+	isa["isa"]["fsgnj.q"] = "RV32Q"
+	isa["isa"]["fsgnjn.q"] = "RV32Q"
+	isa["isa"]["fsgnjx.q"] = "RV32Q"
+	isa["isa"]["fsq"] = "RV32Q"
+	isa["isa"]["fsqrt.q"] = "RV32Q"
+	isa["isa"]["fsub.q"] = "RV32Q"
+	isa["opcode"]["fadd.q"] = OPCODE["OP_FP"]
+	isa["opcode"]["fclass.q"] = OPCODE["OP_FP"]
+	isa["opcode"]["fcvt.d.q"] = OPCODE["OP_FP"]
+	isa["opcode"]["fcvt.l.q"] = OPCODE["OP_FP"]
+	isa["opcode"]["fcvt.lu.q"] = OPCODE["OP_FP"]
+	isa["opcode"]["fcvt.q.d"] = OPCODE["OP_FP"]
+	isa["opcode"]["fcvt.q.l"] = OPCODE["OP_FP"]
+	isa["opcode"]["fcvt.q.lu"] = OPCODE["OP_FP"]
+	isa["opcode"]["fcvt.q.s"] = OPCODE["OP_FP"]
+	isa["opcode"]["fcvt.q.t"] = OPCODE["OP_FP"]
+	isa["opcode"]["fcvt.q.tu"] = OPCODE["OP_FP"]
+	isa["opcode"]["fcvt.q.w"] = OPCODE["OP_FP"]
+	isa["opcode"]["fcvt.q.wu"] = OPCODE["OP_FP"]
+	isa["opcode"]["fcvt.s.q"] = OPCODE["OP_FP"]
+	isa["opcode"]["fcvt.t.q"] = OPCODE["OP_FP"]
+	isa["opcode"]["fcvt.tu.q"] = OPCODE["OP_FP"]
+	isa["opcode"]["fcvt.w.q"] = OPCODE["OP_FP"]
+	isa["opcode"]["fcvt.wu.q"] = OPCODE["OP_FP"]
+	isa["opcode"]["fdiv.q"] = OPCODE["OP_FP"]
+	isa["opcode"]["feq.q"] = OPCODE["OP_FP"]
+	isa["opcode"]["fle.q"] = OPCODE["OP_FP"]
+	isa["opcode"]["flq"] = OPCODE["LOAD_FP"]
+	isa["opcode"]["flt.q"] = OPCODE["OP_FP"]
+	isa["opcode"]["fmadd.q"] = OPCODE["MADD"]
+	isa["opcode"]["fmax.q"] = OPCODE["OP_FP"]
+	isa["opcode"]["fmin.q"] = OPCODE["OP_FP"]
+	isa["opcode"]["fmsub.q"] = OPCODE["MSUB"]
+	isa["opcode"]["fmul.q"] = OPCODE["OP_FP"]
+	isa["opcode"]["fmv.q.x"] = OPCODE["OP_FP"]
+	isa["opcode"]["fmv.x.q"] = OPCODE["OP_FP"]
+	isa["opcode"]["fnmadd.q"] = OPCODE["NMADD"]
+	isa["opcode"]["fnmsub.q"] = OPCODE["NMSUB"]
+	isa["opcode"]["fsgnj.q"] = OPCODE["OP_FP"]
+	isa["opcode"]["fsgnjn.q"] = OPCODE["OP_FP"]
+	isa["opcode"]["fsgnjx.q"] = OPCODE["OP_FP"]
+	isa["opcode"]["fsq"] = OPCODE["STORE_FP"]
+	isa["opcode"]["fsqrt.q"] = OPCODE["OP_FP"]
+	isa["opcode"]["fsub.q"] = OPCODE["OP_FP"]
+	isa["rs2"]["fclass.q"] = "00000"
+	isa["rs2"]["fcvt.d.q"] = "000" FP_FMT["Q"]
+	isa["rs2"]["fcvt.l.q"] = "00010"
+	isa["rs2"]["fcvt.lu.q"] = "00011"
+	isa["rs2"]["fcvt.q.d"] = "000" FP_FMT["D"]
+	isa["rs2"]["fcvt.q.l"] = "00010"
+	isa["rs2"]["fcvt.q.lu"] = "00011"
+	isa["rs2"]["fcvt.q.s"] = "000" FP_FMT["S"]
+	isa["rs2"]["fcvt.q.t"] = "00100"
+	isa["rs2"]["fcvt.q.tu"] = "00101"
+	isa["rs2"]["fcvt.q.w"] = "00000"
+	isa["rs2"]["fcvt.q.wu"] = "00001"
+	isa["rs2"]["fcvt.s.q"] = "000" FP_FMT["Q"]
+	isa["rs2"]["fcvt.t.q"] = "00100"
+	isa["rs2"]["fcvt.tu.q"] = "00101"
+	isa["rs2"]["fcvt.w.q"] = "00000"
+	isa["rs2"]["fcvt.wu.q"] = "00001"
+	isa["rs2"]["fmv.q.x"] = "00000"
+	isa["rs2"]["fmv.x.q"] = "00000"
+	isa["rs2"]["fsqrt.q"] = "00000"
+
+
+
+
+	# :%!tr -d '{:,}' | grep . 
+	# :%s/'/"/g
+	# :%!awk '{ n=$1; for(i=2; i<=NF;i+=2) printf "isa[_\%s_][_\%s_] = \%s\n", $(i), n, $(i+1) }'
+	# :%s/_/"/g
+
 	CSR["cycle"] = 0xc00
 	CSR["cycleh"] = 0xc80
 	CSR["dcsr"] = 0x7b0
@@ -1022,8 +2053,92 @@ BEGIN {
 	CSR["vstval"] = 0x243
 	CSR["vstvec"] = 0x205
 
+	FIELD["opcode"]["pos"] = "6,7"
+	FIELD["rd"]["pos"] = "11,5"
+	FIELD["funct3"]["pos"] = "14,3"
+	FIELD["rs1"]["pos"] = "19,5"
+	FIELD["rs2"]["pos"] = "24,5"
+
+	FIELD["r_funct5"]["pos"] = "31,5"
+	FIELD["r_funct7"]["pos"] = "31,7"
+
+	FIELD["r_aq"]["pos"] = "26,1"
+	FIELD["r_rl"]["pos"] = "25,1"
+
+	FIELD["r_fp_fmt"]["pos"] = "26,2"
+
+	FIELD["i_imm_11_0"]["pos"] = "31,12"
+
+	FIELD["i_shtyp_11_7"]["pos"] = "31,5"
+	FIELD["i_shtyp_11_6"]["pos"] = "31,6"
+	FIELD["i_shtyp_11_5"]["pos"] = "31,7"
+	FIELD["i_shtyp"]["pos"] = "30,1"
+	FIELD["i_shamt_6"]["pos"] = "26,1"
+	FIELD["i_shamt_6_0"]["pos"] = "26,7"
+	FIELD["i_shamt_5"]["pos"] = "25,1"
+	FIELD["i_shamt_5_0"]["pos"] = "25,6"
+	FIELD["i_shamt"]["pos"] = "24,5"
+
+	FIELD["i_funct12"]["pos"] = "31,12"
+
+	FIELD["i_csr"]["pos"] = "31,12"
+	FIELD["i_imm_4_0"]["pos"] = "19,5"
+
+	FIELD["i_fm"]["pos"] = "31,4"
+	FIELD["i_pred"]["pos"] = "27,4"
+	FIELD["i_succ"]["pos"] = "23,4"
+
+	FIELD["s_imm_4_0"]["pos"] = "11,5"
+	FIELD["s_imm_11_5"]["pos"] = "31,7"
+
+	FIELD["b_imm_4_1"]["pos"] = "11,4"
+	FIELD["b_imm_11"]["pos"] = "7,1"
+	FIELD["b_imm_10_5"]["pos"] = "30,6"
+	FIELD["b_imm_12"]["pos"] = "31,1"
+
+	FIELD["u_imm_31_12"]["pos"] = "31,20"
+
+	FIELD["j_imm_20"]["pos"] = "31,1"
+	FIELD["j_imm_10_1"]["pos"] = "30,10"
+	FIELD["j_imm_11"]["pos"] = "20,1"
+	FIELD["j_imm_19_12"]["pos"] = "19,8"
+
+	FIELD["c_opcode"]["pos"] = "1,2"
+	FIELD["c_funct6"]["pos"] = "15,6"
+	FIELD["c_funct4"]["pos"] = "15,4"
+	FIELD["c_funct3"]["pos"] = "15,3"
+	FIELD["c_funct2"]["pos"] = "6,2"
+	FIELD["c_funct2_cb"]["pos"] = "11,2"
+
+	FIELD["c_rd"]["pos"] = "11,5"
+	FIELD["c_rs1"]["pos"] = "11,5"
+	FIELD["c_rd_rs1"]["pos"] = "11,5"
+	FIELD["c_rs2"]["pos"] = "6,5"
+	FIELD["c_rd_prime"]["pos"] = "4,3"
+	FIELD["c_rs2_prime"]["pos"] = "4,3"
+	FIELD["c_rs1_prime"]["pos"] = "9,3"
+	FIELD["c_rs_rs1_prime"]["pos"] = "9,3"
+
+	FIELD["c_imm_ci_0"]["pos"] = "12,1"
+	FIELD["c_imm_ci_1"]["pos"] = "6,5"
+	FIELD["c_imm_css"]["pos"] = "12,6"
+	FIELD["c_imm_ciw"]["pos"] = "12,8"
+	FIELD["c_imm_cl_0"]["pos"] = "12,3"
+	FIELD["c_imm_cl_1"]["pos"] = "6,2"
+	FIELD["c_imm_cs_0"]["pos"] = "12,3"
+	FIELD["c_imm_cs_1"]["pos"] = "6,2"
+	FIELD["c_imm_cb_0"]["pos"] = "12,3"
+	FIELD["c_imm_cb_1"]["pos"] = "6,5"
+	FIELD["c_imm_cj"]["pos"] = "12,11"
+	FIELD["c_shamt_0"]["pos"] = "12,1"
+	FIELD["c_shamt_1"]["pos"] = "6,5"
 
 
+	ISA_OP_64[ISA_RV128I["addd"]["funct7"] ISA_RV128I["addd"]["funct3"]] = "addd"
+	ISA_OP_64[ISA_RV128I["subd"]["funct7"] ISA_RV128I["subd"]["funct3"]] = "subd"
+	ISA_OP_64[ISA_RV128I["slld"]["funct7"] ISA_RV128I["slld"]["funct3"]] = "slld"
+	ISA_OP_64[ISA_RV128I["srld"]["funct7"] ISA_RV128I["srld"]["funct3"]] = "srld"
+	ISA_OP_64[ISA_RV128I["srad"]["funct7"] ISA_RV128I["srad"]["funct3"]] = "srad"
 
 }
 {
@@ -1056,6 +2171,7 @@ END {
 	}
 	if (num_ok && valid_hex_len[length(input)]) {
 		print "decode", try
+		decode(n2b(try,32))
 	} else {
 		print "encode", input
 		encode(tolower(input))
@@ -1741,6 +2857,105 @@ function encode(str) {
 		else {
 			print "Unsupported opcode", opcode
 			exit
+		}
+	}
+}
+function getBits(binary, pos) {
+	split(pos, apos, ",")
+	_end = apos[1] + 1
+	_start = _end - apos[2]
+	if (_start > _end || length(binary) < _end) {
+		print "getBits: position error", pos
+		exit
+	}
+
+	return substr(binary, length(binary)-apos[1], apos[2])
+}
+function extractRFields(binary, a) {
+	a["rs2"] = getBits(binary, FIELD["rs2"]["pos"])
+	a["rs1"] = getBits(binary, FIELD["rs1"]["pos"])
+	a["funct3"] = getBits(binary, FIELD["funct3"]["pos"])
+	a["rd"] = getBits(binary, FIELD["rd"]["pos"])
+	a["funct5"] = getBits(binary, FIELD["r_funct5"]["pos"])
+	a["funct7"] = getBits(binary, FIELD["r_funct7"]["pos"])
+	a["aq"] = getBits(binary, FIELD["r_aq"]["pos"])
+	a["rl"] = getBits(binary, FIELD["r_rl"]["pos"])
+	a["fmt"] = getBits(binary, FIELD["r_fp_fmt"]["pos"])
+}
+function decodeOP(bin) { 
+	print "decodeOP", opcode
+	print "bin", bin
+	extractRFields(bin, fields)
+	funct3 = fields["funct3"]
+	rs2 = fields["rs2"]
+	rs1 = fields["rs1"]
+	rd = fields["rd"]
+
+	if (opcode == OPCODE["OP_64"]) {
+		# RV128I
+	}		
+}
+function decodeOP_FP() { print "decodeOP_FP" }
+function decodeAMO() { print "decodeAMO" }
+function decodeJALR() { print "decodeJALR" }
+function decodeLOAD() { print "decodeLOAD" }
+function decodeOP_IMM() { print "decodeOP_IMM" }
+function decodeMISC_MEM() { print "decodeMISC_MEM" }
+function decodeSYSTEM() { print "decodeSYSTEM" }
+function decodeSTORE() { print "decodeSTORE" }
+function decodeBRANCH() { print "decodeBRANCH" }
+function decodeUType() { print "decodeUType" }
+function decodeJAL() { print "decodeJAL" }
+function decodeR4() { print "decodeR4" }
+
+function decode(bin) {
+	
+	opcode = getBits(bin, FIELD["opcode"]["pos"])
+	print "opcode", opcode
+
+	# 32-bits opcodes
+	print substr(opcode, length(opcode)-1)
+	if (substr(opcode, length(opcode)-1) == "11") {
+		switch(opcode) {
+			case "0110011": # OP
+			case "0111011": # OP_32
+			case "1111011": # OP_64
+				decodeOP(bin); break;
+			case "1010011": # OP_FP
+				decodeOP_FP(); break;
+			case "0101111": # AMO
+				decodeAMO(); break;
+			case "1100111": # JALR
+				decodeJALR(); break;
+			case "0000011": # LOAD
+			case "0000111": # LOAD_FP
+				decodeLOAD(); break;
+			case "0010011": # OP_IMM
+			case "0011011": # OP_IMM_32
+			case "1011011": # OP_IMM_64
+				decodeOP_IMM(); break;
+			case "0001111": # MISC_MEM
+				decodeMISC_MEM(); break;
+			case "1110011": # SYSTEM
+				decodeSYSTEM(); break;
+			case "0100011": # STORE
+			case "0100111": # STORE_FP
+				decodeSTORE(); break;
+			case "1100011": # BRANCH
+				decodeBRANCH(); break;
+			case "0110111": # LUI
+			case "0010111": # AUIPC
+				decodeUType(); break;
+			case "1101111": # JAL
+				decodeJAL(); break;
+			case "1000011": # MADD
+			case "1000111": # MSUB
+			case "1001111": # NMADD
+			case "1001011": # NMSUB
+				decodeR4(); break;
+			default:
+				print "Invalid opcode:", opcode
+				exit
 		}
 	}
 }
