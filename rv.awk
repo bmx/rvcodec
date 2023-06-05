@@ -1,5 +1,14 @@
 BEGIN {
 
+	XLEN["rv32"] = 32
+	XLEN["rv64"] = 64
+	XLEN["rv128"] = 128
+
+	XLEN_MASK["rv32"] = 0x01
+	XLEN_MASK["rv64"] = 0x02
+	XLEN_MASK["rv128"] = 0x04
+	XLEN_MASK["all"] = 0x07
+
 	bits["0"] = "0000"
 	bits["1"] = "0001"
 	bits["2"] = "0010"
@@ -3151,7 +3160,7 @@ function encode(str) {
 		else if (opcode == OP_FP) encodeOP_FP()
 		else if (opcode == JALR) encodeJALR()
 		else if (opcode == LOAD || opcode == LOAD_FP) encodeLOAD()
-		else if (opcode == OP_IMM || opcode == OP_IMM_32 || opcode == OP_IMM64) encodeOP_IMM()
+		else if (opcode == OP_IMM || opcode == OP_IMM_32 || opcode == OP_IMM_64) encodeOP_IMM()
 		else if (opcode == MISC_MEM) encodeMISC_MEM()
 		else if (opcode == SYSTEM) encodeSYSTEM()
 		else if (opcode == STORE || opcode == STORE_32) encodeSTORE()
@@ -3180,18 +3189,98 @@ function getBits(binary, pos) {
 function decReg(reg, floatReg) {
 	return (floatReg ? "f" : "x") b2n(reg)
 }
-
-function extractRFields(binary, a) {
-	a["rs2"] = getBits(binary, FIELDS["rs2"]["pos"])
-	a["rs1"] = getBits(binary, FIELDS["rs1"]["pos"])
-	a["funct3"] = getBits(binary, FIELDS["funct3"]["pos"])
-	a["rd"] = getBits(binary, FIELDS["rd"]["pos"])
-	a["funct5"] = getBits(binary, FIELDS["r_funct5"]["pos"])
-	a["funct7"] = getBits(binary, FIELDS["r_funct7"]["pos"])
-	a["aq"] = getBits(binary, FIELDS["r_aq"]["pos"])
-	a["rl"] = getBits(binary, FIELDS["r_rl"]["pos"])
-	a["fmt"] = getBits(binary, FIELDS["r_fp_fmt"]["pos"])
+function decImm(immediate, signExtend) {
+	if (signExtend == "") signExtend = 1
+	if (signExtend && substr(immediate, 1, 1) == "1") {
+		return b2n(immediate) - lshift(1, length(immediate))
+	}
+	return b2n(immediate)
 }
+function decMem(bits) {
+
+	output = ""
+
+	access[0] = "i"
+	access[1] = "o"
+	access[2] = "r"
+	access[3] = "w"
+		
+	for(i = 1; i<= length(bits); i++) {
+		if (substr(bits, i, 1) == "1") output = output access[i-1]
+	}
+	if (output == "") {
+		print "Invalid IO/Mem field"
+		exit
+	}
+	return output
+}
+
+function decCSR(binStr) {
+	val = b2n(binStr)
+	for(c in CSR) {
+		if (CSR[c] == val) entry = c
+	}
+	if (entry == "") {
+		return sprintf("0x%03x", val)
+	} else {
+		return entry
+	}
+}
+	
+function getpos(str) {
+	return FIELDS[str]["pos"]
+}
+function extractRFields(binary, a) {
+	a["rs2"] = getBits(binary, getpos("rs2"))
+	a["rs1"] = getBits(binary, getpos("rs1"))
+	a["funct3"] = getBits(binary, getpos("funct3"))
+	a["rd"] = getBits(binary, getpos("rd"))
+	a["funct5"] = getBits(binary, getpos("r_funct5"))
+	a["funct7"] = getBits(binary, getpos("r_funct7"))
+	a["aq"] = getBits(binary, getpos("r_aq"))
+	a["rl"] = getBits(binary, getpos("r_rl"))
+	a["fmt"] = getBits(binary, getpos("r_fp_fmt"))
+}
+function extractIFields(binary, a) {
+	a["imm"] = getBits(binary, getpos("i_imm_11_0"))
+	a["rs1"] = getBits(binary, getpos("rs1"))
+	a["funct3"] = getBits(binary, getpos("funct3"))
+	a["rd"] = getBits(binary, getpos("rd"))
+	a["shtyp"] = getBits(binary, getpos("i_shtyp"))
+	a["shamt"] = getBits(binary, getpos("i_shamt"))
+	a["shamt_5"] = getBits(binary, getpos("i_shamt_5"))
+	a["shamt_6"] = getBits(binary, getpos("i_shamt_6"))
+	a["funct12"] = getBits(binary, getpos("i_funct12"))
+	a["fm"] = getBits(binary, getpos("i_fm"))
+	a["pred"] = getBits(binary, getpos("i_pred"))
+	a["succ"] = getBits(binary, getpos("i_succ"))
+}
+function extractSFields(binary, a) {
+	a["imm_11_5"] = getBits(binary, getpos("s_imm_11_5"))
+	a["rs2"] = getBits(binary, getpos("rs2"))
+	a["rs1"] = getBits(binary, getpos("rs1"))
+	a["funct3"] = getBits(binary, getpos("funct3"))
+	a["imm_4_0"] = getBits(binary, getpos("s_imm_4_0"))
+}
+function extractBFields(binary, a) {
+	a["imm_12"] = getBits(binary, getpos("b_imm_12"))
+	a["imm_10_5"] = getBits(binary, getpos("b_imm_10_5"))
+	a["rs2"] = getBits(binary, getpos("rs2"))
+	a["rs1"] = getBits(binary, getpos("rs1"))
+	a["funct3"] = getBits(binary, getpos("funct3"))
+	a["imm_4_1"] = getBits(binary, getpos("b_imm_4_1"))
+	a["imm_11"] = getBits(binary, getpos("b_imm_11"))
+}
+function extractCLookupFields(binary, a) {
+	a["funct6"] = getBits(binary, getpos("c_funct6"))
+	a["funct4"] = getBits(binary, getpos("c_funct4"))
+	a["funct3"] = getBits(binary, getpos("c_funct3"))
+	a["funct2"] = getBits(binary, getpos("c_funct2"))
+	a["funct2_cb"] = getBits(binary, getpos("c_funct2_cb"))
+	a["rd_rs1"] = getBits(binary, getpos("c_rd_rs1"))
+	a["rs2"] = getBits(binary, getpos("c_rs2"))
+}
+
 function decodeOP(bin) { 
 	print "decodeOP"
 	print "bin", bin
@@ -3223,12 +3312,12 @@ function decodeOP(bin) {
 	src2 = decReg(rs2)
 	dest = decReg(rd)
 
-	build_f("opcode", FRAG["OPC"], mne, opcode, FIELDS["opcode"]["name"])
-	build_f("funct3", FRAG["OPC"], mne, funct3, FIELDS["funct3"]["name"])
-	build_f("funct7", FRAG["OPC"], mne, funct7, FIELDS["r_funct7"]["name"])
-	build_f("rd", FRAG["RD"], dest, rd, FIELDS["rd"]["name"])
-	build_f("rs1", FRAG["RS1"], src1, rs1, FIELDS["rs1"]["name"])
-	build_f("rs2", FRAG["RS2"], src2, rs2, FIELDS["rs2"]["name"])
+	build_f("opcode", FRAG["OPC"], mne, opcode, getname("opcode"))
+	build_f("funct3", FRAG["OPC"], mne, funct3, getname("funct3"))
+	build_f("funct7", FRAG["OPC"], mne, funct7, getname("r_funct7"))
+	build_f("rd", FRAG["RD"], dest, rd, getname("rd"))
+	build_f("rs1", FRAG["RS1"], src1, rs1, getname("rs1"))
+	build_f("rs2", FRAG["RS2"], src2, rs2, getname("rs2"))
 	
 	printf "%s %s, %s, %s\n", mne, dest, src1, src2
 	push_asm(f["opcode"])
@@ -3294,13 +3383,13 @@ function decodeOP_FP(bin) {
 	
 	useRm = (funct3 == "")
 
-	build_f("opcode", FRAG["OPC"], mne, opcode, FIELDS["opcode"]["name"])
-	build_f("funct3", FRAG["OPC"], mne, funct3, useRm ? "rm" : FIELDS["funct3"]["name"])
-	build_f("funct5", FRAG["OPC"], mne, funct5, FIELDS["r_funct5"]["name"])
-	build_f("fmt", FRAG["OPC"], mne, fmt, FIELDS["r_fp_fmt"]["name"])
-	build_f("rd", FRAG["RD"], dest, opcode, FIELDS["rd"]["name"])
-	build_f("rs1", FRAG["RS1"], src1, opcode, FIELDS["rs1"]["name"])
-	build_f("rs2", FRAG["RS2"], src2, opcode, FIELDS["rs2"]["name"])
+	build_f("opcode", FRAG["OPC"], mne, opcode, getname("opcode"))
+	build_f("funct3", FRAG["OPC"], mne, funct3, useRm ? "rm" : getname("funct3"))
+	build_f("funct5", FRAG["OPC"], mne, funct5, getname("r_funct5"))
+	build_f("fmt", FRAG["OPC"], mne, fmt, getname("r_fp_fmt"))
+	build_f("rd", FRAG["RD"], dest, opcode, getname("rd"))
+	build_f("rs1", FRAG["RS1"], src1, opcode, getname("rs1"))
+	build_f("rs2", FRAG["RS2"], src2, opcode, getname("rs2"))
 	push_asm(f["opcode"])
 	push_asm(f["rd"])
 	push_asm(f["rs1"])
@@ -3336,14 +3425,14 @@ function decodeAMO(bin) {
 	addr = decReg(rs1)
 	src = lr ? "n/a" : decReg(rs2)
 	
-	build_f("opcode", FRAG["OPC"] , mne , opcode, FIELDS["opcode"]["name"])
-	build_f("rd", FRAG["RD"], dest, rd, FIELDS["rd"]["name"])
-	build_f("funct3", FRAG["OPC"], mne, funct3, FIELDS["funct3"]["name"])
-	build_f("rs1", FRAG["RS1"], addr, rs1, FIELDS["rs1"]["name"], f["rs1"]["mem"] = 1)
-	build_f("rs2", FRAG["OPC"], src, rs2, FIELDS["rs2"]["name"])
-	build_f("rl", FRAG["OPC"], mne, rl, FIELDS["r_rl"]["name"])
-	build_f("aq", FRAG["OPC"], mne, aq, FIELDS["r_aq"]["name"])
-	build_f("funct5", FRAG["OPC"], mne, funct5, FIELDS["r_funct5"]["name"])
+	build_f("opcode", FRAG["OPC"] , mne , opcode, getname("opcode"))
+	build_f("rd", FRAG["RD"], dest, rd, getname("rd"))
+	build_f("funct3", FRAG["OPC"], mne, funct3, getname("funct3"))
+	build_f("rs1", FRAG["RS1"], addr, rs1, getname("rs1"), f["rs1"]["mem"] = 1)
+	build_f("rs2", FRAG["OPC"], src, rs2, getname("rs2"))
+	build_f("rl", FRAG["OPC"], mne, rl, getname("r_rl"))
+	build_f("aq", FRAG["OPC"], mne, aq, getname("r_aq"))
+	build_f("funct5", FRAG["OPC"], mne, funct5, getname("r_funct5"))
 	
 	push_asm(f["opcode"])
 	push_asm(f["rd"])
@@ -3355,13 +3444,363 @@ function decodeAMO(bin) {
 	disp_asm()
 }
 
-function decodeJALR(bin) { print "decodeJALR" }
-function decodeLOAD(bin) { print "decodeLOAD" }
-function decodeOP_IMM(bin) { print "decodeOP_IMM" }
-function decodeMISC_MEM(bin) { print "decodeMISC_MEM" }
-function decodeSYSTEM(bin) { print "decodeSYSTEM" }
-function decodeSTORE(bin) { print "decodeSTORE" }
-function decodeBRANCH(bin) { print "decodeBRANCH" }
+function getname(str) {
+	return FIELDS[str]["name"]
+}
+function decodeJALR(bin) { 
+	print "decodeJALR" 
+	extractIFields(bin, fields)
+	imm = fields["imm"]
+	rs1 = fields["rs1"]
+	funct3 = fields["funct3"]
+	rd = fields["rd"]
+
+	mne = "jalr"
+
+	base = decReg(rs1)
+	dest = decReg(rd)
+	offset = decImm(imm)
+	
+	build_f("opcode", FRAG["OPC"], mne, opcode, getname("opcode"))
+	build_f("funct3", FRAG["OPC"], mne, funct3, getname("funct3"))
+	build_f("rd", FRAG["RD"], dest, rd, getname("rd"))
+	build_f("rs1", FRAG["RS1"], base, rs1, getname("rs1"))
+	build_f("imm", FRAG["IMM"], offset, imm, getname("i_imm_11_0"))
+
+	push_asm(f["opcode"])
+	push_asm(f["rd"])
+	push_asm(f["rs1"])
+	push_asm(f["imm"])
+
+	disp_asm()
+
+}
+function decodeLOAD(bin) { 
+	print "decodeLOAD" 
+	extractIFields(bin, fields)
+	imm = fields["imm"]
+	rs1 = fields["rs1"]
+	funct3 = fields["funct3"]
+	rd = fields["rd"]
+	
+	floatInst = ( opcode == OPCODE["LOAD_FP"])
+	mne = floatInst ? ISA_LOAD_FP[funct3] : ISA_LOAD[funct3]
+	print "mne", mne
+	if (mne == "") {
+		print "Detected LOAD" floatInst ? "-FP" : "" " instruction but invalid funct3 field"
+		exit
+	}
+	print "mne", mne
+	base = decReg(rs1)
+	dest = decReg(rd, floatInst)
+	offset = decImm(imm)
+
+	build_f("opcode", FRAG["OPC"], mne, opcode, getname("opcode"))
+	build_f("funct3", FRAG["OPC"], mne, funct3, getname("funct3"))
+	build_f("rd", FRAG["RD"], dest, rd, getname("rd"))
+	build_f("rs1", FRAG["RS1"], base, rs1, getname("rs1"), 1)
+	build_f("imm", FRAG["IMM"], offset, imm, getname("i_imm_11_0"))
+
+	push_asm(f["opcode"])
+	push_asm(f["rd"])
+	push_asm(f["imm"])
+	push_asm(f["rs1"])
+
+	disp_asm()
+
+
+
+}
+
+function decodeOP_IMM(bin) { 
+	print "decodeOP_IMM" 
+	extractIFields(bin, fields)
+	imm = fields["imm"]
+	rs1 = fields["rs1"]
+	funct3 = fields["funct3"]
+	rd = fields["rd"]
+
+	op_imm_32 = (opcode == OPCODE["OP_IMM_32"])
+	op_imm_64 = (opcode == OPCODE["OP_IMM_64"])
+
+	if (op_imm_64) {
+		mne = ISA_OP_IMM_64[funct3]
+		opcodeName = "OP-IMM-64"
+	} else if (op_imm_32) {
+		mne = ISA_OP_IMM_32[funct3]
+		opcodeName = "OP-IMM-32"
+	} else {
+		mne = ISA_OP_IMM[funct3]
+		opcodeName = "OP-IMM"
+	}
+	if (mne == "") {
+		print "Detected", opcodeName, "instruction but invalid funct3 field"
+		exit
+	}
+
+	if (typeof(mne) != "string") {
+		shift = 1
+		mne = mne[fields["shtyp"]]
+	} else {
+		shift = ( funct3 == isa["slli"]["funct3"])
+	}
+
+	src = decReg(rs1)
+	dest = decReg(rd)
+
+	build_f("opcode", FRAG["OPC"], mne, opcode, getname("opcode"))
+	build_f("funct3", FRAG["OPC"], mne, funct3, getname("funct3"))
+	build_f("rd", FRAG["RD"], dest, rd, getname("rd"))
+	build_f("rs1", FRAG["RS1"], src, rs1, getname("rs1"))
+
+	if (shift) {
+		shtyp = fields["shtyp"]
+		shamt_6 = fields["shamt_6"]
+		shamt_5 = fields["shamt_5"]
+		shamt_4_0 = fields["shamt"]
+		shamt_5_0 = shamt_5 shamt_4_0
+		shamt_6_0 = shamt_6 shamt_5_0
+
+		imm_11_7 = "0" shtyp "000"
+		imm_11_6 = imm_11_7 "0"
+		imm_11_5 = imm_11_6 "0"
+
+		shamt = decImm(shamt_6_0, 0)
+	
+		if (op_imm_32) {
+			shamtWitdh = 5
+		} else if (op_imm_64) {
+			shamtWitdh = 6
+			this_isa = "RV128I" # set ISA here to avoid assumed ISA of RV64I below
+		} else if (config["ISA"] == COPTS_ISA["RV32I"] || (shamt_6 == "0" && shamt_5 == "0")) {
+			shamtWitdh = 5
+		} else if (config["ISA"] == COPTS_ISA["RV64I"] || shamt_6 == "0") {
+			shamtWitdh = 6
+		} else {
+			shamtWitdh = 7
+		}
+
+		if (shamt >= 32 && shamtWitdh == 5) {
+			print "Invalid shamt field",shamt,"(out of range for opcode or ISA config)"
+			exit
+		} else if (shamt >= 64 && shamtWitdh == 6) {
+			print "Invalid shamt field",shamt,"(out of range for opcode or ISA config)"
+			exit
+		}
+
+		if (shamtWitdh == 7) {
+			shamt_6_0 = shamt_6 shamt_5 shamt_4_0
+	
+			build_f("imm", FRAG["imm"], shamt, shamt_6_0, getname("i_shamt_6_0"))
+			build_f("shift", FRAG["OPC"], mne, imm_11_7, getname("i_shtyp_11_7"))
+	
+			this_isa = "RV128I"
+		} else if (shamtWitdh == 6) {
+			shamt_5_0 = shamt_5 shamt_4_0
+			
+			build_f("imm", FRAG["IMM"], shamt, shamt_5_0, getname("i_shamt_5_0"))
+			build_f("shift", FRAG["OPC"], mne, imm_11_6, getname("i_shtyp_11_6"))
+
+			this_isa = this_isa ? this_isa : "RV64I"
+		} else {
+			build_f("imm", FRAG["IMM"], shamt, shamt_4_0, getname("i_shamt"))
+			build_f("shift", FRAG["OPC"], mne, imm_11_5, getname("i_shtyp_11_5"))
+		}
+
+		if ((shamtWitdh == 5 && imm_11_5 != substr(imm, 1, 7)) \
+		  ||(shamtWitdh == 6 && imm_11_6 != substr(imm, 1, 6)) \
+		  ||(shamtWitdh == 7 && imm_11_7 != substr(imm, 1, 5))) {
+			print "Detected", this_isa,"shift immediate instruction but invalid shtyp field"
+			exit
+		}
+	} else {
+
+		imm = fields["imm"]
+		immediate = decImm(imm)
+		
+		build_f("imm", FRAG["IMM"], immediate, imm, getname("i_imm_11_0"))
+	}
+
+	push_asm(f["opcode"])
+	push_asm(f["rd"])
+	push_asm(f["rs1"])
+	push_asm(f["imm"])
+
+	disp_asm()
+	
+}
+function decodeMISC_MEM(bin) { 
+	print "decodeMISC_MEM" 
+	extractIFields(bin, fields)
+	imm = fields["imm"]
+	fm = fields["fm"]
+	pred = fields["pred"]
+	succ = fields["succ"]
+	rs1 = fields["rs1"]
+	funct3 = fields["funct3"]
+	rd = fields["rd"]
+
+	mne = ISA_MISC_MEM[funct3]
+
+	if (mne == "") {
+		print "Detected MISC-MEM instruction but invalid funct3 field"
+		exit
+	}
+
+	loadExt = (mne == "lq")
+
+	if (!loadExt && (rd != "00000" || rs1 != "00000")) {
+		print "Registers rd and rs1 should be 0"
+		exit
+	}
+
+	build_f("opcode", FRAG["OPC"], mne, opcode, getname("opcode"))
+	build_f("funct3", FRAG["OPC"], mne, funct3, getname("funct3"))
+
+	if (loadExt) {
+		offset = decImm(imm)
+		base = decReg(rs1)
+		dest = decReg(rd)
+		build_f("imm", FRAG["IMM"], offset, imm, getname("i_imm_11_0"))
+		build_f("rs1", FRAG["RS1"], base, rs1, getname("rs1"), 1)
+		build_f("rd", FRAG["RD"], dest, rd, getname("rd"))
+
+		push_asm(f["opcode"])
+		push_asm(f["rd"])
+		push_asm(f["imm"])
+		push_asm(f["rs1"])
+
+	} else if (mne == "fence") {
+		predecessor = decMem(pred)
+		successor = decMem(succ)
+		
+		build_f("fm", FRAG["OPC"], mne, fm, getname("i_fm"))
+		build_f("pred", FRAG["PRED"], predecessor, pred, getname("i_pred"))
+		build_f("succ", FRAG["SUCC"], successor, succ, getname("i_succ"))
+		build_f("rd", FRAG["OPC"], mne, rd, getname("rd"))
+		build_f("rs1", FRAG["OPC"], mne, rs1, getname("rs1"), loadExt)
+	
+		push_asm(f["opcode"])
+		push_asm(f["pred"])
+		push_asm(f["succ"])
+
+	} else if (mne == "fence.i") {
+		build_f("imm", FRAG["UNSD"], mne, imm, getname("i_imm_11_0"))
+		build_f("rs1", FRAG["UNSD"], mne, rs1, getname("rs1"))
+		build_f("rd", FRAG["UNSD"], mne, rd, getname("rd"))
+		
+		push_asm(f["opcode"])
+		
+	}
+	disp_asm()
+	
+}
+function decodeSYSTEM(bin) { 
+	print "decodeSYSTEM" 
+	extractIFields(bin, fields)
+	funct12 = fields["imm"]
+	rs1 = fields["rs1"]
+	funct3 = fields["funct3"]
+	rd = fields["rd"]
+
+	print "rd", rd
+	print "rs1", rs1
+	mne = ISA_SYSTEM[funct3]
+	
+	if (mne == "") {
+		print "Detected SYSTEM instruction but invalid funct3 field"
+		exit
+	}
+
+	trap = (typeof(mne) != "string")
+	if (trap) {
+		mne = mne[funct12]
+		if (mne == "") {
+			print "Detected SYSTEM instruction but invalid funct12 field"
+			exit
+		}
+		if (rd != "00000" || rs != "00000") {
+			print "Registers rd and rs1 should be 0 for mne", mne
+			exit
+		}
+	}
+
+	build_f("opcode", FRAG["OPC"], mne, opcode, getname("opcode"))
+	build_f("funct3", FRAG["OPC"], mne, funct3, getname("funct3"))
+
+	if (trap) {
+		build_f("rd", FRAG["OPC"], mne, rd, getname("rd"))
+		build_f("rs1", FRAG["OPC"], mne, rs1, getname("rs1"))
+		build_f("funct12", FRAG["OPC"], mne, funct12, getname("i_funct12"))
+		
+		push_asm(f["opcode"])
+	} else {
+		csrBin = funct12
+		
+		dest = decReg(rd)
+		csr = decCSR(csrBin)
+		print "CSR", csr
+
+		if (substr(funct3, 1, 1) == "0") {
+			src = decReg(rs1)
+			srcFieldName = getname("rs1")
+		} else {
+			src = decImm(rs1, 0)
+			srcFieldName = getname("i_imm_4_0")
+		}
+
+		build_f("rd", FRAG["RD"], dest, rd, getname("rd"))
+		build_f("csr", FRAG["CSR"], csr, csrBin, getname("i_csr"))
+		build_f("rs1", FRAG["RS1"], src, rs1, srcFieldName)
+
+		push_asm(f["opcode"])
+		push_asm(f["rd"])
+		push_asm(f["csr"])
+		push_asm(f["rs1"])
+	}
+	disp_asm()
+		
+}
+function decodeSTORE(bin) { 
+	print "decodeSTORE" 
+	extractSFields(bin, fields)
+	imm_11_5 = fields["imm_11_5"]
+	rs2 = fields["rs2"]
+	rs1 = fields["rs1"]
+	funct3 = fields["funct3"]
+	imm_4_0 = fields["imm_4_0"]
+	imm = imm_11_5 imm_4_0
+
+	floatInst = (opcode == OPCODE["STORE_FP"])
+	mne = floatInst ? ISA_STORE_FP[funct3] : ISA_STORE[funct3]
+
+	if (mne == "" ) {
+		print "Detected STORE" floatInst ? "-FP" : "", "instruction but invalid funct3 field"
+		exit
+	}
+	offset = decImm(imm)
+	base = decReg(rs1)
+	src = decReg(rs2, floatInst)
+
+	build_f("opcode", FRAG["OPC"], mne, opcode, getname("opcode"))
+	build_f("funct3", FRAG["OPC"], mne, funct3, getname("funct3"))
+	build_f("rs1", FRAG["RS1"], base, rs1, getname("rs1"), 1)
+	build_f("rs2", FRAG["RS2"], src, opcode, getname("rs2"))
+	build_f("imm_4_0", FRAG["IMM"], offset, imm_4_0, getname("s_imm_4_0"))
+	build_f("imm_11_5", FRAG["IMM"], offset, imm_11_5, getname("s_imm_11_5"))
+	build_f("imm", FRAG["IMM"], offset, imm, "imm")
+
+	push_asm(f["opcode"])
+	push_asm(f["rs2"])
+	push_asm(f["imm"])
+	push_asm(f["rs1"])
+
+	disp_asm()
+
+}
+function decodeBRANCH(bin) { 
+	print "decodeBRANCH" 
+}
 function decodeUType(bin) { print "decodeUType" }
 function decodeJAL(bin) { print "decodeJAL" }
 function decodeR4(bin) { print "decodeR4" }
@@ -3376,8 +3815,10 @@ function build_f(col, id, asm, bits, field, mem) {
 	}
 }
 function disp_asm() {
+	print "ISA", this_isa
 	for(n in asmFrags) {
 		asm = asmFrags[n]["asm"]
+		print n, asm
 		if (asmFrags[n]["mem"] == 1) {
 			asm = "(" asm ")"
 		}
