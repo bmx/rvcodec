@@ -2072,85 +2072,154 @@ BEGIN {
 	CSR["vstval"] = 0x243
 	CSR["vstvec"] = 0x205
 
-	FIELD["opcode"]["pos"] = "6,7"
-	FIELD["rd"]["pos"] = "11,5"
-	FIELD["funct3"]["pos"] = "14,3"
-	FIELD["rs1"]["pos"] = "19,5"
-	FIELD["rs2"]["pos"] = "24,5"
+	FIELDS["opcode"]["name"] = "opcode"
+	FIELDS["rd"]["name"] = "rd"
+	FIELDS["funct3"]["name"] = "funct3"
+	FIELDS["rs1"]["name"] = "rs1"
+	FIELDS["rs2"]["name"] = "rs2"
+	FIELDS["r_funct5"]["name"] = "funct5"
+	FIELDS["r_funct7"]["name"] = "funct7"
+	FIELDS["r_aq"]["name"] = "aq"
+	FIELDS["r_rl"]["name"] = "rl"
+	FIELDS["r_fp_fmt"]["name"] = "fmt"
+	FIELDS["i_imm_11_0"]["name"] = "imm[11:0]"
+	FIELDS["i_shtyp_11_7"]["name"] = "shtyp[11:7]"
+	FIELDS["i_shtyp_11_6"]["name"] = "shtyp[11:6]"
+	FIELDS["i_shtyp_11_5"]["name"] = "shtyp[11:5]"
+	FIELDS["i_shtyp"]["name"] = "shtyp"
+	FIELDS["i_shamt_6"]["name"] = "shamt[6]"
+	FIELDS["i_shamt_6_0"]["name"] = "shamt[6:0]"
+	FIELDS["i_shamt_5"]["name"] = "shamt[5]"
+	FIELDS["i_shamt_5_0"]["name"] = "shamt[5:0]"
+	FIELDS["i_shamt"]["name"] = "shamt[4:0]"
+	FIELDS["i_funct12"]["name"] = "funct12"
+	FIELDS["i_csr"]["name"] = "csr"
+	FIELDS["i_imm_4_0"]["name"] = "imm[4:0]"
+	FIELDS["i_fm"]["name"] = "fm"
+	FIELDS["i_pred"]["name"] = "pred"
+	FIELDS["i_succ"]["name"] = "succ"
+	FIELDS["s_imm_4_0"]["name"] = "imm[4:0]"
+	FIELDS["s_imm_11_5"]["name"] = "imm[11:5]"
+	FIELDS["b_imm_4_1"]["name"] = "imm[4:1]"
+	FIELDS["b_imm_11"]["name"] = "imm[11]"
+	FIELDS["b_imm_10_5"]["name"] = "imm[10:5]"
+	FIELDS["b_imm_12"]["name"] = "imm[12]"
+	FIELDS["u_imm_31_12"]["name"] = "imm[31:12]"
+	FIELDS["j_imm_20"]["name"] = "imm[20]"
+	FIELDS["j_imm_10_1"]["name"] = "imm[10:1]"
+	FIELDS["j_imm_11"]["name"] = "imm[11]"
+	FIELDS["j_imm_19_12"]["name"] = "imm[19:12]"
+	FIELDS["c_opcode"]["name"] = "opcode"
+	FIELDS["c_funct6"]["name"] = "funct6"
+	FIELDS["c_funct4"]["name"] = "funct4"
+	FIELDS["c_funct3"]["name"] = "funct3"
+	FIELDS["c_funct2"]["name"] = "funct2"
+	FIELDS["c_funct2_cb"]["name"] = "funct2"
+	FIELDS["c_rd"]["name"] = "rd"
+	FIELDS["c_rs1"]["name"] = "rs1"
+	FIELDS["c_rd_rs1"]["name"] = "rd/rs1"
+	FIELDS["c_rs2"]["name"] = "rs2"
+	FIELDS["c_rd_prime"]["name"] = "rd'"
+	FIELDS["c_rs2_prime"]["name"] = "rs2'"
+	FIELDS["c_rs1_prime"]["name"] = "rs1'"
+	FIELDS["c_rd_rs1_prime"]["name"] = "rd'/rs'"
+	FIELDS["c_imm_ci_0"]["name"] = "imm"
+	FIELDS["c_imm_ci_1"]["name"] = "imm"
+	FIELDS["c_imm_css"]["name"] = "imm"
+	FIELDS["c_imm_ciw"]["name"] = "imm"
+	FIELDS["c_imm_cl_0"]["name"] = "imm"
+	FIELDS["c_imm_cl_1"]["name"] = "imm"
+	FIELDS["c_imm_ci_0"]["name"] = "imm"
+	FIELDS["c_imm_cs_0"]["name"] = "imm"
+	FIELDS["c_imm_cs_1"]["name"] = "imm"
+	FIELDS["c_imm_cb_0"]["name"] = "imm"
+	FIELDS["c_imm_cb_1"]["name"] = "imm"
+	FIELDS["c_imm_cj"]["name"] = "imm"
+	FIELDS["c_shamt_0"]["name"] = "shamt"
+	FIELDS["c_shamt_1"]["name"] = "shamt"
+	
 
-	FIELD["r_funct5"]["pos"] = "31,5"
-	FIELD["r_funct7"]["pos"] = "31,7"
+	
 
-	FIELD["r_aq"]["pos"] = "26,1"
-	FIELD["r_rl"]["pos"] = "25,1"
+	FIELDS["opcode"]["pos"] = "6,7"
+	FIELDS["rd"]["pos"] = "11,5"
+	FIELDS["funct3"]["pos"] = "14,3"
+	FIELDS["rs1"]["pos"] = "19,5"
+	FIELDS["rs2"]["pos"] = "24,5"
 
-	FIELD["r_fp_fmt"]["pos"] = "26,2"
+	FIELDS["r_funct5"]["pos"] = "31,5"
+	FIELDS["r_funct7"]["pos"] = "31,7"
 
-	FIELD["i_imm_11_0"]["pos"] = "31,12"
+	FIELDS["r_aq"]["pos"] = "26,1"
+	FIELDS["r_rl"]["pos"] = "25,1"
 
-	FIELD["i_shtyp_11_7"]["pos"] = "31,5"
-	FIELD["i_shtyp_11_6"]["pos"] = "31,6"
-	FIELD["i_shtyp_11_5"]["pos"] = "31,7"
-	FIELD["i_shtyp"]["pos"] = "30,1"
-	FIELD["i_shamt_6"]["pos"] = "26,1"
-	FIELD["i_shamt_6_0"]["pos"] = "26,7"
-	FIELD["i_shamt_5"]["pos"] = "25,1"
-	FIELD["i_shamt_5_0"]["pos"] = "25,6"
-	FIELD["i_shamt"]["pos"] = "24,5"
+	FIELDS["r_fp_fmt"]["pos"] = "26,2"
 
-	FIELD["i_funct12"]["pos"] = "31,12"
+	FIELDS["i_imm_11_0"]["pos"] = "31,12"
 
-	FIELD["i_csr"]["pos"] = "31,12"
-	FIELD["i_imm_4_0"]["pos"] = "19,5"
+	FIELDS["i_shtyp_11_7"]["pos"] = "31,5"
+	FIELDS["i_shtyp_11_6"]["pos"] = "31,6"
+	FIELDS["i_shtyp_11_5"]["pos"] = "31,7"
+	FIELDS["i_shtyp"]["pos"] = "30,1"
+	FIELDS["i_shamt_6"]["pos"] = "26,1"
+	FIELDS["i_shamt_6_0"]["pos"] = "26,7"
+	FIELDS["i_shamt_5"]["pos"] = "25,1"
+	FIELDS["i_shamt_5_0"]["pos"] = "25,6"
+	FIELDS["i_shamt"]["pos"] = "24,5"
 
-	FIELD["i_fm"]["pos"] = "31,4"
-	FIELD["i_pred"]["pos"] = "27,4"
-	FIELD["i_succ"]["pos"] = "23,4"
+	FIELDS["i_funct12"]["pos"] = "31,12"
 
-	FIELD["s_imm_4_0"]["pos"] = "11,5"
-	FIELD["s_imm_11_5"]["pos"] = "31,7"
+	FIELDS["i_csr"]["pos"] = "31,12"
+	FIELDS["i_imm_4_0"]["pos"] = "19,5"
 
-	FIELD["b_imm_4_1"]["pos"] = "11,4"
-	FIELD["b_imm_11"]["pos"] = "7,1"
-	FIELD["b_imm_10_5"]["pos"] = "30,6"
-	FIELD["b_imm_12"]["pos"] = "31,1"
+	FIELDS["i_fm"]["pos"] = "31,4"
+	FIELDS["i_pred"]["pos"] = "27,4"
+	FIELDS["i_succ"]["pos"] = "23,4"
 
-	FIELD["u_imm_31_12"]["pos"] = "31,20"
+	FIELDS["s_imm_4_0"]["pos"] = "11,5"
+	FIELDS["s_imm_11_5"]["pos"] = "31,7"
 
-	FIELD["j_imm_20"]["pos"] = "31,1"
-	FIELD["j_imm_10_1"]["pos"] = "30,10"
-	FIELD["j_imm_11"]["pos"] = "20,1"
-	FIELD["j_imm_19_12"]["pos"] = "19,8"
+	FIELDS["b_imm_4_1"]["pos"] = "11,4"
+	FIELDS["b_imm_11"]["pos"] = "7,1"
+	FIELDS["b_imm_10_5"]["pos"] = "30,6"
+	FIELDS["b_imm_12"]["pos"] = "31,1"
 
-	FIELD["c_opcode"]["pos"] = "1,2"
-	FIELD["c_funct6"]["pos"] = "15,6"
-	FIELD["c_funct4"]["pos"] = "15,4"
-	FIELD["c_funct3"]["pos"] = "15,3"
-	FIELD["c_funct2"]["pos"] = "6,2"
-	FIELD["c_funct2_cb"]["pos"] = "11,2"
+	FIELDS["u_imm_31_12"]["pos"] = "31,20"
 
-	FIELD["c_rd"]["pos"] = "11,5"
-	FIELD["c_rs1"]["pos"] = "11,5"
-	FIELD["c_rd_rs1"]["pos"] = "11,5"
-	FIELD["c_rs2"]["pos"] = "6,5"
-	FIELD["c_rd_prime"]["pos"] = "4,3"
-	FIELD["c_rs2_prime"]["pos"] = "4,3"
-	FIELD["c_rs1_prime"]["pos"] = "9,3"
-	FIELD["c_rs_rs1_prime"]["pos"] = "9,3"
+	FIELDS["j_imm_20"]["pos"] = "31,1"
+	FIELDS["j_imm_10_1"]["pos"] = "30,10"
+	FIELDS["j_imm_11"]["pos"] = "20,1"
+	FIELDS["j_imm_19_12"]["pos"] = "19,8"
 
-	FIELD["c_imm_ci_0"]["pos"] = "12,1"
-	FIELD["c_imm_ci_1"]["pos"] = "6,5"
-	FIELD["c_imm_css"]["pos"] = "12,6"
-	FIELD["c_imm_ciw"]["pos"] = "12,8"
-	FIELD["c_imm_cl_0"]["pos"] = "12,3"
-	FIELD["c_imm_cl_1"]["pos"] = "6,2"
-	FIELD["c_imm_cs_0"]["pos"] = "12,3"
-	FIELD["c_imm_cs_1"]["pos"] = "6,2"
-	FIELD["c_imm_cb_0"]["pos"] = "12,3"
-	FIELD["c_imm_cb_1"]["pos"] = "6,5"
-	FIELD["c_imm_cj"]["pos"] = "12,11"
-	FIELD["c_shamt_0"]["pos"] = "12,1"
-	FIELD["c_shamt_1"]["pos"] = "6,5"
+	FIELDS["c_opcode"]["pos"] = "1,2"
+	FIELDS["c_funct6"]["pos"] = "15,6"
+	FIELDS["c_funct4"]["pos"] = "15,4"
+	FIELDS["c_funct3"]["pos"] = "15,3"
+	FIELDS["c_funct2"]["pos"] = "6,2"
+	FIELDS["c_funct2_cb"]["pos"] = "11,2"
+
+	FIELDS["c_rd"]["pos"] = "11,5"
+	FIELDS["c_rs1"]["pos"] = "11,5"
+	FIELDS["c_rd_rs1"]["pos"] = "11,5"
+	FIELDS["c_rs2"]["pos"] = "6,5"
+	FIELDS["c_rd_prime"]["pos"] = "4,3"
+	FIELDS["c_rs2_prime"]["pos"] = "4,3"
+	FIELDS["c_rs1_prime"]["pos"] = "9,3"
+	FIELDS["c_rd_rs1_prime"]["pos"] = "9,3"
+
+	FIELDS["c_imm_ci_0"]["pos"] = "12,1"
+	FIELDS["c_imm_ci_1"]["pos"] = "6,5"
+	FIELDS["c_imm_css"]["pos"] = "12,6"
+	FIELDS["c_imm_ciw"]["pos"] = "12,8"
+	FIELDS["c_imm_cl_0"]["pos"] = "12,3"
+	FIELDS["c_imm_cl_1"]["pos"] = "6,2"
+	FIELDS["c_imm_cs_0"]["pos"] = "12,3"
+	FIELDS["c_imm_cs_1"]["pos"] = "6,2"
+	FIELDS["c_imm_cb_0"]["pos"] = "12,3"
+	FIELDS["c_imm_cb_1"]["pos"] = "6,5"
+	FIELDS["c_imm_cj"]["pos"] = "12,11"
+	FIELDS["c_shamt_0"]["pos"] = "12,1"
+	FIELDS["c_shamt_1"]["pos"] = "6,5"
 
 	# RV32I 
 	ISA_OP[isa["add"]["funct7"] isa["add"]["funct3"]] = "add"
@@ -2221,7 +2290,100 @@ BEGIN {
 	ISA_OP_IMM[isa["ori"]["funct3"]] = "ori"
 	ISA_OP_IMM[isa["andi"]["funct3"]] = "andi"
 
+	ISA_OP_IMM[isa["slli"]["funct3"]] = "slli"
+	ISA_OP_IMM[isa["srli"]["funct3"]][isa["srli"]["shtyp"]] = "srli"
+	ISA_OP_IMM[isa["srli"]["funct3"]][isa["srai"]["shtyp"]] = "srai"
+
+
+	ISA_OP_IMM_32[isa["addiw"]["funct3"]] = "addiw"
+	ISA_OP_IMM_32[isa["slliw"]["funct3"]] = "slliw"
+	ISA_OP_IMM_32[isa["srliw"]["funct3"]][isa["srliw"]["shtyp"]] = "srliw"
+	ISA_OP_IMM_32[isa["srliw"]["funct3"]][isa["sraiw"]["shtyp"]] = "sraiw"
+
+	ISA_OP_IMM_64[isa["addid"]["funct3"]] = "addid"
+	ISA_OP_IMM_64[isa["sllid"]["funct3"]] = "sllid"
+	ISA_OP_IMM_64[isa["srlid"]["funct3"]][isa["srlid"]["shtyp"]] = "srlid"
+	ISA_OP_IMM_64[isa["srlid"]["funct3"]][isa["sraid"]["shtyp"]] = "sraid"
+
+	ISA_BRANCH[isa["beq"]["funct3"]] = "beq"
+	ISA_BRANCH[isa["bne"]["funct3"]] = "bne"
+	ISA_BRANCH[isa["blt"]["funct3"]] = "blt"
+	ISA_BRANCH[isa["bge"]["funct3"]] = "bge"
+	ISA_BRANCH[isa["bltu"]["funct3"]] = "bltu"
+	ISA_BRANCH[isa["bgeu"]["funct3"]] = "bgeu"
+
+	ISA_MISC_MEM[isa["fence"]["funct3"]] = "fence"
+	ISA_MISC_MEM[isa["fence.i"]["funct3"]] = "fence.i"
+	ISA_MISC_MEM[isa["lq"]["funct3"]] = "lq"
+
+	ISA_SYSTEM[isa["ecall"]["funct3"]][isa["ecall"]["funct12"]]= "ecall"
+	ISA_SYSTEM[isa["ecall"]["funct3"]][isa["ebreak"]["funct12"]]= "ebreak"
+	ISA_SYSTEM[isa["csrrw"]["funct3"]] = "csrrw"
+	ISA_SYSTEM[isa["csrrs"]["funct3"]] = "csrrs"
+	ISA_SYSTEM[isa["csrrc"]["funct3"]] = "csrrc"
+	ISA_SYSTEM[isa["csrrwi"]["funct3"]] = "csrrwi"
+	ISA_SYSTEM[isa["csrrsi"]["funct3"]] = "csrrsi"
+	ISA_SYSTEM[isa["csrrci"]["funct3"]] = "csrrci"
+
+	ISA_AMO[isa["lr.w"]["funct5"] isa["lr.w"]["funct3"]] = "lr.w"
+	ISA_AMO[isa["sc.w"]["funct5"] isa["sc.w"]["funct3"]] = "sc.w"
+	ISA_AMO[isa["amoswap.w"]["funct5"] isa["amoswap.w"]["funct3"]] = "amoswap.w"
+	ISA_AMO[isa["amoadd.w"]["funct5"] isa["amoadd.w"]["funct3"]] = "amoadd.w"
+	ISA_AMO[isa["amoxor.w"]["funct5"] isa["amoxor.w"]["funct3"]] = "amoxor.w"
+	ISA_AMO[isa["amoand.w"]["funct5"] isa["amoand.w"]["funct3"]] = "amoand.w"
+	ISA_AMO[isa["amoor.w"]["funct5"] isa["amoor.w"]["funct3"]] = "amoor.w"
+	ISA_AMO[isa["amomin.w"]["funct5"] isa["amomin.w"]["funct3"]] = "amomin.w"
+	ISA_AMO[isa["amomax.w"]["funct5"] isa["amomax.w"]["funct3"]] = "amomax.w"
+	ISA_AMO[isa["amominu.w"]["funct5"] isa["amominu.w"]["funct3"]] = "amominu.w"
+	ISA_AMO[isa["amomaxu.w"]["funct5"] isa["amomaxu.w"]["funct3"]] = "amomaxu.w"
+
+	ISA_AMO[isa["lr.d"]["funct5"] isa["lr.d"]["funct3"]] = "lr.d"
+	ISA_AMO[isa["sc.d"]["funct5"] isa["sc.d"]["funct3"]] = "sc.d"
+	ISA_AMO[isa["amoswap.d"]["funct5"] isa["amoswap.d"]["funct3"]] = "amoswap.d"
+	ISA_AMO[isa["amoadd.d"]["funct5"] isa["amoadd.d"]["funct3"]] = "amoadd.d"
+	ISA_AMO[isa["amoxor.d"]["funct5"] isa["amoxor.d"]["funct3"]] = "amoxor.d"
+	ISA_AMO[isa["amoand.d"]["funct5"] isa["amoand.d"]["funct3"]] = "amoand.d"
+	ISA_AMO[isa["amoor.d"]["funct5"] isa["amoor.d"]["funct3"]] = "amoor.d"
+	ISA_AMO[isa["amomin.d"]["funct5"] isa["amomin.d"]["funct3"]] = "amomin.d"
+	ISA_AMO[isa["amomax.d"]["funct5"] isa["amomax.d"]["funct3"]] = "amomax.d"
+	ISA_AMO[isa["amominu.d"]["funct5"] isa["amominu.d"]["funct3"]] = "amominu.d"
+	ISA_AMO[isa["amomaxu.d"]["funct5"] isa["amomaxu.d"]["funct3"]] = "amomaxu.d"
+
+	ISA_AMO[isa["lr.q"]["funct5"] isa["lr.q"]["funct3"]] = "lr.q"
+	ISA_AMO[isa["sc.q"]["funct5"] isa["sc.q"]["funct3"]] = "sc.q"
+	ISA_AMO[isa["amoswap.q"]["funct5"] isa["amoswap.q"]["funct3"]] = "amoswap.q"
+	ISA_AMO[isa["amoadd.q"]["funct5"] isa["amoadd.q"]["funct3"]] = "amoadd.q"
+	ISA_AMO[isa["amoxor.q"]["funct5"] isa["amoxor.q"]["funct3"]] = "amoxor.q"
+	ISA_AMO[isa["amoand.q"]["funct5"] isa["amoand.q"]["funct3"]] = "amoand.q"
+	ISA_AMO[isa["amoor.q"]["funct5"] isa["amoor.q"]["funct3"]] = "amoor.q"
+	ISA_AMO[isa["amomin.q"]["funct5"] isa["amomin.q"]["funct3"]] = "amomin.q"
+	ISA_AMO[isa["amomax.q"]["funct5"] isa["amomax.q"]["funct3"]] = "amomax.q"
+	ISA_AMO[isa["amominu.q"]["funct5"] isa["amominu.q"]["funct3"]] = "amominu.q"
+	ISA_AMO[isa["amomaxu.q"]["funct5"] isa["amomaxu.q"]["funct3"]] = "amomaxu.q"
 	
+	ISA_LOAD_FP[FP_WIDTH["S"]] = "flw"
+	ISA_LOAD_FP[FP_WIDTH["D"]] = "fld"
+	ISA_LOAD_FP[FP_WIDTH["Q"]] = "flq"
+
+	ISA_STORE_FP[FP_WIDTH["S"]] = "fsw"
+	ISA_STORE_FP[FP_WIDTH["D"]] = "fsd"
+	ISA_STORE_FP[FP_WIDTH["Q"]] = "fsq"
+
+	ISA_MADD[FP_FMT["S"]] = "fmadd.s"
+	ISA_MADD[FP_FMT["D"]] = "fmadd.d"
+	ISA_MADD[FP_FMT["Q"]] = "fmadd.q"
+
+	ISA_MSUB[FP_FMT["S"]] = "fmsub.s"
+	ISA_MSUB[FP_FMT["D"]] = "fmsub.d"
+	ISA_MSUB[FP_FMT["Q"]] = "fmsub.q"
+
+	ISA_NMADD[FP_FMT["S"]] = "fnmadd.s"
+	ISA_NMADD[FP_FMT["D"]] = "fnmadd.d"
+	ISA_NMADD[FP_FMT["Q"]] = "fnmadd.q"
+
+	ISA_NMSUB[FP_FMT["S"]] = "fnmsub.s"
+	ISA_NMSUB[FP_FMT["D"]] = "fnmsub.d"
+	ISA_NMSUB[FP_FMT["Q"]] = "fnmsub.q"
 
 	ISA_OP_FP[isa["fadd.s"]["funct5"]][FP_FMT["S"]] = "fadd.s"
 	ISA_OP_FP[isa["fadd.s"]["funct5"]][FP_FMT["D"]] = "fadd.d"
@@ -2272,14 +2434,23 @@ BEGIN {
 	ISA_OP_FP[isa["fmin.s"]["funct5"]][FP_FMT["D"]][isa["fmax.d"]["funct3"]] = "fmax.d"
 	ISA_OP_FP[isa["fmin.s"]["funct5"]][FP_FMT["Q"]][isa["fmin.q"]["funct3"]] = "fmin.q"
 	ISA_OP_FP[isa["fmin.s"]["funct5"]][FP_FMT["Q"]][isa["fmax.q"]["funct3"]] = "fmax.q"
-	
+
+	ISA_OP_FP[isa["feq.s"]["funct5"]][FP_FMT["S"]][isa["feq.s"]["funct3"]] = "feq.s"
+	ISA_OP_FP[isa["feq.s"]["funct5"]][FP_FMT["S"]][isa["flt.s"]["funct3"]] = "flt.s"
+	ISA_OP_FP[isa["feq.s"]["funct5"]][FP_FMT["S"]][isa["fle.s"]["funct3"]] = "fle.s"
+	ISA_OP_FP[isa["feq.s"]["funct5"]][FP_FMT["D"]][isa["feq.d"]["funct3"]] = "feq.d"
+	ISA_OP_FP[isa["feq.s"]["funct5"]][FP_FMT["D"]][isa["flt.d"]["funct3"]] = "flt.d"
+	ISA_OP_FP[isa["feq.s"]["funct5"]][FP_FMT["D"]][isa["fle.d"]["funct3"]] = "fle.d"
+	ISA_OP_FP[isa["feq.s"]["funct5"]][FP_FMT["Q"]][isa["feq.q"]["funct3"]] = "feq.q"
+	ISA_OP_FP[isa["feq.s"]["funct5"]][FP_FMT["Q"]][isa["flt.q"]["funct3"]] = "flt.q"
+	ISA_OP_FP[isa["feq.s"]["funct5"]][FP_FMT["Q"]][isa["fle.q"]["funct3"]] = "fle.q"
 	
 }
 {
 	input=$0
 }
 END {
-	print "end", input
+	print input
 
 	# is it 0xCAFEBABE
 	try = strtonum(input)
@@ -2304,7 +2475,7 @@ END {
 		num_ok=1
 	}
 	if (num_ok && valid_hex_len[length(input)]) {
-		print "decode", try
+		#print "decode", try
 		decode(n2b(try,32))
 	} else {
 		print "encode", input
@@ -3002,7 +3173,7 @@ function getBits(binary, pos) {
 		print "getBits: position error", pos
 		exit
 	}
-	print "apos[1], apos[2]", apos[1], apos[2], substr(binary, length(binary)-apos[1], apos[2])
+	#print "apos[1], apos[2]", apos[1], apos[2], substr(binary, length(binary)-apos[1], apos[2])
 
 	return substr(binary, length(binary)-apos[1], apos[2])
 }
@@ -3011,18 +3182,18 @@ function decReg(reg, floatReg) {
 }
 
 function extractRFields(binary, a) {
-	a["rs2"] = getBits(binary, FIELD["rs2"]["pos"])
-	a["rs1"] = getBits(binary, FIELD["rs1"]["pos"])
-	a["funct3"] = getBits(binary, FIELD["funct3"]["pos"])
-	a["rd"] = getBits(binary, FIELD["rd"]["pos"])
-	a["funct5"] = getBits(binary, FIELD["r_funct5"]["pos"])
-	a["funct7"] = getBits(binary, FIELD["r_funct7"]["pos"])
-	a["aq"] = getBits(binary, FIELD["r_aq"]["pos"])
-	a["rl"] = getBits(binary, FIELD["r_rl"]["pos"])
-	a["fmt"] = getBits(binary, FIELD["r_fp_fmt"]["pos"])
+	a["rs2"] = getBits(binary, FIELDS["rs2"]["pos"])
+	a["rs1"] = getBits(binary, FIELDS["rs1"]["pos"])
+	a["funct3"] = getBits(binary, FIELDS["funct3"]["pos"])
+	a["rd"] = getBits(binary, FIELDS["rd"]["pos"])
+	a["funct5"] = getBits(binary, FIELDS["r_funct5"]["pos"])
+	a["funct7"] = getBits(binary, FIELDS["r_funct7"]["pos"])
+	a["aq"] = getBits(binary, FIELDS["r_aq"]["pos"])
+	a["rl"] = getBits(binary, FIELDS["r_rl"]["pos"])
+	a["fmt"] = getBits(binary, FIELDS["r_fp_fmt"]["pos"])
 }
 function decodeOP(bin) { 
-	print "decodeOP", opcode
+	print "decodeOP"
 	print "bin", bin
 	extractRFields(bin, fields)
 	funct7 = fields["funct7"]
@@ -3052,7 +3223,20 @@ function decodeOP(bin) {
 	src2 = decReg(rs2)
 	dest = decReg(rd)
 
+	build_f("opcode", FRAG["OPC"], mne, opcode, FIELDS["opcode"]["name"])
+	build_f("funct3", FRAG["OPC"], mne, funct3, FIELDS["funct3"]["name"])
+	build_f("funct7", FRAG["OPC"], mne, funct7, FIELDS["r_funct7"]["name"])
+	build_f("rd", FRAG["RD"], dest, rd, FIELDS["rd"]["name"])
+	build_f("rs1", FRAG["RS1"], src1, rs1, FIELDS["rs1"]["name"])
+	build_f("rs2", FRAG["RS2"], src2, rs2, FIELDS["rs2"]["name"])
+	
 	printf "%s %s, %s, %s\n", mne, dest, src1, src2
+	push_asm(f["opcode"])
+	push_asm(f["rd"])
+	push_asm(f["rs1"])
+	push_asm(f["rs2"])
+
+	disp_asm()
 }
 function decodeOP_FP(bin) { 
 	print "decodeOP_FP" 
@@ -3107,33 +3291,124 @@ function decodeOP_FP(bin) {
 	src1 = decReg(rs1, floatRs1)
 	src2 = decReg(rs2, 1)
 	dest = decReg(rd, floatRd)
+	
+	useRm = (funct3 == "")
 
+	build_f("opcode", FRAG["OPC"], mne, opcode, FIELDS["opcode"]["name"])
+	build_f("funct3", FRAG["OPC"], mne, funct3, useRm ? "rm" : FIELDS["funct3"]["name"])
+	build_f("funct5", FRAG["OPC"], mne, funct5, FIELDS["r_funct5"]["name"])
+	build_f("fmt", FRAG["OPC"], mne, fmt, FIELDS["r_fp_fmt"]["name"])
+	build_f("rd", FRAG["RD"], dest, opcode, FIELDS["rd"]["name"])
+	build_f("rs1", FRAG["RS1"], src1, opcode, FIELDS["rs1"]["name"])
+	build_f("rs2", FRAG["RS2"], src2, opcode, FIELDS["rs2"]["name"])
+	push_asm(f["opcode"])
+	push_asm(f["rd"])
+	push_asm(f["rs1"])
 	if (useRs2) {
+		f["rs2"]["id"] = FRAG["RS2"]
+		push_asm(f["rs2"])
 		printf "%s %s, %s, %s\n", mne, dest, src1, src2
 	} else {
 		printf "%s %s, %s\n", mne, dest, src1
 	}
+	disp_asm()
 		
 }
-function decodeAMO() { print "decodeAMO" }
-function decodeJALR() { print "decodeJALR" }
-function decodeLOAD() { print "decodeLOAD" }
-function decodeOP_IMM() { print "decodeOP_IMM" }
-function decodeMISC_MEM() { print "decodeMISC_MEM" }
-function decodeSYSTEM() { print "decodeSYSTEM" }
-function decodeSTORE() { print "decodeSTORE" }
-function decodeBRANCH() { print "decodeBRANCH" }
-function decodeUType() { print "decodeUType" }
-function decodeJAL() { print "decodeJAL" }
-function decodeR4() { print "decodeR4" }
+function decodeAMO(bin) { 
+	print "decodeAMO" 
+	extractRFields(bin, fields)
+	funct5 = fields["funct5"]
+	aq = fields["aq"]
+	rl = fields["rl"]
+	rs2 = fields["rs2"]
+	rs1 = fields["rs1"]
+	funct3 = fields["funct3"]
+	rd = fields["rd"]
+
+	mne = ISA_AMO[funct5 funct3]
+	if (mne == "") {
+		print "Detected AMO instruction but invalid funct5 and funct3 fields";
+		exit
+	}
+
+	lr = (mme ~ /^lr\./)
+	dest = decReg(rd)
+	addr = decReg(rs1)
+	src = lr ? "n/a" : decReg(rs2)
+	
+	build_f("opcode", FRAG["OPC"] , mne , opcode, FIELDS["opcode"]["name"])
+	build_f("rd", FRAG["RD"], dest, rd, FIELDS["rd"]["name"])
+	build_f("funct3", FRAG["OPC"], mne, funct3, FIELDS["funct3"]["name"])
+	build_f("rs1", FRAG["RS1"], addr, rs1, FIELDS["rs1"]["name"], f["rs1"]["mem"] = 1)
+	build_f("rs2", FRAG["OPC"], src, rs2, FIELDS["rs2"]["name"])
+	build_f("rl", FRAG["OPC"], mne, rl, FIELDS["r_rl"]["name"])
+	build_f("aq", FRAG["OPC"], mne, aq, FIELDS["r_aq"]["name"])
+	build_f("funct5", FRAG["OPC"], mne, funct5, FIELDS["r_funct5"]["name"])
+	
+	push_asm(f["opcode"])
+	push_asm(f["rd"])
+	if (!lr) {
+		f["rs2"]["id"] = FRAG["RS2"]
+		push_asm(f["rs2"])
+	} 
+	push_asm(f["rs1"])
+	disp_asm()
+}
+
+function decodeJALR(bin) { print "decodeJALR" }
+function decodeLOAD(bin) { print "decodeLOAD" }
+function decodeOP_IMM(bin) { print "decodeOP_IMM" }
+function decodeMISC_MEM(bin) { print "decodeMISC_MEM" }
+function decodeSYSTEM(bin) { print "decodeSYSTEM" }
+function decodeSTORE(bin) { print "decodeSTORE" }
+function decodeBRANCH(bin) { print "decodeBRANCH" }
+function decodeUType(bin) { print "decodeUType" }
+function decodeJAL(bin) { print "decodeJAL" }
+function decodeR4(bin) { print "decodeR4" }
+
+function build_f(col, id, asm, bits, field, mem) {
+	f[col]["id"] = id
+	f[col]["asm"] = asm
+	f[col]["bits"] = bits
+	f[col]["field"] = field
+	if (mem) { 
+		f[col]["mem"] = 1
+	}
+}
+function disp_asm() {
+	for(n in asmFrags) {
+		asm = asmFrags[n]["asm"]
+		if (asmFrags[n]["mem"] == 1) {
+			asm = "(" asm ")"
+		}
+		asmToken[n] = asm
+	}
+	inst = asmToken[1]
+	for(i = 2; i <= length(asmToken); i++) {
+		if (i == 2) inst=inst " "
+		else if (! asmFrags[i]["mem"] || (asmFrags[i-1]["field"] !~ /^(?:nz)?(?:u)?imm/)) {
+			inst = inst ", "
+		}
+		inst = inst asmToken[i]
+	}
+	print inst
+}
+function push_asm(x) {
+	k++
+	asmFrags[k]["id"] = x["id"]
+	asmFrags[k]["asm"] = x["asm"]
+	asmFrags[k]["bits"] = x["bits"]
+	asmFrags[k]["field"] = x["field"]
+	asmFrags[k]["mem"] = x["mem"]
+}
 
 function decode(bin) {
 	
-	opcode = getBits(bin, FIELD["opcode"]["pos"])
-	print "opcode", opcode
+	opcode = getBits(bin, FIELDS["opcode"]["pos"])
+	#print "opcode", opcode
 
 	# 32-bits opcodes
-	print substr(opcode, length(opcode)-1)
+	#print substr(opcode, length(opcode)-1)
 	if (substr(opcode, length(opcode)-1) == "11") {
 		switch(opcode) {
 			case "0110011": # OP
