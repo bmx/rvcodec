@@ -2865,7 +2865,45 @@ function encodeOP() {
 	print "bin", bin
 	printf "hex %08x\n", b2n(bin)
 }
-function encodeOP_FP() { print "in encodeOP_FP" } # FIXME: TODO
+function encodeOP_FP() { 
+	print "in encodeOP_FP" 
+	dest = tokens[2]
+	src1 = tokens[3]
+	src2 = tokens[4]
+
+	floatRd = true
+	floatRs1 = true
+	
+	funct3 = isa[mne]["funct3"]
+	funct5 = isa[mne]["funct5"]
+
+	print "dest", dest
+	print "src1", src1
+	print "src2", src2
+	print "funct3", funct3
+	print "funct5", funct5
+
+	if (substr(funct5,1,1) == "1") {
+		if (substr(funct5, 4, 1) == "1") {
+			floatRs1 = false
+		} else {
+			floatRd = false
+		}
+	}
+
+	rd = encReg(dest, floatRd)
+	rs1 = encReg(src1, floatRs1)
+	print "rd", rd
+	print "rs1", rs1
+	inst_rs2 = isa[mne]["rs2"]
+	rs2 = (inst_rs2 ? inst_rs2 : encReg(src2, true))
+	rm = (funct3 ? funct3 : "111")
+	print "rm", rm
+
+	bin = funct5 isa[mne]["fp_fmt"] rs2 rs1 rm rd opcode
+	print "bin", bin
+	printf "hex %08x\n", b2n(bin)
+}
 function encodeJALR() { 
 	print "in encodeJALR" 
 	dest = tokens[2]
