@@ -1,4 +1,8 @@
 BEGIN {
+	lookup[0]=1
+
+	true = 1
+	false = 0
 
 	XLEN["rv32"] = 32
 	XLEN["rv64"] = 64
@@ -484,7 +488,7 @@ BEGIN {
 	isa["c.bnez"]["immBits"] = "8,4-3 7-6,2-1,5"
 	isa["c.fld"]["immBits"] = "5-3 7-6"
 	isa["c.fldsp"]["immBits"] = "5 4-3,8-6"
-	isa["c.flw"]["immBits"] = "5-3 2-6"
+	isa["c.flw"]["immBits"] = "5-3 2,6"
 	isa["c.flwsp"]["immBits"] = "5 4-2,7-6"
 	isa["c.fsd"]["immBits"] = "5-3 7-6"
 	isa["c.fsdsp"]["immBits"] = "5-3 8-6"
@@ -498,7 +502,7 @@ BEGIN {
 	isa["c.lq"]["immBits"] = "5,4,8 7-6"
 	isa["c.lqsp"]["immBits"] = "5 4,9-6"
 	isa["c.lui"]["immBits"] = "5 4-0"
-	isa["c.lw"]["immBits"] = "5-3 2-6"
+	isa["c.lw"]["immBits"] = "5-3 2,6"
 	isa["c.lwsp"]["immBits"] = "5 4-2,7-6" 
 	isa["c.nop"]["immBits"] = "5 4-0"
 	isa["c.sd"]["immBits"] = "5-3 7-6"
@@ -513,7 +517,7 @@ BEGIN {
 	isa["c.srli64"]["immBits"] = "5 4-0"
 	isa["c.sw"]["immBits"] = "5-3 2-6"
 	isa["c.swsp"]["immBits"] = "5-2 7-6"
-	isa["c.lui"]["immBitsLabels"] = "[[17][[16,12]]]"
+	isa["c.lui"]["immBitsLabels"] = "17 16-12"
 	isa["c.nop"]["immVal"] = "0"
 	isa["c.slli64"]["immVal"] = "0"
 	isa["c.srai64"]["immVal"] = "0"
@@ -655,8 +659,8 @@ BEGIN {
 	isa["c.slli"]["rdRs1Mask"] = "11"
 	isa["c.slli64"]["rdRs1Mask"] = "11"
 	isa["c.addi16sp"]["rdRs1Val"] = 2
-	isa["c.ebreak"]["rdRs1Val"] = "0"
-	isa["c.nop"]["rdRs1Val"] = "0"
+	isa["c.ebreak"]["rdRs1Val"] = 0
+	isa["c.nop"]["rdRs1Val"] = 0
 	isa["c.add"]["rs2Excl"] = "[0]"
 	isa["c.mv"]["rs2Excl"] = "[0]"
 	isa["c.ebreak"]["rs2Val"] = "0"
@@ -1759,13 +1763,6 @@ BEGIN {
 	isa["fsqrt.q"]["rs2"] = "00000"
 
 
-
-
-	# :%!tr -d '{:,}' | grep . 
-	# :%s/'/"/g
-	# :%!awk '{ n=$1; for(i=2; i<=NF;i+=2) printf "isa[_\%s_][_\%s_] = \%s\n", $(i), n, $(i+1) }'
-	# :%s/_/"/g
-
 	CSR["cycle"] = 0xc00
 	CSR["cycleh"] = 0xc80
 	CSR["dcsr"] = 0x7b0
@@ -2453,13 +2450,175 @@ BEGIN {
 	ISA_OP_FP[isa["feq.s"]["funct5"]][FP_FMT["Q"]][isa["feq.q"]["funct3"]] = "feq.q"
 	ISA_OP_FP[isa["feq.s"]["funct5"]][FP_FMT["Q"]][isa["flt.q"]["funct3"]] = "flt.q"
 	ISA_OP_FP[isa["feq.s"]["funct5"]][FP_FMT["Q"]][isa["fle.q"]["funct3"]] = "fle.q"
-	
+
+	ISA_OP_FP[isa["fcvt.w.s"]["funct5"]][FP_FMT["S"]][isa["fcvt.w.s"]["rs2"]] = "fcvt.w.s"
+	ISA_OP_FP[isa["fcvt.w.s"]["funct5"]][FP_FMT["S"]][isa["fcvt.wu.s"]["rs2"]] = "fcvt.wu.s"
+	ISA_OP_FP[isa["fcvt.w.s"]["funct5"]][FP_FMT["S"]][isa["fcvt.l.s"]["rs2"]] = "fcvt.l.s"
+	ISA_OP_FP[isa["fcvt.w.s"]["funct5"]][FP_FMT["S"]][isa["fcvt.lu.s"]["rs2"]] = "fcvt.lu.s"
+	ISA_OP_FP[isa["fcvt.w.s"]["funct5"]][FP_FMT["S"]][isa["fcvt.t.s"]["rs2"]] = "fcvt.t.s"
+	ISA_OP_FP[isa["fcvt.w.s"]["funct5"]][FP_FMT["S"]][isa["fcvt.tu.s"]["rs2"]] = "fcvt.tu.s"
+
+	ISA_OP_FP[isa["fcvt.w.s"]["funct5"]][FP_FMT["D"]][isa["fcvt.w.d"]["rs2"]] = "fcvt.w.d"
+	ISA_OP_FP[isa["fcvt.w.s"]["funct5"]][FP_FMT["D"]][isa["fcvt.wu.d"]["rs2"]] = "fcvt.wu.d"
+	ISA_OP_FP[isa["fcvt.w.s"]["funct5"]][FP_FMT["D"]][isa["fcvt.l.d"]["rs2"]] = "fcvt.l.d"
+	ISA_OP_FP[isa["fcvt.w.s"]["funct5"]][FP_FMT["D"]][isa["fcvt.lu.d"]["rs2"]] = "fcvt.lu.d"
+	ISA_OP_FP[isa["fcvt.w.s"]["funct5"]][FP_FMT["D"]][isa["fcvt.t.d"]["rs2"]] = "fcvt.t.d"
+	ISA_OP_FP[isa["fcvt.w.s"]["funct5"]][FP_FMT["D"]][isa["fcvt.tu.d"]["rs2"]] = "fcvt.tu.d"
+
+	ISA_OP_FP[isa["fcvt.w.s"]["funct5"]][FP_FMT["Q"]][isa["fcvt.w.q"]["rs2"]] = "fcvt.w.q"
+	ISA_OP_FP[isa["fcvt.w.s"]["funct5"]][FP_FMT["Q"]][isa["fcvt.wu.q"]["rs2"]] = "fcvt.wu.q"
+	ISA_OP_FP[isa["fcvt.w.s"]["funct5"]][FP_FMT["Q"]][isa["fcvt.l.q"]["rs2"]] = "fcvt.l.q"
+	ISA_OP_FP[isa["fcvt.w.s"]["funct5"]][FP_FMT["Q"]][isa["fcvt.lu.q"]["rs2"]] = "fcvt.lu.q"
+	ISA_OP_FP[isa["fcvt.w.s"]["funct5"]][FP_FMT["Q"]][isa["fcvt.t.q"]["rs2"]] = "fcvt.t.q"
+	ISA_OP_FP[isa["fcvt.w.s"]["funct5"]][FP_FMT["Q"]][isa["fcvt.tu.q"]["rs2"]] = "fcvt.tu.q"
+
+	# ISA_F
+	ISA_OP_FP[isa["fcvt.s.w"]["funct5"]][FP_FMT["S"]][isa["fcvt.s.w"]["rs2"]] = "fcvt.s.w"
+	ISA_OP_FP[isa["fcvt.s.w"]["funct5"]][FP_FMT["S"]][isa["fcvt.s.wu"]["rs2"]] = "fcvt.s.wu"
+	ISA_OP_FP[isa["fcvt.s.w"]["funct5"]][FP_FMT["S"]][isa["fcvt.s.l"]["rs2"]] = "fcvt.s.l"
+	ISA_OP_FP[isa["fcvt.s.w"]["funct5"]][FP_FMT["S"]][isa["fcvt.s.lu"]["rs2"]] = "fcvt.s.lu"
+	ISA_OP_FP[isa["fcvt.s.w"]["funct5"]][FP_FMT["S"]][isa["fcvt.s.t"]["rs2"]] = "fcvt.s.t"
+	ISA_OP_FP[isa["fcvt.s.w"]["funct5"]][FP_FMT["S"]][isa["fcvt.s.tu"]["rs2"]] = "fcvt.s.tu"
+                           
+	ISA_OP_FP[isa["fcvt.s.w"]["funct5"]][FP_FMT["D"]][isa["fcvt.d.w"]["rs2"]] = "fcvt.d.w"
+	ISA_OP_FP[isa["fcvt.s.w"]["funct5"]][FP_FMT["D"]][isa["fcvt.d.wu"]["rs2"]] = "fcvt.d.wu"
+	ISA_OP_FP[isa["fcvt.s.w"]["funct5"]][FP_FMT["D"]][isa["fcvt.d.l"]["rs2"]] = "fcvt.d.l"
+	ISA_OP_FP[isa["fcvt.s.w"]["funct5"]][FP_FMT["D"]][isa["fcvt.d.lu"]["rs2"]] = "fcvt.d.lu"
+	ISA_OP_FP[isa["fcvt.s.w"]["funct5"]][FP_FMT["D"]][isa["fcvt.d.t"]["rs2"]] = "fcvt.d.t"
+	ISA_OP_FP[isa["fcvt.s.w"]["funct5"]][FP_FMT["D"]][isa["fcvt.d.tu"]["rs2"]] = "fcvt.d.tu"
+                           
+	ISA_OP_FP[isa["fcvt.s.w"]["funct5"]][FP_FMT["Q"]][isa["fcvt.w.q"]["rs2"]] = "fcvt.q.w"
+	ISA_OP_FP[isa["fcvt.s.w"]["funct5"]][FP_FMT["Q"]][isa["fcvt.wu.q"]["rs2"]] = "fcvt.q.wu"
+	ISA_OP_FP[isa["fcvt.s.w"]["funct5"]][FP_FMT["Q"]][isa["fcvt.l.q"]["rs2"]] = "fcvt.q.l"
+	ISA_OP_FP[isa["fcvt.s.w"]["funct5"]][FP_FMT["Q"]][isa["fcvt.lu.q"]["rs2"]] = "fcvt.q.lu"
+	ISA_OP_FP[isa["fcvt.s.w"]["funct5"]][FP_FMT["Q"]][isa["fcvt.t.q"]["rs2"]] = "fcvt.q.t"
+	ISA_OP_FP[isa["fcvt.s.w"]["funct5"]][FP_FMT["Q"]][isa["fcvt.tu.q"]["rs2"]] = "fcvt.q.tu"
+
+	# ISA_D
+	ISA_OP_FP[isa["fcvt.s.d"]["funct5"]][FP_FMT["S"]][isa["fcvt.s.d"]["rs2"]] = "fcvt.s.d"
+	ISA_OP_FP[isa["fcvt.s.d"]["funct5"]][FP_FMT["S"]][isa["fcvt.s.q"]["rs2"]] = "fcvt.s.q"
+	ISA_OP_FP[isa["fcvt.s.d"]["funct5"]][FP_FMT["D"]][isa["fcvt.d.s"]["rs2"]] = "fcvt.d.s"
+	ISA_OP_FP[isa["fcvt.s.d"]["funct5"]][FP_FMT["D"]][isa["fcvt.d.q"]["rs2"]] = "fcvt.d.q"
+	ISA_OP_FP[isa["fcvt.s.d"]["funct5"]][FP_FMT["Q"]][isa["fcvt.q.s"]["rs2"]] = "fcvt.q.s"
+	ISA_OP_FP[isa["fcvt.s.d"]["funct5"]][FP_FMT["Q"]][isa["fcvt.q.d"]["rs2"]] = "fcvt.q.d"
+
+	_ISA_C0[isa["c.addi4spn"]["funct3"]] = "c.addi4spn"
+	_ISA_C0[isa["c.fld"]["funct3"]][1] = "c.fld" 
+	_ISA_C0[isa["c.fld"]["funct3"]][2] = "c.fld" 
+	_ISA_C0[isa["c.fld"]["funct3"]][4] = "c.lq" 
+	_ISA_C0[isa["c.lw"]["funct3"]] = "c.lw"
+	_ISA_C0[isa["c.flw"]["funct3"]][1] = "c.flw" 
+	_ISA_C0[isa["c.flw"]["funct3"]][2] = "c.ld" 
+	_ISA_C0[isa["c.flw"]["funct3"]][4] = "c.ld" 
+	_ISA_C0[isa["c.fsd"]["funct3"]][1] = "c.fsd" 
+	_ISA_C0[isa["c.fsd"]["funct3"]][2] = "c.fsd" 
+	_ISA_C0[isa["c.fsd"]["funct3"]][4] = "c.sq" 
+	_ISA_C0[isa["c.sw"]["funct3"]] = "c.sw"
+	_ISA_C0[isa["c.fsw"]["funct3"]][1] = "c.fsw" 
+	_ISA_C0[isa["c.fsw"]["funct3"]][2] = "c.sd" 
+	_ISA_C0[isa["c.fsw"]["funct3"]][4] = "c.sd" 
+
+	ISA_C0[isa["c.addi4spn"]["funct3"]] = "c.addi4spn"
+	ISA_C0[isa["c.fld"]["funct3"],1] = "c.fld" 
+	ISA_C0[isa["c.fld"]["funct3"],2] = "c.fld" 
+	ISA_C0[isa["c.fld"]["funct3"],4] = "c.lq" 
+	ISA_C0[isa["c.lw"]["funct3"]] = "c.lw"
+	ISA_C0[isa["c.flw"]["funct3"],1] = "c.flw" 
+	ISA_C0[isa["c.flw"]["funct3"],2] = "c.ld" 
+	ISA_C0[isa["c.flw"]["funct3"],4] = "c.ld" 
+	ISA_C0[isa["c.fsd"]["funct3"],1] = "c.fsd" 
+	ISA_C0[isa["c.fsd"]["funct3"],2] = "c.fsd" 
+	ISA_C0[isa["c.fsd"]["funct3"],4] = "c.sq" 
+	ISA_C0[isa["c.sw"]["funct3"]] = "c.sw"
+	ISA_C0[isa["c.fsw"]["funct3"],1] = "c.fsw" 
+	ISA_C0[isa["c.fsw"]["funct3"],2] = "c.sd" 
+	ISA_C0[isa["c.fsw"]["funct3"],4] = "c.sd" 
+
+	_ISA_C1[isa["c.nop"]["funct3"]][7][isa["c.nop"]["rdRs1Val"]] = "c.nop"
+	_ISA_C1[isa["c.nop"]["funct3"]][7]["default"] = "c.addi"
+	_ISA_C1[isa["c.jal"]["funct3"]][1] = "c.jal"
+	_ISA_C1[isa["c.jal"]["funct3"]][2] = "c.addiw"
+	_ISA_C1[isa["c.jal"]["funct3"]][4] = "c.addiw"
+	_ISA_C1[isa["c.li"]["funct3"]] = "c.li"
+	_ISA_C1[isa["c.addi16sp"]["funct3"]][7][isa["c.addi16sp"]["rdRs1Val"]] = "c.addi16sp"
+	_ISA_C1[isa["c.addi16sp"]["funct3"]][7]["default"] = "c.lui"
+	_ISA_C1[isa["c.srli"]["funct3"]][7]["default"][isa["c.srli"]["funct2"]] = "c.srli"
+	_ISA_C1[isa["c.srli"]["funct3"]][7]["default"][isa["c.srai"]["funct2"]] = "c.srai"
+	_ISA_C1[isa["c.srli"]["funct3"]][7]["default"][isa["c.andi"]["funct2"]] = "c.andi"
+	_ISA_C1[isa["c.srli"]["funct3"]][7]["11"][substr(isa["c.sub"]["funct6"],4,1) isa["c.sub"]["funct2"]] = "c.sub"
+	_ISA_C1[isa["c.srli"]["funct3"]][7]["11"][substr(isa["c.xor"]["funct6"],4,1) isa["c.xor"]["funct2"]] = "c.xor"
+	_ISA_C1[isa["c.srli"]["funct3"]][7]["11"][substr(isa["c.or"]["funct6"],4,1) isa["c.or"]["funct2"]] = "c.or"
+	_ISA_C1[isa["c.srli"]["funct3"]][7]["11"][substr(isa["c.and"]["funct6"],4,1) isa["c.and"]["funct2"]] = "c.and"
+	_ISA_C1[isa["c.srli"]["funct3"]][7]["11"][substr(isa["c.subw"]["funct6"],4,1) isa["c.subw"]["funct2"]] = "c.subw"
+	_ISA_C1[isa["c.srli"]["funct3"]][7]["11"][substr(isa["c.addw"]["funct6"],4,1) isa["c.addw"]["funct2"]] = "c.addw"
+	_ISA_C1[isa["c.j"]["funct3"]] = "c.j"
+	_ISA_C1[isa["c.beqz"]["funct3"]] = "c.beqz"
+	_ISA_C1[isa["c.bnez"]["funct3"]] = "c.bnez"
+
+	ISA_C1[isa["c.nop"]["funct3"],7,isa["c.nop"]["rdRs1Val"] ] = "c.nop"
+	ISA_C1[isa["c.nop"]["funct3"],7,"default"] = "c.addi"
+	ISA_C1[isa["c.jal"]["funct3"],1] = "c.jal"
+	ISA_C1[isa["c.jal"]["funct3"],2] = "c.addiw"
+	ISA_C1[isa["c.jal"]["funct3"],4] = "c.addiw"
+	ISA_C1[isa["c.li"]["funct3"]] = "c.li"
+	ISA_C1[isa["c.addi16sp"]["funct3"],7,isa["c.addi16sp"]["rdRs1Val"]] = "c.addi16sp"
+	ISA_C1[isa["c.addi16sp"]["funct3"],7,"default"] = "c.lui"
+	ISA_C1[isa["c.srli"]["funct3"],7,"default",isa["c.srli"]["funct2"]] = "c.srli"
+	ISA_C1[isa["c.srli"]["funct3"],7,"default",isa["c.srai"]["funct2"]] = "c.srai"
+	ISA_C1[isa["c.srli"]["funct3"],7,"default",isa["c.andi"]["funct2"]] = "c.andi"
+	ISA_C1[isa["c.srli"]["funct3"],7,"default","11","000"] = "c.sub"
+	ISA_C1[isa["c.srli"]["funct3"],7,"default","11","001"] = "c.xor"
+	ISA_C1[isa["c.srli"]["funct3"],7,"default","11","010"] = "c.or"
+	ISA_C1[isa["c.srli"]["funct3"],7,"default","11","011"] = "c.and"
+	ISA_C1[isa["c.srli"]["funct3"],7,"default","11","100"] = "c.subw"
+	ISA_C1[isa["c.srli"]["funct3"],7,"default","11","101"] = "c.addw"
+	ISA_C1[isa["c.j"]["funct3"]] = "c.j"
+	ISA_C1[isa["c.beqz"]["funct3"]] = "c.beqz"
+	ISA_C1[isa["c.bnez"]["funct3"]] = "c.bnez"
+
+
+	_ISA_C2[isa["c.slli"]["funct3"]] = "c.slli"
+	_ISA_C2[isa["c.fldsp"]["funct3"]][1] = "c.fldsp"
+	_ISA_C2[isa["c.fldsp"]["funct3"]][2] = "c.fldsp"
+	_ISA_C2[isa["c.fldsp"]["funct3"]][4] = "c.lqsp"
+	_ISA_C2[isa["c.lwsp"]["funct3"]] = "c.lwsp"
+	_ISA_C2[substr(isa["c.jr"]["funct4"], 4)][7][0][0] = "c.jr"
+	_ISA_C2[substr(isa["c.jr"]["funct4"], 4)][7][0]["default"] = "c.mv"
+	_ISA_C2[substr(isa["c.jr"]["funct4"], 4)][7][1][0][0] = "c.ebreak"
+	_ISA_C2[substr(isa["c.jr"]["funct4"], 4)][7][1][0][0] = "c.ebreak"
+	_ISA_C2[substr(isa["c.jr"]["funct4"], 4)][7][1][0]["default"] = "c.add"
+	_ISA_C2[isa["c.fsdsp"]["funct3"]][1] = "c.fsdsp"
+	_ISA_C2[isa["c.fsdsp"]["funct3"]][2] = "c.fsdsp"
+	_ISA_C2[isa["c.fsdsp"]["funct3"]][4] = "c.sqsp"
+	_ISA_C2[isa["c.swsp"]["funct3"]] = "c.swsp"
+	_ISA_C2[isa["c.fswsp"]["funct3"]][1] = "c.fswsp"
+	_ISA_C2[isa["c.fswsp"]["funct3"]][2] = "c.sdsp"
+	_ISA_C2[isa["c.fswsp"]["funct3"]][4] = "c.sdsp"
+
+	ISA_C2[isa["c.slli"]["funct3"]] = "c.slli"
+	ISA_C2[isa["c.fldsp"]["funct3"],1] = "c.fldsp"
+	ISA_C2[isa["c.fldsp"]["funct3"],2] = "c.fldsp"
+	ISA_C2[isa["c.fldsp"]["funct3"],4] = "c.lqsp"
+	ISA_C2[isa["c.lwsp"]["funct3"]] = "c.lwsp"
+	ISA_C2["100",7,0,0] = "c.jr"
+	ISA_C2["100",7,0,"default"] = "c.mv"
+	ISA_C2["100",7,1,0,0] = "c.ebreak"
+	ISA_C2["100",7,1,0,"default"] = "c.jalr"
+	ISA_C2["100",7,1,"default"] = "c.add"
+	ISA_C2[isa["c.fsdsp"]["funct3"],1] = "c.fsdsp"
+	ISA_C2[isa["c.fsdsp"]["funct3"],2] = "c.fsdsp"
+	ISA_C2[isa["c.fsdsp"]["funct3"],4] = "c.sqsp"
+	ISA_C2[isa["c.swsp"]["funct3"]] = "c.swsp"
+	ISA_C2[isa["c.fswsp"]["funct3"],1] = "c.fswsp"
+	ISA_C2[isa["c.fswsp"]["funct3"],2] = "c.sdsp"
+	ISA_C2[isa["c.fswsp"]["funct3"],4] = "c.sdsp"
+
 }
 {
-	input=$0
+	parse_input($0)
 }
-END {
-	print input
+function parse_input(input) {
+	print "input", input
 
 	# is it 0xCAFEBABE
 	try = strtonum(input)
@@ -2487,8 +2646,21 @@ END {
 		#print "decode", try
 		decode(n2b(try,32))
 	} else {
-		print "encode", input
+		#print "encode", input
 		encode(tolower(input))
+	}
+}
+function xlenLookupGen(str) {
+	#delete lookup
+	n = split(str, astr, ",")
+	for(id in astr) {
+		name = astr[id]
+		#inst = isa[name]
+		for( xlen = XLEN_MASK["rv32"]; xlen <= XLEN_MASK["all"]; xlen = lshift(xlen, 1)) {
+			if (and(b2n(isa[name]["xlens"]), xlen)) {
+				lookup[xlen] = name
+			}
+		}
 	}
 }
 function str2str(str) {
@@ -2552,20 +2724,28 @@ function b2n(b, 	hex) {
         }
 	return hex
 }
-function encreg(reg, flt) {
+function encReg(reg, flt) {
 	oreg = reg
-	if (substr(reg, 1, 1) != "x") {
-	 	reg = REGISTER[reg]
-		if (!reg || length(reg) == 0) {
-			return "00000"
-		}
+	first = substr(reg, 1, 1)
+	for(r in F_REGISTER) f_reg[r]=F_REGISTER[r]
+	switch(first) {
+		case "x":
+			reg = X_REGISTER[oreg]
+			if (!reg || length(reg) == 0) return "00000"
+			break
+		case "f":
+			if (oreg ~ /f[0-9]+/) {
+				reg = oreg
+			} else  {
+				reg = F_REGISTER[oreg]
+			}
+			break
+		default:
+			reg = REGISTER[oreg]
 	}
-	if (reg in X_REGISTER) {
+	if (reg) {
 		id = substr(reg, 2) 
 		resp = n2b(id, 5)
-	} else {
-		print "bad reg", oreg, id
-		exit
 	}
 	return resp
 }
@@ -2604,7 +2784,7 @@ function encRegPrime(reg, floatReg) {
 		return "000"
 	}
 
-	encoded = encreg(reg, floatReg)
+	encoded = encReg(reg, floatReg)
 	if (substr(encoded, 1, 2) != "01") {
 		regFile = floatReg ? "f" : "x"
 		printf "Invalid register \"%s\", rd' field expects compressable register from %s8 to %s15\n", reg, regFile, regFile
@@ -2621,14 +2801,9 @@ function minImmFromBits(ib) {
 	return lshift(1, minv)
 }
 function encImmBits(imm, bits) {
-        print "encImmBits:"
-        print "  immediate = ", imm
-        printf "  bits = --%s--\n", bits
         len = 18
         binFull = encimm(imm, len)
-        print " binFull = ", binFull
         bin = ""
-        print "bits", bits
 	split(bits, a0, " ")
 	for(d0 in a0) {
 		split(a0[d0], a1, ",")
@@ -2636,20 +2811,14 @@ function encImmBits(imm, bits) {
 			n = split(a1[d1], a2, "-")
 			if (n == 1) {
 				pos = len -  a1[d1]
-				print "add pos", pos
-				print "add", substr(binFull, pos, 1), "since abits[0] =", a1[d1]
 				bin = bin substr(binFull, pos, 1)
 			} else {
 				start = len - a2[1]
 				count = a2[1] - a2[2] + 1
-				print "add", substr(binFull, start, count), "since abits[1] =", a2[1], "and abits[2] =", a2[2]
-				print "pos", start
-				print "len", count
 				bin = bin substr(binFull, start, count)
 			}
 		}
 	}
-	print "computed bin", bin
         return bin
 }
 
@@ -2689,24 +2858,21 @@ function encodeOP() {
 	dest = tokens[2]
 	src1 = tokens[3]
 	src2 = tokens[4]
-	rd = encreg(dest)
-	rs1 = encreg(src1)
-	rs2 = encreg(src2)
+	rd = encReg(dest)
+	rs1 = encReg(src1)
+	rs2 = encReg(src2)
 	bin = isa[mne]["funct7"] rs2 rs1 isa[mne]["funct3"] rd opcode
-	print bin
-	hex = 0
+	print "bin", bin
 	printf "hex %08x\n", b2n(bin)
 }
-function encodeOP_FP() { print "in encodeOP_FP" }
+function encodeOP_FP() { print "in encodeOP_FP" } # FIXME: TODO
 function encodeJALR() { 
 	print "in encodeJALR" 
 	dest = tokens[2]
 	base = tokens[3]
 	offset = tokens[4]
-	rd = encreg(dest)
-	rs1 = encreg(base)
-	print "rs1", rs1
-  #i_imm_11_0: { pos: [31, 12], name: 'imm[11:0]' },
+	rd = encReg(dest)
+	rs1 = encReg(base)
 	imm = encimm(offset, 12)
 	bin = imm rs1 isa[mne]["funct3"] rd opcode
 	print "bin", bin
@@ -2718,8 +2884,8 @@ function encodeLOAD() {
 	dest = tokens[2]
 	offset = tokens[3]
 	base = tokens[4]
-	rd = encreg(dest)
-	rs1 = encreg(base)
+	rd = encReg(dest)
+	rs1 = encReg(base)
 	imm = encimm(offset, 12)
 	bin = imm rs1 isa[mne]["funct3"] rd opcode
 	print "bin", bin                                                                                                                      
@@ -2730,11 +2896,10 @@ function encodeOP_IMM() {
 	dest = tokens[2]
 	src = tokens[3]
 	immediate = tokens[4]
-	rd = encreg(dest)
-	rs1 = encreg(src)
+	rd = encReg(dest)
+	rs1 = encReg(src)
 	imm =  "000000000000"
 	if ( mne ~ /^s[lr][la]i/ ) {
-		print "shift instruction", mne
 		shamtwidth = 5
 
 		if (immediate < 0 || immediate >= lshift(1, shamtwidth)) {
@@ -2764,9 +2929,9 @@ function encodeMISC_MEM() {
 		offset = tokens[3]
 		base = tokens[4]
 
-		rd = encreg(dest)
+		rd = encReg(dest)
 		imm = encimm(offset, 12)
-		rs1 = encreg(base)
+		rs1 = encReg(base)
 	} else if (mne == "fence") {
 		predecessor = tokens[2]
 		successor = tokens[3]
@@ -2785,10 +2950,10 @@ function encodeSYSTEM() {
 		dest = tokens[2]
 		csr = tokens[3]
 		src = tokens[4]
-		rd = encreg(dest)
+		rd = encReg(dest)
 		imm = encCSR(csr)
 
-		rs1 = (substr(isa[mne]["funct3"],1,1) == "0") ? encreg(src) : encimm(src, 5)
+		rs1 = (substr(isa[mne]["funct3"],1,1) == "0") ? encReg(src) : encimm(src, 5)
 	} else {
 		rs1 = "00000"
 		rd = "00000"
@@ -2806,8 +2971,8 @@ function encodeSTORE() {
 	len_11_5 = 7
 	len_4_0 = 5
 	floatInst = (isa[mne]["opcode"] == STORE_FP)
-	rs2 = encreg(src)
-	rs1 = encreg(base)
+	rs2 = encReg(src)
+	rs1 = encReg(base)
 	imm = encimm(offset, len_4_0 + len_11_5)
 	imm_11_5 = substr(imm, 0, len_11_5)
 	imm_4_0 = substr(imm, len_11_5+1, len_11_5+len_4_0)
@@ -2825,8 +2990,8 @@ function encodeBRANCH() {
 	len_10_5 = 6
 	len_4_1 = 4
 	
-	rs1 = encreg(src1)
-	rs2 = encreg(src2)
+	rs1 = encReg(src1)
+	rs2 = encReg(src2)
 	imm = encimm(offset, len_12 + len_11 + len_10_5 + len_4_1 + 1)
 	imm_12 = substr(imm, 1, len_12)
 	imm_11 = substr(imm, len_12+1, len_11)
@@ -2841,7 +3006,7 @@ function encodeUType() {
 	print "in encodeUType" 
 	dest = tokens[2]
 	immediate = tokens[3]
-	rd = encreg(dest)
+	rd = encReg(dest)
 	imm_31_12 = encimm(immediate, 20)
 	bin = imm_31_12 rd opcode
 	print "bin", bin
@@ -2857,7 +3022,7 @@ function encodeJAL() {
 	len_11 = 1
 	len_19_12 = 8
 
-	rd = encreg(dest)
+	rd = encReg(dest)
 	imm = encimm(offset, len_20 + len_19_12 + len_11 + len_10_1 + 1)
 	imm_20 = substr(imm, 1, len_20)
 	imm_19_12 = substr(imm, len_20+1, len_19_12)
@@ -2876,28 +3041,21 @@ function encodeCR() {
 	print "in encodeCR" 
 	src1 = tokens[2]
 	src2 = tokens[3]
-	print "- src1", src1
-	print "- src2", src2
 	rdRs1Val = isa[mne]["rdRs1Val"]
-	print "- rdRs1Val", rdRs1Val
 	if (rdRs1Val) {
 		rdRs1 = encimm(rdRs1Val, 5)
 	} else {
-		rdRs1 = src1 ? encreg(src1) : "01000"
+		rdRs1 = src1 ? encReg(src1) : "01000"
 	}
-	print "- rdRs1", rdRs1
 
 	rs2Val = isa[mne]["rs2Val"]
-	print "- rs2Val", rs2Val
 	if (rs2Val) rs2 = encimm(rs2Val, 5)
-	else rs2 = src2 ? encreg(src2) : "01000"
-	print "- rs2", rs2
+	else rs2 = src2 ? encReg(src2) : "01000"
 	rdRs1Excl = isa[mne]["rdRs1Excl"]
 	if (rdRs1Excl) {
 		val = b2n(rdRs1)
 		split(substr(rdRs1Excl,2, length(rdRs1Excl)-2), arrExcl, ",")
 		for(excl in arrExcl) {
-			print "---check for excl",excl,"with", val
 			if (val == excl) {
 				print "Illegal value",src1,"in rd/rs1 field for instruction",mne
 				exit
@@ -2909,7 +3067,6 @@ function encodeCR() {
 		val = b2n(rs2)
 		split(substr(rs2Excl,2, length(rs2Excl)-2), arrExcl, ",")
 		for(excl in arrExcl) {
-			print "---check for excl",excl,"with", val
 			if (val == excl) {
 				print "Illegal value",src2,"in rs2 field for instruction",mne
 				exit
@@ -2928,7 +3085,7 @@ function encodeCI() {
 	immediate = tokens[skipRdRs1 ? 2 : 3]
 	floatRdRs1 = ( mne ~ /^c\.f/ )
 	
-	rdRs1 = skipRdRs1 ? encimm(isa[mne]["rdRs1Val"], 5) : (src1) ? encreg(src1, floatRdRs1) : "01000"
+	rdRs1 = skipRdRs1 ? encimm(isa[mne]["rdRs1Val"], 5) : (src1) ? encReg(src1, floatRdRs1) : "01000"
 	immVal = isa[mne]["immVal"] ? strtonum(isa[mne]["immVal"]) : immediate # FIXME number
 
 	if (isa[mne]["rdRs1Excl"]) {
@@ -2969,10 +3126,8 @@ function encodeCSS() {
 	offset = tokens[3]
 	floatRs2 = ( mne ~ /^c\.f/ )
 
-	print "input offset", offset
-	rs2 = encreg(src, floatRs2)
+	rs2 = encReg(src, floatRs2)
 	immVal = conv_num(offset)
-	print "compted immVal", immVal
 
 	if (isa[mne]["uimm"] && immVal < 0) {
 		print "Invalid immediate", offset, ", this", mne, "instruction expects non-negative value"
@@ -2980,7 +3135,6 @@ function encodeCSS() {
 	}
 
 	immBits = isa[mne]["immBits"]
-	print "freaking immBits", immBits
 	imm = encImmBits(immVal, immBits)
 
 	bin = isa[mne]["funct3"] imm rs2 opcode
@@ -2991,7 +3145,7 @@ function encodeCIW() {
 	print "in encodeCIW" 
 	dest = tokens[2]
 	immediate = tokens[3]
-	rdPrime = encRegPrime(dest)
+	rdPrime = encRegPrime(dest, false)
 	immVal = conv_num(immediate)
 	
 	immBits = isa[mne]["immBits"]
@@ -3024,7 +3178,7 @@ function encodeCL() {
 	floatRd = ( mne ~ /^c\.f/ )
 	
 	rdPrime = encRegPrime(dest, floatRd)
-	rs1Prime = encRegPrime(base)
+	rs1Prime = encRegPrime(base, false)
 	
 	immVal = conv_num(offset)
 
@@ -3129,7 +3283,6 @@ function encode(str) {
 		print "invalide opcode", mne
 		exit
 	}
-	print opcode
 
 	if (length(opcode) == 2) { 
 		fmt = isa[mne]["fmt"]
@@ -3196,6 +3349,64 @@ function decImm(immediate, signExtend) {
 	}
 	return b2n(immediate)
 }
+function decImmBits(immFields, immBits, uimm) {
+	len = 18
+	for(i = 1; i<= len; i++) binArray[i] = 0
+	maxBit = 0
+
+	split(immFields, aimmFields, " ")
+	split(immBits, aimmBits, " ")
+
+	for(i = 1; i <= length(aimmFields); i++) {
+		fieldBin = aimmFields[i]
+		fieldBits = aimmBits[i]
+	
+		split(fieldBits, afieldBits, ",")
+		kk = 1
+		for ( j = 1; j<= length(afieldBits); j++) {
+			z = split(afieldBits[j], abit, "-")
+			newvalue = int(abit[1])
+			if (newvalue > maxBit) maxBit = newvalue
+			if (z == 1) {
+				binArray[len-abit[1]] = substr(fieldBin, kk, 1)
+				kk++	
+			} else {
+				bitStart = abit[1]
+				bitEnd = abit[2]
+				for(l = 1; l <= bitStart-bitEnd + 1; l++) {
+					binArray[len - bitStart - 1 + l] = int(substr(fieldBin, kk, 1))
+					kk++
+				}
+			}
+		}
+
+	}
+	for(i = 1; i<= len; i++) {
+		bin = bin binArray[i]
+	} 
+	signExtend = (! uimm)
+	if (signExtend) {
+		bin = substr(bin, len - maxBit)
+	}
+	return decImm(bin, signExtend)
+}
+function immBitsToString(immBits) {
+	out = "["
+	addPipe = false
+	split(immBits, abits, ",")
+	for(e in abits) {
+		if (!addPipe) addPipe = true; else out = out "|"
+		n = split(abits[e], asbit, "-")
+		if (n == 1) {
+			# single
+			out = out abits[e]
+		} else {
+			# range
+			out = out asbit[1] ":" asbit[2]
+		}
+	}
+	return out "]"
+}
 function decMem(bits) {
 
 	output = ""
@@ -3225,6 +3436,25 @@ function decCSR(binStr) {
 	} else {
 		return entry
 	}
+}
+
+function regExclToString(excl, 	i) {
+	excl = substr(excel, 2, length(excl)-1)
+	n = split(excl, aexcl, ",")
+	if (n == 1) {
+		return "" excl
+	}
+	out = "{"
+	addComma = false
+	for(i = 1; i<= n; i++) {
+		if (!addComma) {
+			addComma = true
+		} else {
+			out = out ","
+		}
+		out = out aexcl[i]
+	}
+	return out "}"
 }
 	
 function getpos(str) {
@@ -3272,6 +3502,7 @@ function extractBFields(binary, a) {
 	a["imm_11"] = getBits(binary, getpos("b_imm_11"))
 }
 function extractCLookupFields(binary, a) {
+	print "binary", binary
 	a["funct6"] = getBits(binary, getpos("c_funct6"))
 	a["funct4"] = getBits(binary, getpos("c_funct4"))
 	a["funct3"] = getBits(binary, getpos("c_funct3"))
@@ -3283,7 +3514,6 @@ function extractCLookupFields(binary, a) {
 
 function decodeOP(bin) { 
 	print "decodeOP"
-	print "bin", bin
 	extractRFields(bin, fields)
 	funct7 = fields["funct7"]
 	funct3 = fields["funct3"]
@@ -3319,7 +3549,6 @@ function decodeOP(bin) {
 	build_f("rs1", FRAG["RS1"], src1, rs1, getname("rs1"))
 	build_f("rs2", FRAG["RS2"], src2, rs2, getname("rs2"))
 	
-	printf "%s %s, %s, %s\n", mne, dest, src1, src2
 	push_asm(f["opcode"])
 	push_asm(f["rd"])
 	push_asm(f["rs1"])
@@ -3337,12 +3566,6 @@ function decodeOP_FP(bin) {
         rs1 = fields["rs1"]                                                                                                                             
         rd = fields["rd"]                                                                                                                               
 
-	print "funct5", funct5
-	print "funct3", funct3
-	print "fmt", fmt
-	print "rs2", rs2
-	print "rs1", rs1
-	print "rd", rd
 	if (typeof(ISA_OP_FP[funct5][fmt]) == "string") {
 		mne = ISA_OP_FP[funct5][fmt]
 	} else if (typeof(ISA_OP_FP[funct5][fmt]) == "array") {
@@ -3356,7 +3579,6 @@ function decodeOP_FP(bin) {
 		print "Detected OP-FP instruction but invalid funct and fmt field"
 		exit
 	}
-	print "insn", mne
 	instr[0] = 0
 	delete instr[0]
 	if (typeof(isa[mne]) == "array") {
@@ -3372,13 +3594,13 @@ function decodeOP_FP(bin) {
 	
 	if (substr(funct5, 1, 1) == "1") {
 		if (substr(funct5, 4, 1) == 1) {
-			floatRs1 = 0
+			floatRs1 = false
 		} else {
 			floatRd = false
 		}
 	}
 	src1 = decReg(rs1, floatRs1)
-	src2 = decReg(rs2, 1)
+	src2 = decReg(rs2, true)
 	dest = decReg(rd, floatRd)
 	
 	useRm = (funct3 == "")
@@ -3428,7 +3650,7 @@ function decodeAMO(bin) {
 	build_f("opcode", FRAG["OPC"] , mne , opcode, getname("opcode"))
 	build_f("rd", FRAG["RD"], dest, rd, getname("rd"))
 	build_f("funct3", FRAG["OPC"], mne, funct3, getname("funct3"))
-	build_f("rs1", FRAG["RS1"], addr, rs1, getname("rs1"), f["rs1"]["mem"] = 1)
+	build_f("rs1", FRAG["RS1"], addr, rs1, getname("rs1"), true)
 	build_f("rs2", FRAG["OPC"], src, rs2, getname("rs2"))
 	build_f("rl", FRAG["OPC"], mne, rl, getname("r_rl"))
 	build_f("aq", FRAG["OPC"], mne, aq, getname("r_aq"))
@@ -3485,12 +3707,10 @@ function decodeLOAD(bin) {
 	
 	floatInst = ( opcode == OPCODE["LOAD_FP"])
 	mne = floatInst ? ISA_LOAD_FP[funct3] : ISA_LOAD[funct3]
-	print "mne", mne
 	if (mne == "") {
 		print "Detected LOAD" floatInst ? "-FP" : "" " instruction but invalid funct3 field"
 		exit
 	}
-	print "mne", mne
 	base = decReg(rs1)
 	dest = decReg(rd, floatInst)
 	offset = decImm(imm)
@@ -3498,7 +3718,7 @@ function decodeLOAD(bin) {
 	build_f("opcode", FRAG["OPC"], mne, opcode, getname("opcode"))
 	build_f("funct3", FRAG["OPC"], mne, funct3, getname("funct3"))
 	build_f("rd", FRAG["RD"], dest, rd, getname("rd"))
-	build_f("rs1", FRAG["RS1"], base, rs1, getname("rs1"), 1)
+	build_f("rs1", FRAG["RS1"], base, rs1, getname("rs1"), true)
 	build_f("imm", FRAG["IMM"], offset, imm, getname("i_imm_11_0"))
 
 	push_asm(f["opcode"])
@@ -3662,7 +3882,7 @@ function decodeMISC_MEM(bin) {
 		base = decReg(rs1)
 		dest = decReg(rd)
 		build_f("imm", FRAG["IMM"], offset, imm, getname("i_imm_11_0"))
-		build_f("rs1", FRAG["RS1"], base, rs1, getname("rs1"), 1)
+		build_f("rs1", FRAG["RS1"], base, rs1, getname("rs1"), true)
 		build_f("rd", FRAG["RD"], dest, rd, getname("rd"))
 
 		push_asm(f["opcode"])
@@ -3703,8 +3923,6 @@ function decodeSYSTEM(bin) {
 	funct3 = fields["funct3"]
 	rd = fields["rd"]
 
-	print "rd", rd
-	print "rs1", rs1
 	mne = ISA_SYSTEM[funct3]
 	
 	if (mne == "") {
@@ -3784,7 +4002,7 @@ function decodeSTORE(bin) {
 
 	build_f("opcode", FRAG["OPC"], mne, opcode, getname("opcode"))
 	build_f("funct3", FRAG["OPC"], mne, funct3, getname("funct3"))
-	build_f("rs1", FRAG["RS1"], base, rs1, getname("rs1"), 1)
+	build_f("rs1", FRAG["RS1"], base, rs1, getname("rs1"), true)
 	build_f("rs2", FRAG["RS2"], src, opcode, getname("rs2"))
 	build_f("imm_4_0", FRAG["IMM"], offset, imm_4_0, getname("s_imm_4_0"))
 	build_f("imm_11_5", FRAG["IMM"], offset, imm_11_5, getname("s_imm_11_5"))
@@ -3800,10 +4018,684 @@ function decodeSTORE(bin) {
 }
 function decodeBRANCH(bin) { 
 	print "decodeBRANCH" 
+	extractBFields(bin, fields)
+	imm_12 = fields["imm_12"]
+	imm_10_5 = fields["imm_10_5"]
+	rs2 = fields["rs2"]
+	rs1 = fields["rs1"]
+	funct3 = fields["funct3"]
+	imm_4_1 = fields["imm_4_1"]
+	imm_11 = fields["imm_11"]
+
+	imm = imm_12 imm_11 imm_10_5 imm_4_1 "0"
+
+	mne = ISA_BRANCH[funct3]
+	if (mne == "") {
+		print "Detected BRANCH instruction but invalid funct3 field"
+		exit
+	}
+
+	offset = decImm(imm)
+	src2 = decReg(rs2)
+	src1 = decReg(rs1)
+
+	build_f("opcode", FRAG["OPC"], mne, opcode, getname("opcode"))
+	build_f("funct3", FRAG["OPC"], mne, funct3, getname("funct3"))
+	build_f("rs1", FRAG["RS1"], src1, rs1, getname("rs1"))
+	build_f("rs2", FRAG["RS2"], src2, rs2, getname("rs2"))
+	build_f("imm_12", FRAG["IMM"], offset, imm_12, getname("b_imm_12"))
+	build_f("imm_11", FRAG["IMM"], offset, imm_11, getname("b_imm_11"))
+	build_f("imm_10_5", FRAG["IMM"], offset, imm_10_5, getname("b_imm_10_5"))
+	build_f("imm_4_1", FRAG["IMM"], offset, imm_4_1, getname("b_imm_4_1"))
+	build_f("imm", FRAG["IMM"], offset, imm, "imm")
+
+	push_asm(f["opcode"])
+	push_asm(f["rs1"])
+	push_asm(f["rs2"])
+	push_asm(f["imm"])
+
+	disp_asm()
 }
-function decodeUType(bin) { print "decodeUType" }
-function decodeJAL(bin) { print "decodeJAL" }
-function decodeR4(bin) { print "decodeR4" }
+function decodeUType(bin) { 
+	print "decodeUType" 
+	imm_31_12 = getBits(bin, getpos("u_imm_31_12"))
+	rd = getBits(bin, getpos("rd"))
+
+	immediate = decImm(imm_31_12)
+	dest = decReg(rd)
+
+	mne = (opcode == OPCODE["AUIPC"]) ? "auipc" : "lui"
+
+	build_f("opcode", FRAG["OPC"], mne, opcode, getname("opcode"))
+	build_f("rd", FRAG["RD"], dest, rd, getname("rd"))
+	build_f("imm_31_12", FRAG["IMM"], immediate, imm_31_12, getname("u_imm_31_12"))
+
+	push_asm(f["opcode"])
+	push_asm(f["rd"])
+	push_asm(f["imm_31_12"])
+
+	disp_asm()
+}
+function decodeJAL(bin) { 
+	print "decodeJAL" 
+	imm_20 = getBits(bin, getpos("j_imm_20"))
+	imm_10_1 = getBits(bin, getpos("j_imm_10_1"))
+	imm_11 = getBits(bin, getpos("j_imm_11"))
+	imm_19_12 = getBits(bin, getpos("j_imm_19_12"))
+	rd = getBits(bin, getpos("rd"))
+
+	imm = imm_20 imm_19_12 imm_11 imm_10_1 "0"
+
+	mne = "jal"
+	
+	offset = decImm(imm)
+	dest = decReg(rd)
+
+	build_f("opcode", FRAG["OPC"], mne, opcode, getname("opcode"))
+	build_f("rd", FRAG["RD"], dest, rd, getname("rd"))
+	build_f("imm_20", FRAG["IMM"], offset, imm_20, getname("j_imm_20"))
+	build_f("imm_10_1", FRAG["IMM"], offset, imm_10_1, getname("j_imm_10_1"))
+	build_f("imm_11", FRAG["IMM"], offset, imm_11, getname("j_imm_11"))
+	build_f("imm_19_12", FRAG["IMM"], offset, imm_19_12, getname("j_imm_19_12"))
+	build_f("imm", FRAG["IMM"], offset, imm, "imm")
+
+	push_asm(f["opcode"])
+        push_asm(f["rd"])
+        push_asm(f["imm"])
+
+	disp_asm()
+}
+function decodeR4(bin) { 
+	print "decodeR4" 
+	extractRFields(bin, fields)
+	rs3 = fields["funct5"]
+	fmt = fields["fmt"]
+	rs2 = fields["rs2"]
+	rs1 = fields["rs1"]
+	rm = fields["funct3"]
+	rd = fields["rd"]
+
+	switch(opcode) {
+		case "1000011": # MADD
+			mne = ISA_MADD[fmt]; break;
+		case "1000111": # MSUB
+			mne = ISA_MSUB[fmt]; break;
+		case "1001111": # NMADD
+			mne = ISA_NMADD[fmt]; break;
+		case "1001011": # NMSUB
+			mne = ISA_NMSUB[fmt]; break;
+	}
+
+	if (mne == "") {
+		print "Detected fused multiply-add instruction but invalid fmt field"
+		exit
+	}
+
+	src1 = decReg(rs1, true)
+	src2 = decReg(rs2, true)
+	src3 = decReg(rs3, true)
+	dest = decReg(rd, true)
+
+	build_f("opcode", FRAG["OPC"], mne, opcode, getname("opcode"))
+	build_f("fmt", FRAG["OPC"], mne, fmt, getname("r_fp_fmt"))
+	build_f("rm", FRAG["OPC"], mne, rm, getname("rm"))
+	build_f("rd", FRAG["RD"], dest, rd, getname("rd"))
+	build_f("rs1", FRAG["RS1"], src1, rs1, getname("rs1"))
+	build_f("rs2", FRAG["RS2"], src2, rs2, getname("rs2"))
+	build_f("rs3", FRAG["RS3"], src3, rs3, "rs3")
+
+	push_asm(f["opcode"])
+	push_asm(f["rd"])
+	push_asm(f["rs1"])
+	push_asm(f["rs2"])
+	push_asm(f["rs3"])
+
+	disp_asm()
+}
+
+function decodeCR(bin) { 
+	print "decodeCR" 
+	funct4 = getBits(bin, getpos("c_funct4"))
+	rdRs1 = getBits(bin, getpos("c_rd_rs1"))
+	rs2 = getBits(bin, getpos("c_rs2"))
+	opcode = getBits(bin, getpos("c_opcode"))
+
+	destSrc1 = decReg(rdRs1)
+	src2 = decReg(rs2)
+
+	destSrc1Val = decImm(rdRs1, false)
+	rdRs1Excl = isa[mne]["rdRs1Excl"]
+
+	if (index(rdRs1Excl, destSrc1Val)) {
+		print "Detected", mne, "instruction, but illegal value", destSrc1, "in rd/rs1 field"
+		exit
+	}
+	src2Val = decImm(rs2, false)
+	rs2Excl = isa[mne]["rs2Excl"]
+	if (index(rs2Excl, src2Val)) {
+		print "Detected", mne, "instruction, but illegal value", src2, "in rs2 field"
+		exit
+	}
+	
+	destSrc1Name = ""
+	rdRs1Mask = isa[mne]["rdRs1Mask"]
+	switch(rdRs1Mask) {
+		case "01":
+			destSrc1Name = getname("c_rs1")
+			break
+		case "10":
+			destSrc1Name = getname("c_rd")
+			break
+		default:
+			destSrc1Name = getname("c_rd_rs1")
+	}
+
+	if (rdRs1Excl != "") {
+		destSrc1Name = destSrc1Name "≠" regExclToString(rdRs1Excl)
+	}
+	
+	src2Name = getname("c_rs2")
+	if (rs2Excl != "") {
+		src2Name = src2Name "≠" regExclToString(rs2Excl)
+	}
+
+	build_f("opcode", FRAG["OPC"], mne, opcode, getname("c_opcode"))
+	build_f("funct4", FRAG["OPC"], mne, funct4, getname("c_funct4"))
+
+	dynamicRdRs1 = (isa[mne]["rdRs1Val"]) ? false : true
+	if (dynamicRdRs1) {
+		build_f("rd_rs1", FRAG["RD"], destSrc1, rdRs1, destSrc1Name)
+	} else  {
+		build_f("rd_rs1", FRAG["OPC"], mne, rdRs1, "static-" destSrc1Name)
+	}
+	
+	dynamicRs2 = (isa[mne]["rs2Val"]) ? false : true
+	if (dynamicRs2) {
+		build_f("rs2", FRAG["RS2"], src2, rs2, src2Name)
+	} else  {
+		build_f("rs2", FRAG["OPC"], mne, rs2, "static-" src2Name)
+	}
+
+	push_asm(f["opcode"])
+	if (dynamicRdRs1) {
+		push_asm(f["rd_rs1"])
+		if (dynamicRs2) {
+			push_asm(f["rs2"])
+		}
+	}
+		
+	disp_asm()
+		
+		
+}
+function decodeCI(bin) { 
+	print "decodeCI" 
+	funct3 = getBits(bin, getpos("c_funct3"))
+	imm0 = getBits(bin, getpos("c_imm_ci_0"))
+	rdRs1 = getBits(bin, getpos("c_rd_rs1"))
+	imm1 = getBits(bin, getpos("c_imm_ci_1"))
+	opcode = getBits(bin, getpos("c_opcode"))
+
+	shiftInst = (mne ~ /^c\.slli/)
+
+	floatRdRs1 = (mne ~ /^c\.fl/)
+
+	destSrc1 = decReg(rdRs1, floatRdRs1)
+	immVal = decImmBits(imm0" "imm1, isa[mne]["immBits"], isa[mne][uimm])
+
+	if (shiftInst) {
+		if (immVal == 0) {
+			mne = mne "64"
+			if (typeof(isa[mne]) == "undefined") {
+				print "Internal error when converting shift-immediate instruction into", mne
+				exit
+			}
+
+			this_isa = "RV128" isa[mne]["isa"]
+		} else if (imm0 == "1" && isa[mne]["isa"] ~ /^RV32/) {
+			this_isa = "RV64" isa[mne]["isa"]
+		}
+	}
+	
+	destSrc1Val = decImm(rdRs1, false)
+	rdRs1Excl
+	destSrc1Val = decImm(rdRs1, false)
+	rdRs1Excl = isa[mne]["rdRs1Excl"]
+
+	if (index(rdRs1Excl, destSrc1Val)) {
+		print "Detected", mne, "instruction, but illegal value", destSrc1, "in rd/rs1 field"
+		exit
+	}
+	if (isa[mne]["nzimm"] && immVal == 0) {
+		print "Detected", mne, "but instruction expects non-zero immediate value (encoding reserved)"
+		exit
+	}
+	destSrc1Name = ""
+	rdRs1Mask = isa[mne]["rdRs1Mask"]
+	switch(rdRs1Mask) {
+		case "01":
+			destSrc1Name = getname("c_rs1")
+			break
+		case "10":
+			destSrc1Name = getname("c_rd")
+			break
+		default:
+			destSrc1Name = getname("c_rd_rs1")
+	}
+
+	if (rdRs1Excl != "") {
+		destSrc1Name = destSrc1Name "≠" regExclToString(rdRs1Excl)
+	}
+	
+	immName = ""
+	if (!shiftInst) {
+		if (isa[mne]["nzimm"]) {
+			immName = immName "nz"
+		}
+		if (isa[mne]["uimm"]) {
+			immName = immName "u"
+		}
+	}
+
+	immName = immName ( shiftInst ? getname("c_shamt_9") : getname("c_imm_ci_0") )
+
+	build_f("opcode", FRAG["OPC"], mne, opcode, getname("c_opcode"))
+	build_f("funct3", FRAG["OPC"], mne, funct3, getname("c_funct3"))
+
+	dynamicRdRs1 = (isa[mne]["rdRs1Val"]) ? false : true
+	if (dynamicRdRs1) {
+		build_f("rd_rs1", FRAG["RD"], destSrc1, rdRs1, destSrc1Name)
+	} else  {
+		build_f("rd_rs1", FRAG["OPC"], mne, rdRs1, "static-" destSrc1Name)
+	}
+	
+	immBitsLabels = (isa[mne]["immBitsLabels"]) ? isa[mne]["immBitsLabels"] : isa[mne]["immBits"]
+	split(immBitsLabels, split_immBits, " ")
+	dynamicImm = (isa[mne]["immVal"] ? false : true )
+	if (dynamicImm) {
+		build_f("imm0", FRAG["IMM"], immVal, imm0, immName immBitsToString(split_immBits[1]))
+		build_f("imm1", FRAG["IMM"], immVal, imm0, immName immBitsToString(split_immBits[2]))
+	} else {
+		build_f("imm0", FRAG["OPC"], mne, imm0, "static-" immName immBitsToString(split_immBits[1]))
+		build_f("imm1", FRAG["OPC"], mne, imm0, "static-" immName immBitsToString(split_immBits[2]))
+	}
+
+	push_asm(f["opcode"])
+	if (dynamicRdRs1) {
+		push_asm(f["rd_rs1"])
+	}
+	if (dynamicImm) {
+		push_asm(f["imm0"])
+	}
+	disp_asm()
+		
+}
+function decodeCSS(bin) { 
+	print "decodeCSS"
+	funct3 = getBits(bin, getpos("c_funct3"))
+	imm = getBits(bin, getpos("c_imm_css"))
+	rs2 = getBits(bin, getpos("c_rs2"))
+
+	immName = ""
+	uimm = isa[mne]["uimm"]
+	if (uimm) {
+		immName = "u"
+	}
+	immName = immName getname("c_imm_css")
+	immBits = isa[mne]["immBits"]	
+	floatRs2 = (mne ~ /^c\.f/)
+	
+	offset = decImmBits(imm, immBits, uimm)
+	src = decReg(Rs2, floatRs2)
+
+	build_f("opcode", FRAG["OPC"], mne, opcode, getname("c_opcode"))
+	build_f("funct3", FRAG["OPC"], mne, funct3, getname("c_funct3"))
+	build_f("rs2", FRAG["RS2"], src, rs2, getname("c_rs2"))
+	build_f("imm", FRAG["IMM"], offset, imm, immName immBitsToString(immBits))
+
+	push_asm(f["opcode"])
+	push_asm(f["rs2"])
+	push_asm(f["imm"])
+	
+	disp_asm()
+}
+function decodeCIW(bin) { 
+	print "decodeCIW" 
+	funct3 = getBits(bin, getpos("c_funct3"))
+	imm = getBits(bin, getpos("c_imm_ciw"))
+	rdPrime = getBits(bin, getpos("c_rd_prime"))
+	opcode = getBits(bin, getpos("c_opcode"))
+
+	immName = ""
+	if (isa[mne]["nzimm"]) {
+		immName = immName "nz"
+	}
+	if (isa[mne]["uimm"]) {
+		immName = immName "u"
+	}
+	immName = immName getname("c_imm_ciw")
+
+	rd = "01" rdPrime
+
+	dest = decReg(rd)
+	immVal = decImmBits(imm, isa[mne]["immBits"], isa[mne][uimm])
+
+	if (isa[mne]["nzimm"] && immVal == 0) {
+		print "Detected", mne, ", but instruction expects non-zero immediate value (encoding reserved)"
+		exit
+	}
+
+	build_f("opcode", FRAG["OPC"], mne, opcode, getname("c_opcode"))
+	build_f("funct3", FRAG["OPC"], mne, funct3, getname("c_funct3"))
+	build_f("rd_prime", FRAG["RD"], dest, rd, getname("c_rd_prime"))
+	build_f("imm", FRAG["IMM"], immVal, imm, immName immBitsToString(isa[mne]["immBits"]))
+
+	push_asm(f["opcode"])
+	push_asm(f["rd_prime"])
+	push_asm(f["imm"])
+
+	disp_asm()
+		
+}
+function decodeCL(bin) { 
+	print "decodeCL" 
+	funct3 = getBits(bin, getpos("c_funct3"))
+	imm0 = getBits(bin, getpos("c_imm_cl_0"))
+	rs1Prime = getBits(bin, getpos("c_rs1_prime"))
+	imm1 = getBits(bin, getpos("c_imm_cl_1"))
+	rdPrime = getBits(bin, getpos("c_rd_prime"))
+	opcode = getBits(bin, getpos("c_opcode"))
+
+	inst_uimm = isa[mne]["uimm"]
+	inst_immBits = isa[mne]["immBits"]
+
+	immName = ""
+	if (inst_uimm) {
+		immName = "u"
+	}
+	immName = immName getname("c_imm_cl_0")
+
+	floatRd = ( mne ~ /^c\.f/)
+	rs1 = "01" rs1Prime
+	rd = "01" rdPrime
+
+	split(inst_immBits, split_immBits, " ")
+	dest = decReg(rd, floatRd)
+	offset = decImmBits(imm0" "imm1, inst_immBits, inst_uimm)
+	base = decReg(rs1)
+
+	build_f("opcode", FRAG["OPC"], mne, opcode, getname("c_opcode"))
+	build_f("funct3", FRAG["OPC"], mne, funct3, getname("c_funct3"))
+	build_f("rd_prime", FRAG["RD"], dest, rdPrime, getname("c_rd_prime"))
+	build_f("rs1_prime", FRAG["RS1"], base, rs1Prime, getname("c_rs1_prime"), true)
+	build_f("imm0", FRAG["IMM"], offset, imm0, immName immBitsToString(split_immBits[1]))
+	build_f("imm1", FRAG["IMM"], offset, imm1, immName immBitsToString(split_immBits[2]))
+
+	push_asm(f["opcode"])
+	push_asm(f["rd_prime"])
+	push_asm(f["imm0"])
+	push_asm(f["rs1_prime"])
+
+	disp_asm()
+}
+function decodeCS(bin) { 
+	print "decodeCS" 
+	funct3 = getBits(bin, getpos("c_funct3"))
+	imm0 = getBits(bin, getpos("c_imm_cs_0"))
+	rs1Prime = getBits(bin, getpos("c_rs1_prime"))
+	imm1 = getBits(bin, getpos("c_imm_cs_1"))
+	rs2Prime = getBits(bin, getpos("c_rs2_prime"))
+	opcode = getBits(bin, getpos("c_opcode"))
+
+	inst_uimm = isa[mne]["uimm"]
+	inst_immBits = isa[mne]["immBits"]
+
+	immName = ""
+	if (inst_uimm) {
+		immName = "u"
+	}
+	immName = immName getname("c_imm_cs_0")
+
+	floatRs2 = ( mne ~ /^c\.f/)
+	rs1 = "01" rs1Prime
+	rs2 = "01" rs2Prime
+
+	split(inst_immBits, split_immBits, " ")
+	src = decReg(rs2, floatRs2)
+	offset = decImmBits(imm0" "imm1, inst_immBits, inst_uimm)
+	base = decReg(rs1)
+
+	build_f("opcode", FRAG["OPC"], mne, opcode, getname("c_opcode"))
+	build_f("funct3", FRAG["OPC"], mne, funct3, getname("c_funct3"))
+	build_f("rs2_prime", FRAG["RS2"], src, rs2Prime, getname("c_rs2_prime"))
+	build_f("rs1_prime", FRAG["RS1"], base, rs1Prime, getname("c_rs1_prime"), true)
+	build_f("imm0", FRAG["IMM"], offset, imm0, immName immBitsToString(split_immBits[1]))
+	build_f("imm1", FRAG["IMM"], offset, imm1, immName immBitsToString(split_immBits[2]))
+
+	push_asm(f["opcode"])
+	push_asm(f["rs2_prime"])
+	push_asm(f["imm0"])
+	push_asm(f["rs1_prime"])
+
+	disp_asm()
+	
+}
+function decodeCA(bin) { 
+	print "decodeCA" 
+	funct6 = getBits(bin, getpos("c_funct6"))
+	rdRs1Prime = getBits(bin, getpos("c_rd_rs1_prime"))
+	funct2 = getBits(bin, getpos("c_funct2"))
+	rs2Prime = getBits(bin, getpos("c_rs2_prime"))
+	opcode = getBits(bin, getpos("c_opcode"))
+
+	rdRs1 = "01" rdRs1Prime
+	rs2 = "01" rs2Prime
+
+	destSrc1 = decReg(rdRs1)
+	src2 = decReg(rs2)
+
+	build_f("opcode", FRAG["OPC"], mne, opcode, getname("c_opcode"))
+	build_f("funct6", FRAG["OPC"], mne, funct6, getname("c_funct6"))
+	build_f("funct2", FRAG["OPC"], mne, funct2, getname("c_funct2"))
+	build_f("rd_rs1_prime", FRAG["RD"], destSrc1, rdRs1Prime, getname("c_rs2_prime"))
+	build_f("rs2_prime", FRAG["RS2"], src2, rs2Prime, getname("c_rs1_prime"))
+
+	push_asm(f["opcode"])
+	push_asm(f["rd_rs1_prime"])
+	push_asm(f["rs2_prime"])
+
+	disp_asm()
+}
+function decodeCB(bin) { 
+	print "decodeCB" 
+	funct3 = getBits(bin, getpos("c_funct3"))
+	imm0 = getBits(bin, getpos("c_imm_cb_0"))
+	shamt0 = getBits(bin, getpos("c_shamt_0"))
+	funct2 = getBits(bin, getpos("c_funct2_cb"))
+	rdRs1Prime = getBits(bin, getpos("c_rd_rs1_prime"))
+	imm1 = getBits(bin, getpos("c_imm_cb_1"))
+	shamt1 = getBits(bin, getpos("c_shamt_1"))
+	opcode = getBits(bin, getpos("c_opcode"))
+	
+	branchInst = (mne ~ /^c\.b/)
+	shiftInst = (mne ~ /^c\.sr[la]i/)
+	
+	rdRs1 = "01" rdRs1Prime
+
+	destSrc1 = decReg(rdRs1)
+	immVal = decImmBits(imm0" "imm1, isa[mne]["immBits"], isa[mne]["uimm"])
+
+	if (shiftInst) {
+		if (immVal == 0) {
+			mne = mne "64"
+			if (!isa[mne]) {
+				print "Internal error when converting shift-immediate instruction into", mne
+				exit
+			}
+
+			this_isa = "RV128" isa[mne]["isa"]
+		} else if (shamt0 == 1 && (this_isa ~ /^RV32/)) {
+			this_isa = "RV64" isa[mne]["isa"]
+		}
+	}
+
+	if (isa[mne]["nzimm"] && immVal == 0) {
+		print "Detected", mne, "but instruction expects non-zero immediate value (encoding reserved)"
+		exit
+	}
+
+	immName = ""
+	if (!shiftInst) {
+		if (isa[mne]["nzimm"]) {
+			immName = immName "nz"
+		}
+		if (isa[mne]["uimm"]) {
+			immName = immName "u"
+		}
+	}
+
+	immName = immName (shiftInst ? getname("c_shamt_0") : ( branchInst ? getname("c_imm_cb_0") : getname("c_imm_ci_0")))
+
+	build_f("opcode", FRAG["OPC"], mne, opcode, getname("c_opcode"))
+	build_f("funct3", FRAG["OPC"], mne, funct3, getname("c_funct3"))
+	build_f("funct2", FRAG["OPC"], mne, funct2, getname("c_funct2"))
+	build_f("rd_rs1_prime", FRAG["OPC"], destSrc1, rdRs1Prime, getname("c_rs2_prime"))
+
+	immBits = isa[mne]["immBits"]
+	split(inst_immBits, split_immBits, " ")
+
+	if (branchInst) {
+		build_f("imm0", FRAG["IMM"], immVal, imm0, immName immBitsToString(split_immBits[1]))
+		build_f("imm1", FRAG["IMM"], immVal, imm1, immName immBitsToString(split_immBits[2]))
+
+		push_asm(f["opcode"])
+		push_asm(f["rd_rs1_prime"])
+		push_asm(f["imm0"])
+	} else {
+		dynamicImm = (!isa[mne]["immVal"])
+		if (dynamicImm) {
+			build_f("imm0", FRAG["IMM"], immVal, shamt0, immName immBitsToString(split_immBits[1]))
+			build_f("imm1", FRAG["IMM"], immVal, shamt1, immName immBitsToString(split_immBits[2]))
+		} else {
+			build_f("imm0", FRAG["OPC"], mne, shamt0, "static-" immName immBitsToString(split_immBits[1]))
+			build_f("imm1", FRAG["OPC"], mne, shamt1, "static-" immName immBitsToString(split_immBits[2]))
+		}
+
+		push_asm(f["opcode"])
+		push_asm(f["rd_rs1_prime"])
+		if (dynamicImm) {
+			push_asm(f["imm0"])
+		}
+		
+	}
+	disp_asm()
+}
+function decodeCJ(bin) { 
+	print "decodeCJ" 
+	funct3 = getBits(bin, getpos("c_funct3"))
+	imm = getBits(bin, getpos("c_imm_cj"))
+	opcode = getBits(bin, getpos("c_opcode"))
+
+	jumpTarget = decImmBits(imm, isa[mne]["immBits"])
+
+	build_f("opcode", FRAG["OPC"], mne, opcode, getname("c_opcode"))
+	build_f("funct3", FRAG["OPC"], mne, funct3, getname("c_funct3"))
+	build_f("imm", FRAG["IMM"], jumpTarget, imm, getname("c_imm_cj") immBitsToString(isa[mne]["immBits"])) 
+
+	push_asm(f["opcode"])
+	push_asm(f["imm"])
+
+	disp_asm()
+}
+
+function mneLookupC0(bin) {
+	print "-- mneLookupC0"
+	extractCLookupFields(bin, fields)
+	funct3 = fields["funct3"]
+	
+	if (typeof(ISA_C0[funct3]) == "string") return ISA_C0[funct3]
+	if (typeof(ISA_C0[funct3,this_xlens]) == "string") return ISA_C0[funct3,this_xlens]
+	if (typeof(ISA_C0[funct3,XLEN_MASK["all"]]) == "string") return ISA_C0[funct3,XLEN_MASK["all"]]
+	return mne
+}
+function mneLookupC1(bin) {
+	extractCLookupFields(bin, fields)
+	funct3 = fields["funct3"]
+	rd_rs1 = fields["rd_rs1"]
+	funct2_cb = fields["funct2_cb"]
+	funct6 = fields["funct6"]
+	funct2 = fields["funct2"]
+	f6_3_2 = "" substr(funct6, 4, 1) funct2
+	
+	if (typeof(ISA_C1[funct3]) == "string") return ISA_C1[funct3]
+	if (typeof(ISA_C1[funct3,this_xlens]) == "string") return ISA_C1[funct3,this_xlens]
+	all = XLEN_MASK["all"]
+	if (typeof(ISA_C1[funct3,all]) == "string") return ISA_C1[funct3,all]
+
+	rdRs1Val = decImm(rd_rs1, false)
+	if (typeof(ISA_C1[funct3,this_xlens,rdRs1Val]) == "string") return ISA_C1[funct3,this_xlens,rdRs1Val]
+	if (typeof(ISA_C1[funct3,all,rdRs1Val]) == "string") return ISA_C1[funct3,all,rdRs1Val]
+
+	if (typeof(ISA_C1[funct3,this_xlens,rdRs1Val,funct2_cb]) == "string") return ISA_C1[funct3,this_xlens,rdRs1Val,funct2_cb]
+	if (typeof(ISA_C1[funct3,all,rdRs1Val,funct2_cb]) == "string") return ISA_C1[funct3,all,rdRs1Val,funct2_cb]
+
+	if (typeof(ISA_C1[funct3,this_xlens,rdRs1Val,funct2_cb,f6_3_2]) == "string") return ISA_C1[funct3,this_xlens,rdRs1Val,funct2_cb,f6_3_2]
+	if (typeof(ISA_C1[funct3,all,rdRs1Val,funct2_cb,f6_3_2]) == "string") return ISA_C1[funct3,all,rdRs1Val,funct2_cb,f6_3_2]
+
+	rdRs1Val = "default"
+	if (typeof(ISA_C1[funct3,this_xlens,rdRs1Val]) == "string") return ISA_C1[funct3,this_xlens,rdRs1Val]
+	if (typeof(ISA_C1[funct3,all,rdRs1Val]) == "string") return ISA_C1[funct3,all,rdRs1Val]
+
+	if (typeof(ISA_C1[funct3,this_xlens,rdRs1Val,funct2_cb]) == "string") return ISA_C1[funct3,this_xlens,rdRs1Val,funct2_cb]
+	if (typeof(ISA_C1[funct3,all,rdRs1Val,funct2_cb]) == "string") return ISA_C1[funct3,all,rdRs1Val,funct2_cb]
+
+	if (typeof(ISA_C1[funct3,this_xlens,rdRs1Val,funct2_cb,f6_3_2]) == "string") return ISA_C1[funct3,this_xlens,rdRs1Val,funct2_cb,f6_3_2]
+	if (typeof(ISA_C1[funct3,all,rdRs1Val,funct2_cb,f6_3_2]) == "string") return ISA_C1[funct3,all,rdRs1Val,funct2_cb,f6_3_2]
+
+	return ""
+	
+}
+
+function mneLookupC2(bin) {
+	extractCLookupFields(bin, fields)
+	funct3 = fields["funct3"]
+	funct4 = fields["funct4"]
+	f4 = substr(funct4, 4, 1)
+	rs2 = fields["rs2"]
+	rd_rs1 = fields["rd_rs1"]
+	all = XLEN_MASK["all"]
+
+	if (typeof(ISA_C2[funct3]) == "string") return ISA_C2[funct3]
+
+	if (typeof(ISA_C2[funct3,this_xlens]) == "string") return ISA_C2[funct3,this_xlens]
+	if (typeof(ISA_C2[funct3,all]) == "string") return ISA_C2[funct3,all]
+
+	if (typeof(ISA_C2[funct3,this_xlens,f4]) == "string") return ISA_C2[funct3,this_xlens,f4]
+	if (typeof(ISA_C2[funct3,all,f4]) == "string") return ISA_C2[funct3,all,f4]
+
+	rs2Val = decImm(rs2, false)
+	if (typeof(ISA_C2[funct3,this_xlens,f4,rs2Val]) == "string") return ISA_C2[funct3,this_xlens,f4,rs2Val]
+	if (typeof(ISA_C2[funct3,all,f4,rs2Val]) == "string") return ISA_C2[funct3,all,f4,rs2Val]
+
+	rdRs1Val = decImm(rd_rs1, false)
+	if (typeof(ISA_C2[funct3,this_xlens,f4,rs2Val,rdRs1Val]) == "string") return ISA_C2[funct3,this_xlens,f4,rs2Val,rdRs1Val]
+	if (typeof(ISA_C2[funct3,all,f4,rs2Val,rdRs1Val]) == "string") return ISA_C2[funct3,all,f4,rs2Val,rdRs1Val]
+	rdRs1Val = "default"
+	if (typeof(ISA_C2[funct3,this_xlens,f4,rs2Val,rdRs1Val]) == "string") return ISA_C2[funct3,this_xlens,f4,rs2Val,rdRs1Val]
+	if (typeof(ISA_C2[funct3,all,f4,rs2Val,rdRs1Val]) == "string") return ISA_C2[funct3,all,f4,rs2Val,rdRs1Val]
+
+	rs2Val = "default"
+	if (typeof(ISA_C2[funct3,this_xlens,f4,rs2Val]) == "string") return ISA_C2[funct3,this_xlens,f4,rs2Val]
+	if (typeof(ISA_C2[funct3,all,f4,rs2Val]) == "string") return ISA_C2[funct3,all,f4,rs2Val]
+	rdRs1Val = decImm(rd_rs1, false)
+	if (typeof(ISA_C2[funct3,this_xlens,f4,rs2Val,rdRs1Val]) == "string") return ISA_C2[funct3,this_xlens,f4,rs2Val,rdRs1Val]
+	if (typeof(ISA_C2[funct3,all,f4,rs2Val,rdRs1Val]) == "string") return ISA_C2[funct3,all,f4,rs2Val,rdRs1Val]
+	rdRs1Val = "default"
+	if (typeof(ISA_C2[funct3,this_xlens,f4,rs2Val,rdRs1Val]) == "string") return ISA_C2[funct3,this_xlens,f4,rs2Val,rdRs1Val]
+	if (typeof(ISA_C2[funct3,all,f4,rs2Val,rdRs1Val]) == "string") return ISA_C2[funct3,all,f4,rs2Val,rdRs1Val]
+	
+	return ""
+}
 
 function build_f(col, id, asm, bits, field, mem) {
 	f[col]["id"] = id
@@ -3818,7 +4710,7 @@ function disp_asm() {
 	print "ISA", this_isa
 	for(n in asmFrags) {
 		asm = asmFrags[n]["asm"]
-		print n, asm
+		#print n, asm
 		if (asmFrags[n]["mem"] == 1) {
 			asm = "(" asm ")"
 		}
@@ -3827,12 +4719,12 @@ function disp_asm() {
 	inst = asmToken[1]
 	for(i = 2; i <= length(asmToken); i++) {
 		if (i == 2) inst=inst " "
-		else if (! asmFrags[i]["mem"] || (asmFrags[i-1]["field"] !~ /^(?:nz)?(?:u)?imm/)) {
+		else if (! asmFrags[i]["mem"] || (asmFrags[i-1]["field"] !~ /^(u|nz)?imm/)) {
 			inst = inst ", "
 		}
 		inst = inst asmToken[i]
 	}
-	print inst
+	print "RESP:", inst
 }
 function push_asm(x) {
 	k++
@@ -3892,5 +4784,76 @@ function decode(bin) {
 				print "Invalid opcode:", opcode
 				exit
 		}
+	} else {
+		# Compressed
+	
+		if (this_xlens == "") {
+			if (config_isa == "RV128I") {
+				this_xlens = XLEN_MASK["rv128"]
+			} else if (config_isa == "RV64I") {
+				this_xlens = XLEN_MASK["rv64"]
+			} else {
+				this_xlens = XLEN_MASK["rv32"] # FIXME
+			}
+		} else {
+			for(b = 1 ; b < XLEN_MASK["all"]; b = lshift(b, 1)) {
+				if (and(b, this_xlens)) {
+					this_xlens = b
+					break
+				}
+			}
+		}
+	
+		opcode = getBits(bin, getpos("c_opcode"))
+
+		switch (opcode) {
+			case "00": # C0
+				mne = mneLookupC0(bin)
+				quadrant = "C0"
+				break
+			case "01": # C1
+				mne = mneLookupC1(bin)
+				quadrant = "C1"
+				break
+			case "10": # C2
+				mne = mneLookupC2(bin)
+				quadrant = "C2"
+				break
+			default:
+				print "Cannot decode binary instruction:", bin
+				exit
+		}
+
+		if (mne == "") {
+			print "Detected quadrant", quadrant, "but could not determine instruction, potentially HINT or reserved"
+			exit
+		}
+		binst_xlens = isa[mne]["xlens"]
+		if (binst_xlens != "") inst_xlens = b2n(binst_xlens)
+		if (and(inst_xlens, XLEN_MASK["rv32"])) {
+			this_isa = "RV32"
+		} else if (and(inst_xlens, XLEN_MASK["rv64"])) {
+			this_isa = "RV64"
+		} else {
+			this_isa = "RV128"
+		}
+		this_isa = this_isa isa[mne]["isa"]
+
+		fmt = isa[mne]["fmt"]
+		switch(fmt) {
+			case "CR": decodeCR(bin); break
+			case "CI": decodeCI(bin); break
+			case "CSS": decodeCSS(bin); break
+			case "CIW": decodeCIW(bin); break
+			case "CL": decodeCL(bin); break
+			case "CS": decodeCS(bin); break
+			case "CA": decodeCA(bin); break
+			case "CB": decodeCB(bin); break
+			case "CJ": decodeCJ(bin); break
+			default:
+				print "Internal Error: Detected", mne, "in quadrant", quadrant, "but could not match instruction format"
+				exit
+		}
 	}
+		
 }

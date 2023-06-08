@@ -1,0 +1,12 @@
+C0	1084	c.addi4spn x9, 96
+C0	32a4	c.fld f9, 96(x13)
+C0	53b0	c.lw x12, 96(x15)
+C0	72a4	c.flw f9, 96(x13)
+Cx	b0ac	c.fsd f11, 96(x9)
+Cx	8ced	c.and x9, x11
+Cx	c0a5	c.beqz x9, 96
+Cx	8a41	c.andi x12, 16
+Cx	96a1	c.srai x13, 40
+Cx	afc1	c.j 2000
+Cx	26e5	c.jal 1000
+I	02ee0237	lui x4, 12000
