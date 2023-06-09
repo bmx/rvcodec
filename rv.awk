@@ -1,6 +1,18 @@
 BEGIN {
+	dbg = 0
 	lookup[0]=1
 
+	COPTS_ISA["AUTO"]=0
+	COPTS_ISA["RV32I"]=1
+	COPTS_ISA["RV64I"]=2
+	COPTS_ISA["RV128I"]=3
+
+	if (!COPTS_ISA[config_isa]) config_isa = "AUTO"
+	print "config_isa", config_isa
+
+	if (!config_abi) config_abi = 0
+	print "config_abi", config_abi
+	
 	true = 1
 	false = 0
 
@@ -2617,6 +2629,9 @@ BEGIN {
 {
 	parse_input($0)
 }
+function print_dbg(txt, val) {
+	if (dbg) printf("%s %s\n", txt, val) #> "/dev/stderr"
+}
 function parse_input(input) {
 	print "input", input
 
@@ -2718,16 +2733,18 @@ function n2b(val, width) {
 }
 function b2n(b, 	hex) {
 	hex=0
+	print_dbg("b2n input b len", length(b))
+	print_dbg("b2n initial hex", hex)
 	binlen = length(b)
         for(i = 0 ;i < binlen; i++) {
                 if (substr(b, binlen-i, 1) == "1") hex = or(hex, lshift(1, i))
         }
+	print_dbg("b2n hex returns", hex)
 	return hex
 }
 function encReg(reg, flt) {
 	oreg = reg
 	first = substr(reg, 1, 1)
-	for(r in F_REGISTER) f_reg[r]=F_REGISTER[r]
 	switch(first) {
 		case "x":
 			reg = X_REGISTER[oreg]
@@ -2749,7 +2766,7 @@ function encReg(reg, flt) {
 	}
 	return resp
 }
-function encimm(inp, len) {
+function encImm(inp, len) {
 	inp = conv_num(inp)
 	hex = sprintf("%08x", inp)
 	str = ""
@@ -2775,7 +2792,7 @@ function encmem(data, 	bits) {
 	}
 	if (one_count != length(data) || bits == "0000") {
 		print "Invalid IO/Mem field", data, "expected some combination of iorw"
-		exit
+		next
 	}
 	return bits
 }
@@ -2788,7 +2805,7 @@ function encRegPrime(reg, floatReg) {
 	if (substr(encoded, 1, 2) != "01") {
 		regFile = floatReg ? "f" : "x"
 		printf "Invalid register \"%s\", rd' field expects compressable register from %s8 to %s15\n", reg, regFile, regFile
-		exit
+		next
 	}
 	return substr(encoded, 3)
 }
@@ -2802,7 +2819,7 @@ function minImmFromBits(ib) {
 }
 function encImmBits(imm, bits) {
         len = 18
-        binFull = encimm(imm, len)
+        binFull = encImm(imm, len)
         bin = ""
 	split(bits, a0, " ")
 	for(d0 in a0) {
@@ -2824,7 +2841,7 @@ function encImmBits(imm, bits) {
 
 function encImmBits2(imm, bits) {
 	len = 18
-	binFull = encimm(imm, len)
+	binFull = encImm(imm, len)
 	bin = ""
 
 	if (substr(bits, 1,1) == "{") {
@@ -2847,7 +2864,7 @@ function encCSR(csr) {
 		csrval = conv_num(csr)
 		if (csrval == 0 && csr != 0) {
 			print "Invalid or unknown CSR name:", csr
-			exit
+			next
 		}
 	}
 	return encImm(csrVal, 12)
@@ -2877,12 +2894,6 @@ function encodeOP_FP() {
 	funct3 = isa[mne]["funct3"]
 	funct5 = isa[mne]["funct5"]
 
-	print "dest", dest
-	print "src1", src1
-	print "src2", src2
-	print "funct3", funct3
-	print "funct5", funct5
-
 	if (substr(funct5,1,1) == "1") {
 		if (substr(funct5, 4, 1) == "1") {
 			floatRs1 = false
@@ -2893,12 +2904,9 @@ function encodeOP_FP() {
 
 	rd = encReg(dest, floatRd)
 	rs1 = encReg(src1, floatRs1)
-	print "rd", rd
-	print "rs1", rs1
 	inst_rs2 = isa[mne]["rs2"]
 	rs2 = (inst_rs2 ? inst_rs2 : encReg(src2, true))
 	rm = (funct3 ? funct3 : "111")
-	print "rm", rm
 
 	bin = funct5 isa[mne]["fp_fmt"] rs2 rs1 rm rd opcode
 	print "bin", bin
@@ -2911,7 +2919,7 @@ function encodeJALR() {
 	offset = tokens[4]
 	rd = encReg(dest)
 	rs1 = encReg(base)
-	imm = encimm(offset, 12)
+	imm = encImm(offset, 12)
 	bin = imm rs1 isa[mne]["funct3"] rd opcode
 	print "bin", bin
 	printf "hex %08x\n", b2n(bin)
@@ -2924,7 +2932,7 @@ function encodeLOAD() {
 	base = tokens[4]
 	rd = encReg(dest)
 	rs1 = encReg(base)
-	imm = encimm(offset, 12)
+	imm = encImm(offset, 12)
 	bin = imm rs1 isa[mne]["funct3"] rd opcode
 	print "bin", bin                                                                                                                      
         printf "hex %08x\n", b2n(bin)                                                                                                         
@@ -2942,14 +2950,14 @@ function encodeOP_IMM() {
 
 		if (immediate < 0 || immediate >= lshift(1, shamtwidth)) {
 			print "error, invalid shamt field (out of range):", immediate
-			exit
+			next
 		}
 		imm_11_7 = "0" isa[mne]["shtyp"] "000"
-		imm_6_0 = encimm(immediate, 7)
+		imm_6_0 = encImm(immediate, 7)
 		
 		imm = imm_11_7 imm_6_0
 	} else {
-		imm = encimm(immediate, 12)
+		imm = encImm(immediate, 12)
 	}
 	bin = imm rs1 isa[mne]["funct3"] rd opcode
         print "bin", bin
@@ -2968,7 +2976,7 @@ function encodeMISC_MEM() {
 		base = tokens[4]
 
 		rd = encReg(dest)
-		imm = encimm(offset, 12)
+		imm = encImm(offset, 12)
 		rs1 = encReg(base)
 	} else if (mne == "fence") {
 		predecessor = tokens[2]
@@ -2991,7 +2999,7 @@ function encodeSYSTEM() {
 		rd = encReg(dest)
 		imm = encCSR(csr)
 
-		rs1 = (substr(isa[mne]["funct3"],1,1) == "0") ? encReg(src) : encimm(src, 5)
+		rs1 = (substr(isa[mne]["funct3"],1,1) == "0") ? encReg(src) : encImm(src, 5)
 	} else {
 		rs1 = "00000"
 		rd = "00000"
@@ -3011,7 +3019,7 @@ function encodeSTORE() {
 	floatInst = (isa[mne]["opcode"] == STORE_FP)
 	rs2 = encReg(src)
 	rs1 = encReg(base)
-	imm = encimm(offset, len_4_0 + len_11_5)
+	imm = encImm(offset, len_4_0 + len_11_5)
 	imm_11_5 = substr(imm, 0, len_11_5)
 	imm_4_0 = substr(imm, len_11_5+1, len_11_5+len_4_0)
 	bin = imm_11_5 rs2 rs1 isa[mne]["funct3"] imm_4_0 opcode
@@ -3030,7 +3038,7 @@ function encodeBRANCH() {
 	
 	rs1 = encReg(src1)
 	rs2 = encReg(src2)
-	imm = encimm(offset, len_12 + len_11 + len_10_5 + len_4_1 + 1)
+	imm = encImm(offset, len_12 + len_11 + len_10_5 + len_4_1 + 1)
 	imm_12 = substr(imm, 1, len_12)
 	imm_11 = substr(imm, len_12+1, len_11)
 	imm_10_5 = substr(imm, len_12 + len_11 + 1, len_10_5)
@@ -3045,7 +3053,7 @@ function encodeUType() {
 	dest = tokens[2]
 	immediate = tokens[3]
 	rd = encReg(dest)
-	imm_31_12 = encimm(immediate, 20)
+	imm_31_12 = encImm(immediate, 20)
 	bin = imm_31_12 rd opcode
 	print "bin", bin
 	printf "hex %08x\n", b2n(bin)
@@ -3061,7 +3069,7 @@ function encodeJAL() {
 	len_19_12 = 8
 
 	rd = encReg(dest)
-	imm = encimm(offset, len_20 + len_19_12 + len_11 + len_10_1 + 1)
+	imm = encImm(offset, len_20 + len_19_12 + len_11 + len_10_1 + 1)
 	imm_20 = substr(imm, 1, len_20)
 	imm_19_12 = substr(imm, len_20+1, len_19_12)
 	imm_11 = substr(imm, len_20+len_19_12+1, len_11)
@@ -3081,13 +3089,13 @@ function encodeCR() {
 	src2 = tokens[3]
 	rdRs1Val = isa[mne]["rdRs1Val"]
 	if (rdRs1Val) {
-		rdRs1 = encimm(rdRs1Val, 5)
+		rdRs1 = encImm(rdRs1Val, 5)
 	} else {
 		rdRs1 = src1 ? encReg(src1) : "01000"
 	}
 
 	rs2Val = isa[mne]["rs2Val"]
-	if (rs2Val) rs2 = encimm(rs2Val, 5)
+	if (rs2Val) rs2 = encImm(rs2Val, 5)
 	else rs2 = src2 ? encReg(src2) : "01000"
 	rdRs1Excl = isa[mne]["rdRs1Excl"]
 	if (rdRs1Excl) {
@@ -3096,7 +3104,7 @@ function encodeCR() {
 		for(excl in arrExcl) {
 			if (val == excl) {
 				print "Illegal value",src1,"in rd/rs1 field for instruction",mne
-				exit
+				next
 			}
 		}
 	}
@@ -3107,7 +3115,7 @@ function encodeCR() {
 		for(excl in arrExcl) {
 			if (val == excl) {
 				print "Illegal value",src2,"in rs2 field for instruction",mne
-				exit
+				next
 			}
 		}
 	}
@@ -3123,7 +3131,7 @@ function encodeCI() {
 	immediate = tokens[skipRdRs1 ? 2 : 3]
 	floatRdRs1 = ( mne ~ /^c\.f/ )
 	
-	rdRs1 = skipRdRs1 ? encimm(isa[mne]["rdRs1Val"], 5) : (src1) ? encReg(src1, floatRdRs1) : "01000"
+	rdRs1 = skipRdRs1 ? encImm(isa[mne]["rdRs1Val"], 5) : (src1) ? encReg(src1, floatRdRs1) : "01000"
 	immVal = isa[mne]["immVal"] ? strtonum(isa[mne]["immVal"]) : immediate # FIXME number
 
 	if (isa[mne]["rdRs1Excl"]) {
@@ -3132,7 +3140,7 @@ function encodeCI() {
 		for(excl in arrExcl) {
 			                        if (val == excl) {
                                 print "Illegal value",src2,"in rs2 field for instruction",mne
-                                exit
+                                next
                         }
                 }
         }
@@ -3141,12 +3149,12 @@ function encodeCI() {
 			immVal = minImmFromBits(isa[mne]["immBits"])
 		} else {
 			print "Invalid immediate", immediate, ",", mne, "instruction expects non-zero value"
-			exit
+			next
 		}
 	}
 	if (isa[mne]["uimm"] && immVal < 0) {
 		print "Invalid immediate", immediate, ",", mne, "instruction expects non-negative value"
-		exit
+		next
 	}
 	immBits = isa[mne]["immBits"]
 	split(immBits, immBitsArr, " ")
@@ -3169,7 +3177,7 @@ function encodeCSS() {
 
 	if (isa[mne]["uimm"] && immVal < 0) {
 		print "Invalid immediate", offset, ", this", mne, "instruction expects non-negative value"
-		exit
+		next
 	}
 
 	immBits = isa[mne]["immBits"]
@@ -3192,13 +3200,13 @@ function encodeCIW() {
 			immVal = minImmFromBits(immBits)
 		} else {
 			print "Invalid immediate", immediate, ", this", mne, "instruction expects non-zero value"
-			exit
+			next
 		}
 	}
 
 	if (isa[mne]["uimm"] && immVal < 0 ) {
 		print "Invalid immediate", immediate, ", this", mne, "instruction expects non-negative value"
-		exit
+		next
 	}
 
 	imm = encImmBits(immVal, immBits)
@@ -3222,7 +3230,7 @@ function encodeCL() {
 
         if (isa[mne]["uimm"] && immVal < 0 ) {
 		print "Invalid immediate", offset, ", this", mne, "instruction expects non-negative value"
-                exit
+                next
         }
 
 	immBits = isa[mne]["immBits"]
@@ -3247,7 +3255,7 @@ function encodeCS() {
 
         if (isa[mne]["uimm"] && immVal < 0 ) {
 		print "Invalid immediate", immediate, ", this", mne, "instruction expects non-negative value"
-                exit
+                next
         }
 
 	immBits = isa[mne]["immBits"]
@@ -3284,13 +3292,13 @@ function encodeCB() {
 			immVal = minImmFromBits(immBits)
 		} else {
 			print "Invalid immediate", immediate, ", this", mne, "instruction expects non-zero value"
-			exit
+			next
 		}
 	}
 
 	if (isa[mne]["uimm"] && immVal < 0) {
 		print "Invalid immediate", immediate, ", this", mne, "instruction expects non-negative value"
-                exit
+                next
 	}
         split(immBits, abits, " ")
         imm0 = encImmBits(immVal, abits[1])
@@ -3319,7 +3327,7 @@ function encode(str) {
 	opcode = isa[mne]["opcode"]
 	if (!opcode) {
 		print "invalide opcode", mne
-		exit
+		next
 	}
 
 	if (length(opcode) == 2) { 
@@ -3361,7 +3369,7 @@ function encode(str) {
 		else if (opcode == MADD || opcode == MSUB || opcode == NMADD || opcode == NMSUB) encodeR4()
 		else {
 			print "Unsupported opcode", opcode
-			exit
+			next
 		}
 	}
 }
@@ -3371,24 +3379,36 @@ function getBits(binary, pos) {
 	_start = _end - apos[2]
 	if (_start > _end || length(binary) < _end) {
 		print "getBits: position error", pos
-		exit
+		next
 	}
 	#print "apos[1], apos[2]", apos[1], apos[2], substr(binary, length(binary)-apos[1], apos[2])
 
 	return substr(binary, length(binary)-apos[1], apos[2])
 }
 function decReg(reg, floatReg) {
-	return (floatReg ? "f" : "x") b2n(reg)
+	regname = (floatReg ? "f" : "x") b2n(reg)
+	if (config_abi) {
+		for(x in REGISTER) {
+			if (REGISTER[x] == regname) return x
+		}
+		for(x in F_REGISTER) {
+			if (F_REGISTER[x] == regname) return x
+		}
+	} else {
+		return regname
+	}
 }
 function decImm(immediate, signExtend) {
+	print_dbg("in decImm, immediate len", length(immediate))
 	if (signExtend == "") signExtend = 1
 	if (signExtend && substr(immediate, 1, 1) == "1") {
 		return b2n(immediate) - lshift(1, length(immediate))
 	}
 	return b2n(immediate)
 }
-function decImmBits(immFields, immBits, uimm) {
+function decImmBits(immFields, immBits, uimm,	bin) {
 	len = 18
+	delete binArray
 	for(i = 1; i<= len; i++) binArray[i] = 0
 	maxBit = 0
 
@@ -3459,7 +3479,7 @@ function decMem(bits) {
 	}
 	if (output == "") {
 		print "Invalid IO/Mem field"
-		exit
+		next
 	}
 	return output
 }
@@ -3477,7 +3497,7 @@ function decCSR(binStr) {
 }
 
 function regExclToString(excl, 	i) {
-	excl = substr(excel, 2, length(excl)-1)
+	excl = substr(excl, 2, length(excl)-1)
 	n = split(excl, aexcl, ",")
 	if (n == 1) {
 		return "" excl
@@ -3573,7 +3593,7 @@ function decodeOP(bin) {
 	}
 	if (mne == "") {
 		printf "Detected %s instruction but invalid funct7 and funct3 fields", opcodeName
-		exit
+		next
 	}
 
 	src1 = decReg(rs1)
@@ -3592,7 +3612,6 @@ function decodeOP(bin) {
 	push_asm(f["rs1"])
 	push_asm(f["rs2"])
 
-	disp_asm()
 }
 function decodeOP_FP(bin) { 
 	print "decodeOP_FP" 
@@ -3615,15 +3634,12 @@ function decodeOP_FP(bin) {
 	}
 	if (mne == "") {
 		print "Detected OP-FP instruction but invalid funct and fmt field"
-		exit
+		next
 	}
 	instr[0] = 0
 	delete instr[0]
 	if (typeof(isa[mne]) == "array") {
 		
-	}
-	for(e in isa[mne]) {
-		print "["e"] = ", isa[mne][e]
 	}
 	useRs2 = (isa[mne]["rs2"] == "")
 
@@ -3660,7 +3676,6 @@ function decodeOP_FP(bin) {
 	} else {
 		printf "%s %s, %s\n", mne, dest, src1
 	}
-	disp_asm()
 		
 }
 function decodeAMO(bin) { 
@@ -3677,7 +3692,7 @@ function decodeAMO(bin) {
 	mne = ISA_AMO[funct5 funct3]
 	if (mne == "") {
 		print "Detected AMO instruction but invalid funct5 and funct3 fields";
-		exit
+		next
 	}
 
 	lr = (mme ~ /^lr\./)
@@ -3701,7 +3716,6 @@ function decodeAMO(bin) {
 		push_asm(f["rs2"])
 	} 
 	push_asm(f["rs1"])
-	disp_asm()
 }
 
 function getname(str) {
@@ -3732,7 +3746,6 @@ function decodeJALR(bin) {
 	push_asm(f["rs1"])
 	push_asm(f["imm"])
 
-	disp_asm()
 
 }
 function decodeLOAD(bin) { 
@@ -3747,7 +3760,7 @@ function decodeLOAD(bin) {
 	mne = floatInst ? ISA_LOAD_FP[funct3] : ISA_LOAD[funct3]
 	if (mne == "") {
 		print "Detected LOAD" floatInst ? "-FP" : "" " instruction but invalid funct3 field"
-		exit
+		next
 	}
 	base = decReg(rs1)
 	dest = decReg(rd, floatInst)
@@ -3764,7 +3777,6 @@ function decodeLOAD(bin) {
 	push_asm(f["imm"])
 	push_asm(f["rs1"])
 
-	disp_asm()
 
 
 
@@ -3777,23 +3789,62 @@ function decodeOP_IMM(bin) {
 	rs1 = fields["rs1"]
 	funct3 = fields["funct3"]
 	rd = fields["rd"]
+	shtyp = fields["shtyp"]
+
+	print_dbg("imm", imm)
+	print_dbg("rs1", rs1)
+	print_dbg("funct3", funct3)
+	print_dbg("rd", rd)
 
 	op_imm_32 = (opcode == OPCODE["OP_IMM_32"])
 	op_imm_64 = (opcode == OPCODE["OP_IMM_64"])
 
+	print_dbg("op_imm_32", op_imm_32)
+	print_dbg("op_imm_64", op_imm_64)
+
 	if (op_imm_64) {
-		mne = ISA_OP_IMM_64[funct3]
+		if (typeof(ISA_OP_IMM_64[funct3]) != "unassigned") {
+			if (typeof(ISA_OP_IMM_64[funct3]) == "string") {
+				mne = ISA_OP_IMM_64[funct3]
+			} else if (typeof(ISA_OP_IMM_64[funct3]) == "array") {
+				mne = ISA_OP_IMM_64[funct3][shtyp]
+			} else {
+				mne = ""
+			}
+		} else {
+			mne = ""
+		}
 		opcodeName = "OP-IMM-64"
 	} else if (op_imm_32) {
-		mne = ISA_OP_IMM_32[funct3]
+		if (typeof(ISA_OP_IMM_32[funct3]) != "unassigned") {
+			if (typeof(ISA_OP_IMM_32[funct3]) == "string") {
+				mne = ISA_OP_IMM_32[funct3]
+			} else if (typeof(ISA_OP_IMM_32[funct3]) == "array") {
+				mne = ISA_OP_IMM_32[funct3][shtyp]
+			} else {
+				mne = ""
+			}
+		} else {
+			mne = ""
+		}
 		opcodeName = "OP-IMM-32"
 	} else {
-		mne = ISA_OP_IMM[funct3]
+		if (typeof(ISA_OP_IMM[funct3]) != "unassigned") {
+			if (typeof(ISA_OP_IMM[funct3]) == "string") {
+				mne = ISA_OP_IMM[funct3]
+			} else if (typeof(ISA_OP_IMM[funct3]) == "array") {
+				mne = ISA_OP_IMM[funct3][shtyp]
+			} else {
+				mne = ""
+			}
+		} else {
+			mne = ""
+		}
 		opcodeName = "OP-IMM"
 	}
 	if (mne == "") {
-		print "Detected", opcodeName, "instruction but invalid funct3 field"
-		exit
+		print "ERROR: Detected", opcodeName, "instruction but invalid funct3 field"
+		next
 	}
 
 	if (typeof(mne) != "string") {
@@ -3830,20 +3881,20 @@ function decodeOP_IMM(bin) {
 		} else if (op_imm_64) {
 			shamtWitdh = 6
 			this_isa = "RV128I" # set ISA here to avoid assumed ISA of RV64I below
-		} else if (config["ISA"] == COPTS_ISA["RV32I"] || (shamt_6 == "0" && shamt_5 == "0")) {
+		} else if (config_isa == "RV32I" || (shamt_6 == "0" && shamt_5 == "0")) {
 			shamtWitdh = 5
-		} else if (config["ISA"] == COPTS_ISA["RV64I"] || shamt_6 == "0") {
+		} else if (config_isa == "RV64I" || shamt_6 == "0") {
 			shamtWitdh = 6
 		} else {
 			shamtWitdh = 7
 		}
 
 		if (shamt >= 32 && shamtWitdh == 5) {
-			print "Invalid shamt field",shamt,"(out of range for opcode or ISA config)"
-			exit
+			print "ERROR: Invalid shamt field",shamt,"(out of range for opcode or ISA config)"
+			next
 		} else if (shamt >= 64 && shamtWitdh == 6) {
-			print "Invalid shamt field",shamt,"(out of range for opcode or ISA config)"
-			exit
+			print "ERROR: Invalid shamt field",shamt,"(out of range for opcode or ISA config)"
+			next
 		}
 
 		if (shamtWitdh == 7) {
@@ -3868,8 +3919,8 @@ function decodeOP_IMM(bin) {
 		if ((shamtWitdh == 5 && imm_11_5 != substr(imm, 1, 7)) \
 		  ||(shamtWitdh == 6 && imm_11_6 != substr(imm, 1, 6)) \
 		  ||(shamtWitdh == 7 && imm_11_7 != substr(imm, 1, 5))) {
-			print "Detected", this_isa,"shift immediate instruction but invalid shtyp field"
-			exit
+			print "ERROR: Detected", this_isa,"shift immediate instruction but invalid shtyp field"
+			next
 		}
 	} else {
 
@@ -3884,7 +3935,6 @@ function decodeOP_IMM(bin) {
 	push_asm(f["rs1"])
 	push_asm(f["imm"])
 
-	disp_asm()
 	
 }
 function decodeMISC_MEM(bin) { 
@@ -3901,15 +3951,15 @@ function decodeMISC_MEM(bin) {
 	mne = ISA_MISC_MEM[funct3]
 
 	if (mne == "") {
-		print "Detected MISC-MEM instruction but invalid funct3 field"
-		exit
+		print "ERROR: Detected MISC-MEM instruction but invalid funct3 field"
+		next
 	}
 
 	loadExt = (mne == "lq")
 
 	if (!loadExt && (rd != "00000" || rs1 != "00000")) {
-		print "Registers rd and rs1 should be 0"
-		exit
+		print "ERROR: Registers rd and rs1 should be 0"
+		next
 	}
 
 	build_f("opcode", FRAG["OPC"], mne, opcode, getname("opcode"))
@@ -3950,7 +4000,6 @@ function decodeMISC_MEM(bin) {
 		push_asm(f["opcode"])
 		
 	}
-	disp_asm()
 	
 }
 function decodeSYSTEM(bin) { 
@@ -3960,24 +4009,36 @@ function decodeSYSTEM(bin) {
 	rs1 = fields["rs1"]
 	funct3 = fields["funct3"]
 	rd = fields["rd"]
+	trap = false
 
-	mne = ISA_SYSTEM[funct3]
-	
+	print_dbg("funct12", funct12)
+	print_dbg("rs1", rs1)
+	print_dbg("funct3", funct3)
+	print_dbg("rd", rd)
+	print_dbg("trap", trap)
+	ot = typeof(ISA_SYSTEM[funct3]) 
+	if (ot == "string") {
+		mne = ISA_SYSTEM[funct3]
+	} 
+	if (ot == "array") {
+		trap = true
+		mne = "pending"
+	}
 	if (mne == "") {
-		print "Detected SYSTEM instruction but invalid funct3 field"
-		exit
+		print "ERROR: Detected SYSTEM instruction but invalid funct3 field"
+		next
 	}
 
-	trap = (typeof(mne) != "string")
 	if (trap) {
-		mne = mne[funct12]
-		if (mne == "") {
-			print "Detected SYSTEM instruction but invalid funct12 field"
-			exit
+		if (typeof(ISA_SYSTEM[funct3][funct12]) == "string") {
+			mne = ISA_SYSTEM[funct3][funct12]
+		} else {
+			print "ERROR: Detected SYSTEM instruction but invalid funct12 field"
+			next
 		}
-		if (rd != "00000" || rs != "00000") {
-			print "Registers rd and rs1 should be 0 for mne", mne
-			exit
+		if (rd != "00000" || rs1 != "00000") {
+			print "ERROR: Registers rd and rs1 should be 0 for mne", mne
+			next
 		}
 	}
 
@@ -3995,7 +4056,6 @@ function decodeSYSTEM(bin) {
 		
 		dest = decReg(rd)
 		csr = decCSR(csrBin)
-		print "CSR", csr
 
 		if (substr(funct3, 1, 1) == "0") {
 			src = decReg(rs1)
@@ -4014,7 +4074,6 @@ function decodeSYSTEM(bin) {
 		push_asm(f["csr"])
 		push_asm(f["rs1"])
 	}
-	disp_asm()
 		
 }
 function decodeSTORE(bin) { 
@@ -4031,8 +4090,8 @@ function decodeSTORE(bin) {
 	mne = floatInst ? ISA_STORE_FP[funct3] : ISA_STORE[funct3]
 
 	if (mne == "" ) {
-		print "Detected STORE" floatInst ? "-FP" : "", "instruction but invalid funct3 field"
-		exit
+		print "ERROR: Detected STORE" floatInst ? "-FP" : "", "instruction but invalid funct3 field"
+		next
 	}
 	offset = decImm(imm)
 	base = decReg(rs1)
@@ -4051,7 +4110,6 @@ function decodeSTORE(bin) {
 	push_asm(f["imm"])
 	push_asm(f["rs1"])
 
-	disp_asm()
 
 }
 function decodeBRANCH(bin) { 
@@ -4069,8 +4127,8 @@ function decodeBRANCH(bin) {
 
 	mne = ISA_BRANCH[funct3]
 	if (mne == "") {
-		print "Detected BRANCH instruction but invalid funct3 field"
-		exit
+		print "ERROR: Detected BRANCH instruction but invalid funct3 field"
+		next
 	}
 
 	offset = decImm(imm)
@@ -4092,7 +4150,6 @@ function decodeBRANCH(bin) {
 	push_asm(f["rs2"])
 	push_asm(f["imm"])
 
-	disp_asm()
 }
 function decodeUType(bin) { 
 	print "decodeUType" 
@@ -4112,7 +4169,6 @@ function decodeUType(bin) {
 	push_asm(f["rd"])
 	push_asm(f["imm_31_12"])
 
-	disp_asm()
 }
 function decodeJAL(bin) { 
 	print "decodeJAL" 
@@ -4141,7 +4197,6 @@ function decodeJAL(bin) {
         push_asm(f["rd"])
         push_asm(f["imm"])
 
-	disp_asm()
 }
 function decodeR4(bin) { 
 	print "decodeR4" 
@@ -4165,8 +4220,8 @@ function decodeR4(bin) {
 	}
 
 	if (mne == "") {
-		print "Detected fused multiply-add instruction but invalid fmt field"
-		exit
+		print "ERROR: Detected fused multiply-add instruction but invalid fmt field"
+		next
 	}
 
 	src1 = decReg(rs1, true)
@@ -4188,7 +4243,6 @@ function decodeR4(bin) {
 	push_asm(f["rs2"])
 	push_asm(f["rs3"])
 
-	disp_asm()
 }
 
 function decodeCR(bin) { 
@@ -4205,14 +4259,14 @@ function decodeCR(bin) {
 	rdRs1Excl = isa[mne]["rdRs1Excl"]
 
 	if (index(rdRs1Excl, destSrc1Val)) {
-		print "Detected", mne, "instruction, but illegal value", destSrc1, "in rd/rs1 field"
-		exit
+		print "ERROR: Detected", mne, "instruction, but illegal value", destSrc1, "in rd/rs1 field"
+		next
 	}
 	src2Val = decImm(rs2, false)
 	rs2Excl = isa[mne]["rs2Excl"]
 	if (index(rs2Excl, src2Val)) {
-		print "Detected", mne, "instruction, but illegal value", src2, "in rs2 field"
-		exit
+		print "ERROR: Detected", mne, "instruction, but illegal value", src2, "in rs2 field"
+		next
 	}
 	
 	destSrc1Name = ""
@@ -4262,11 +4316,10 @@ function decodeCR(bin) {
 		}
 	}
 		
-	disp_asm()
 		
 		
 }
-function decodeCI(bin) { 
+function decodeCI(bin, 		immVal,imm0,imm1) { 
 	print "decodeCI" 
 	funct3 = getBits(bin, getpos("c_funct3"))
 	imm0 = getBits(bin, getpos("c_imm_ci_0"))
@@ -4279,14 +4332,16 @@ function decodeCI(bin) {
 	floatRdRs1 = (mne ~ /^c\.fl/)
 
 	destSrc1 = decReg(rdRs1, floatRdRs1)
+	print_dbg("immVal before", immVal)
 	immVal = decImmBits(imm0" "imm1, isa[mne]["immBits"], isa[mne][uimm])
+	print_dbg("immVal after", immVal)
 
 	if (shiftInst) {
 		if (immVal == 0) {
 			mne = mne "64"
 			if (typeof(isa[mne]) == "undefined") {
-				print "Internal error when converting shift-immediate instruction into", mne
-				exit
+				print "ERROR: Internal error when converting shift-immediate instruction into", mne
+				next
 			}
 
 			this_isa = "RV128" isa[mne]["isa"]
@@ -4296,17 +4351,15 @@ function decodeCI(bin) {
 	}
 	
 	destSrc1Val = decImm(rdRs1, false)
-	rdRs1Excl
-	destSrc1Val = decImm(rdRs1, false)
 	rdRs1Excl = isa[mne]["rdRs1Excl"]
 
 	if (index(rdRs1Excl, destSrc1Val)) {
-		print "Detected", mne, "instruction, but illegal value", destSrc1, "in rd/rs1 field"
-		exit
+		print "ERROR: Detected", mne, "instruction, but illegal value", destSrc1, "in rd/rs1 field"
+		next
 	}
 	if (isa[mne]["nzimm"] && immVal == 0) {
-		print "Detected", mne, "but instruction expects non-zero immediate value (encoding reserved)"
-		exit
+		print "ERROR: Detected", mne, "but instruction expects non-zero immediate value (encoding reserved)"
+		next
 	}
 	destSrc1Name = ""
 	rdRs1Mask = isa[mne]["rdRs1Mask"]
@@ -4340,7 +4393,7 @@ function decodeCI(bin) {
 	build_f("opcode", FRAG["OPC"], mne, opcode, getname("c_opcode"))
 	build_f("funct3", FRAG["OPC"], mne, funct3, getname("c_funct3"))
 
-	dynamicRdRs1 = (isa[mne]["rdRs1Val"]) ? false : true
+	dynamicRdRs1 = (isa[mne]["rdRs1Val"] != "") ? false : true
 	if (dynamicRdRs1) {
 		build_f("rd_rs1", FRAG["RD"], destSrc1, rdRs1, destSrc1Name)
 	} else  {
@@ -4365,7 +4418,6 @@ function decodeCI(bin) {
 	if (dynamicImm) {
 		push_asm(f["imm0"])
 	}
-	disp_asm()
 		
 }
 function decodeCSS(bin) { 
@@ -4395,7 +4447,6 @@ function decodeCSS(bin) {
 	push_asm(f["rs2"])
 	push_asm(f["imm"])
 	
-	disp_asm()
 }
 function decodeCIW(bin) { 
 	print "decodeCIW" 
@@ -4419,8 +4470,8 @@ function decodeCIW(bin) {
 	immVal = decImmBits(imm, isa[mne]["immBits"], isa[mne][uimm])
 
 	if (isa[mne]["nzimm"] && immVal == 0) {
-		print "Detected", mne, ", but instruction expects non-zero immediate value (encoding reserved)"
-		exit
+		print "ERROR: Detected", mne, ", but instruction expects non-zero immediate value (encoding reserved)"
+		next
 	}
 
 	build_f("opcode", FRAG["OPC"], mne, opcode, getname("c_opcode"))
@@ -4432,7 +4483,6 @@ function decodeCIW(bin) {
 	push_asm(f["rd_prime"])
 	push_asm(f["imm"])
 
-	disp_asm()
 		
 }
 function decodeCL(bin) { 
@@ -4474,7 +4524,6 @@ function decodeCL(bin) {
 	push_asm(f["imm0"])
 	push_asm(f["rs1_prime"])
 
-	disp_asm()
 }
 function decodeCS(bin) { 
 	print "decodeCS" 
@@ -4515,7 +4564,6 @@ function decodeCS(bin) {
 	push_asm(f["imm0"])
 	push_asm(f["rs1_prime"])
 
-	disp_asm()
 	
 }
 function decodeCA(bin) { 
@@ -4542,7 +4590,6 @@ function decodeCA(bin) {
 	push_asm(f["rd_rs1_prime"])
 	push_asm(f["rs2_prime"])
 
-	disp_asm()
 }
 function decodeCB(bin) { 
 	print "decodeCB" 
@@ -4566,9 +4613,9 @@ function decodeCB(bin) {
 	if (shiftInst) {
 		if (immVal == 0) {
 			mne = mne "64"
-			if (!isa[mne]) {
-				print "Internal error when converting shift-immediate instruction into", mne
-				exit
+			if (typeof(isa[mne]) == "unassigned") {
+				print "ERROR: Internal error when converting shift-immediate instruction into", mne
+				next
 			}
 
 			this_isa = "RV128" isa[mne]["isa"]
@@ -4578,8 +4625,8 @@ function decodeCB(bin) {
 	}
 
 	if (isa[mne]["nzimm"] && immVal == 0) {
-		print "Detected", mne, "but instruction expects non-zero immediate value (encoding reserved)"
-		exit
+		print "ERROR: Detected", mne, "but instruction expects non-zero immediate value (encoding reserved)"
+		next
 	}
 
 	immName = ""
@@ -4626,7 +4673,6 @@ function decodeCB(bin) {
 		}
 		
 	}
-	disp_asm()
 }
 function decodeCJ(bin) { 
 	print "decodeCJ" 
@@ -4643,11 +4689,9 @@ function decodeCJ(bin) {
 	push_asm(f["opcode"])
 	push_asm(f["imm"])
 
-	disp_asm()
 }
 
 function mneLookupC0(bin) {
-	print "-- mneLookupC0"
 	extractCLookupFields(bin, fields)
 	funct3 = fields["funct3"]
 	
@@ -4744,11 +4788,10 @@ function build_f(col, id, asm, bits, field, mem) {
 		f[col]["mem"] = 1
 	}
 }
-function disp_asm() {
+function disp_asm(	i,asm,asmToken,inst) {
 	print "ISA", this_isa
 	for(n in asmFrags) {
 		asm = asmFrags[n]["asm"]
-		#print n, asm
 		if (asmFrags[n]["mem"] == 1) {
 			asm = "(" asm ")"
 		}
@@ -4765,16 +4808,21 @@ function disp_asm() {
 	print "RESP:", inst
 }
 function push_asm(x) {
-	k++
-	asmFrags[k]["id"] = x["id"]
-	asmFrags[k]["asm"] = x["asm"]
-	asmFrags[k]["bits"] = x["bits"]
-	asmFrags[k]["field"] = x["field"]
-	asmFrags[k]["mem"] = x["mem"]
+	frag_index++
+	asmFrags[frag_index]["id"] = x["id"]
+	asmFrags[frag_index]["asm"] = x["asm"]
+	asmFrags[frag_index]["bits"] = x["bits"]
+	asmFrags[frag_index]["field"] = x["field"]
+	asmFrags[frag_index]["mem"] = x["mem"]
 }
 
 function decode(bin) {
-	
+	mne = ""
+	this_isa = ""
+	this_xlens = ""
+	delete f
+	delete asmFrags
+	frag_index = 0
 	opcode = getBits(bin, FIELDS["opcode"]["pos"])
 	#print "opcode", opcode
 
@@ -4819,8 +4867,8 @@ function decode(bin) {
 			case "1001011": # NMSUB
 				decodeR4(bin); break;
 			default:
-				print "Invalid opcode:", opcode
-				exit
+				print "ERROR: Invalid opcode:", opcode
+				next
 		}
 	} else {
 		# Compressed
@@ -4858,13 +4906,13 @@ function decode(bin) {
 				quadrant = "C2"
 				break
 			default:
-				print "Cannot decode binary instruction:", bin
-				exit
+				print "ERROR: Cannot decode binary instruction:", bin
+				next
 		}
 
 		if (mne == "") {
-			print "Detected quadrant", quadrant, "but could not determine instruction, potentially HINT or reserved"
-			exit
+			print "ERROR: Detected quadrant", quadrant, "but could not determine instruction, potentially HINT or reserved"
+			next
 		}
 		binst_xlens = isa[mne]["xlens"]
 		if (binst_xlens != "") inst_xlens = b2n(binst_xlens)
@@ -4889,9 +4937,11 @@ function decode(bin) {
 			case "CB": decodeCB(bin); break
 			case "CJ": decodeCJ(bin); break
 			default:
-				print "Internal Error: Detected", mne, "in quadrant", quadrant, "but could not match instruction format"
-				exit
+				print "ERROR: Internal Error: Detected", mne, "in quadrant", quadrant, "but could not match instruction format"
+				next
 		}
 	}
+	this_isa = this_isa ? this_isa : isa[mne]["isa"]
+	disp_asm()
 		
 }
