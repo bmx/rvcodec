@@ -1,12 +1,60 @@
-C0	1084	c.addi4spn x9, 96
-C0	32a4	c.fld f9, 96(x13)
-C0	53b0	c.lw x12, 96(x15)
-C0	72a4	c.flw f9, 96(x13)
-Cx	b0ac	c.fsd f11, 96(x9)
-Cx	8ced	c.and x9, x11
-Cx	c0a5	c.beqz x9, 96
-Cx	8a41	c.andi x12, 16
-Cx	96a1	c.srai x13, 40
-Cx	afc1	c.j 2000
-Cx	26e5	c.jal 1000
-I	02ee0237	lui x4, 12000
+C0	RV32I	0804		c.addi4spn x9, 16
+C0	RV32I	1084		c.addi4spn x9, 96
+C0	RV32I	32a4		c.fld f9, 96(x13)
+C0	RV32I	53b0		c.lw x12, 96(x15)
+C0	RV32I	72a4		c.flw f9, 96(x13)
+C0	RV32I	b0ac		c.fsd f11, 96(x9)
+C0	RV32I	ea04		c.fsw f9, 16(x12)
+C0	RV32I	6894		c.flw f13, 16(x9)
+C0	RV64I	6894		c.ld x13, 16(x9)
+C0	RV32I	2328		c.fld f10, 64(x14)
+C0	RV128I	2328		c.lq x10, 64(x14)
+C0	RV32I	e904		c.fsw f9, 16(x10)
+C0	RV64I	e904		c.sd x9, 16(x10)
+C0	RV32I	a24c		c.fsd f11, 128(x12)
+C0	RV128I	a24c		c.sq x11, 128(x12)
+C0	RV32I	d90c		c.sw x11, 48(x10)
+C1	RV32I	157d		c.addi x10, -1
+C1	RV32I	717d		c.addi16sp -16
+C1	RV64I	3509		c.addiw x10, -30
+C1	RV32I	3509		c.jal -510
+C1	RV32I	9db5		c.addw x11, x13
+C1	RV32I	8ced		c.and x9, x11
+C1	RV32I	8a41		c.andi x12, 16
+C1	RV32I	c0a5		c.beqz x9, 96
+C1	RV32I	fa75		c.bnez x12, -12
+C1	RV32I	afc1		c.j 2000
+C1	RV32I	26e5		c.jal 1000
+C1	RV32I	56d1		c.li x13, -12
+C1	RV32I	7205		c.lui x4, -31
+C1	RV32I	0001		c.nop
+C1	RV32I	8cd9		c.or x9, x14
+C1	RV32I	96a1		c.srai x13, 40
+C1	RV32I	8681		c.srai64 x13
+C1	RV32I	8335		c.srli x14, 13
+C1	RV32I	8381		c.srli64 x15
+C1	RV32I	8c89		c.sub x9, x10
+C1	RV32I	9c95		c.subw x9, x13
+C1	RV32I	8cb9		c.xor x9, x14
+C2	RV32I	977e		c.add x14, x31
+C2	RV32I	9002		c.ebreak
+C2	RV32I	3bc2		c.fldsp f23, 48
+C2	RV32I	6986		c.flwsp f19, 64
+C2	RV32I	a146		c.fsdsp f17, 128
+C2	RV32I	f03e		c.fswsp f15, 32
+C2	RV32I	9e82		c.jalr x29
+C2	RV32I	8182		c.jr x3
+C2	RV32I	7282		c.flwsp f5, 32
+C2	RV64I	7282		c.ldsp x5, 32
+C2	RV32I	3282		c.fldsp f5, 32
+C2	RV128I	3282		c.lqsp x5, 32
+C2	RV32I	5282		c.lwsp x5, 32
+C2	RV32I	86ae		c.mv x13, x11
+C2	RV32I	e42e		c.fswsp f11, 8
+C2	RV64I	e42e		c.sdsp x11, 8
+C2	RV32I	01ba		c.slli x3, 14
+C2	RV32I	0282		c.slli64 x5
+C2	RV32I	b01e		c.fsdsp f7, 32
+C2	RV128I	b01e		c.sqsp x7, 32
+C2	RV32I	d01e		c.swsp x7, 32
+I	RV32I	02ee0237	lui x4, 12000

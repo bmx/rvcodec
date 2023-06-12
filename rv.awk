@@ -1,5 +1,5 @@
 BEGIN {
-	dbg = 0
+	dbg = dbg ? dbg : 0
 	lookup[0]=1
 
 	COPTS_ISA["AUTO"]=0
@@ -503,8 +503,8 @@ BEGIN {
 	isa["c.flw"]["immBits"] = "5-3 2,6"
 	isa["c.flwsp"]["immBits"] = "5 4-2,7-6"
 	isa["c.fsd"]["immBits"] = "5-3 7-6"
-	isa["c.fsdsp"]["immBits"] = "5-3 8-6"
-	isa["c.fsw"]["immBits"] = "5-3 2-6"
+	isa["c.fsdsp"]["immBits"] = "5-3,8-6"
+	isa["c.fsw"]["immBits"] = "5-3 2,6"
 	isa["c.fswsp"]["immBits"] = "5-2 7-6"
 	isa["c.j"]["immBits"] = "11,4,9-8,10,6,7,3-1,5"
 	isa["c.jal"]["immBits"] = "11,4,9-8,10,6,7,3-1,5"
@@ -527,7 +527,7 @@ BEGIN {
 	isa["c.srai64"]["immBits"] = "5 4-0"
 	isa["c.srli"]["immBits"] = "5 4-0"
 	isa["c.srli64"]["immBits"] = "5 4-0"
-	isa["c.sw"]["immBits"] = "5-3 2-6"
+	isa["c.sw"]["immBits"] = "5-3 2,6"
 	isa["c.swsp"]["immBits"] = "5-2 7-6"
 	isa["c.lui"]["immBitsLabels"] = "17 16-12"
 	isa["c.nop"]["immVal"] = "0"
@@ -2612,6 +2612,9 @@ BEGIN {
 	ISA_C2[isa["c.fldsp"]["funct3"],2] = "c.fldsp"
 	ISA_C2[isa["c.fldsp"]["funct3"],4] = "c.lqsp"
 	ISA_C2[isa["c.lwsp"]["funct3"]] = "c.lwsp"
+	ISA_C2[isa["c.flwsp"]["funct3"],1] = "c.flwsp"
+	ISA_C2[isa["c.flwsp"]["funct3"],2] = "c.ldsp"
+	ISA_C2[isa["c.flwsp"]["funct3"],4] = "c.ldsp"
 	ISA_C2["100",7,0,0] = "c.jr"
 	ISA_C2["100",7,0,"default"] = "c.mv"
 	ISA_C2["100",7,1,0,0] = "c.ebreak"
@@ -2629,8 +2632,9 @@ BEGIN {
 {
 	parse_input($0)
 }
-function print_dbg(txt, val) {
-	if (dbg) printf("%s %s\n", txt, val) #> "/dev/stderr"
+function print_dbg(txt, val, lvl) {
+	if (lvl == "") lvl = 1
+	if (dbg >= lvl) printf("-- %s %s\n", txt, val) #> "/dev/stderr"
 }
 function parse_input(input) {
 	print "input", input
@@ -2733,13 +2737,14 @@ function n2b(val, width) {
 }
 function b2n(b, 	hex) {
 	hex=0
-	print_dbg("b2n input b len", length(b))
-	print_dbg("b2n initial hex", hex)
+	print_dbg("b2n input b", b, 2)
+	print_dbg("b2n input b len", length(b), 2)
+	print_dbg("b2n initial hex", hex, 2)
 	binlen = length(b)
         for(i = 0 ;i < binlen; i++) {
                 if (substr(b, binlen-i, 1) == "1") hex = or(hex, lshift(1, i))
         }
-	print_dbg("b2n hex returns", hex)
+	print_dbg("b2n hex returns", hex, 2)
 	return hex
 }
 function encReg(reg, flt) {
@@ -3088,7 +3093,7 @@ function encodeCR() {
 	src1 = tokens[2]
 	src2 = tokens[3]
 	rdRs1Val = isa[mne]["rdRs1Val"]
-	if (rdRs1Val) {
+	if (rdRs1Val != "") {
 		rdRs1 = encImm(rdRs1Val, 5)
 	} else {
 		rdRs1 = src1 ? encReg(src1) : "01000"
@@ -3098,6 +3103,14 @@ function encodeCR() {
 	if (rs2Val) rs2 = encImm(rs2Val, 5)
 	else rs2 = src2 ? encReg(src2) : "01000"
 	rdRs1Excl = isa[mne]["rdRs1Excl"]
+
+	print_dbg("src1", src1)
+	print_dbg("src2", src2)
+	print_dbg("rdRs1Val", rdRs1Val)
+	print_dbg("rdRs1", rdRs1)
+	print_dbg("rs2Val", rs2Val)
+	print_dbg("rs2", rs2)
+	print_dbg("rdRs1Excl", rdRs1Excl)
 	if (rdRs1Excl) {
 		val = b2n(rdRs1)
 		split(substr(rdRs1Excl,2, length(rdRs1Excl)-2), arrExcl, ",")
@@ -3126,13 +3139,21 @@ function encodeCR() {
 }
 function encodeCI() { 
 	print "in encodeCI" 
-	skipRdRs1 = (isa[mne]["rdRs1Val"])
+	skipRdRs1 = (isa[mne]["rdRs1Val"] != "")
+	print_dbg("typof", typeof(isa[mne]["rdRs1Val"]))
 	src1 = tokens[2]
 	immediate = tokens[skipRdRs1 ? 2 : 3]
 	floatRdRs1 = ( mne ~ /^c\.f/ )
 	
 	rdRs1 = skipRdRs1 ? encImm(isa[mne]["rdRs1Val"], 5) : (src1) ? encReg(src1, floatRdRs1) : "01000"
 	immVal = isa[mne]["immVal"] ? strtonum(isa[mne]["immVal"]) : immediate # FIXME number
+
+	print_dbg("skipRdRs1", skipRdRs1)
+	print_dbg("src1", src1)
+	print_dbg("immediate", immediate)
+	print_dbg("floatRdRs1", floatRdRs1)
+	print_dbg("rdRs1", rdRs1)
+	print_dbg("immVal", immVal)
 
 	if (isa[mne]["rdRs1Excl"]) {
 		val = b2n(rdRs1)
@@ -3260,8 +3281,22 @@ function encodeCS() {
 
 	immBits = isa[mne]["immBits"]
 	split(immBits, abits, " ")
+	print_dbg("abits[1]", abits[1])
+	print_dbg("abits[2]", abits[2])
 	imm0 = encImmBits(immVal, abits[1])
 	imm1 = encImmBits(immVal, abits[2])
+
+	print_dbg("src", src)
+	print_dbg("immediate", immediate)
+	print_dbg("base", base)
+	print_dbg("floatRs2", floatRs2)
+	print_dbg("rs2Prime", rs2Prime)
+	print_dbg("rs1Prime", rs1Prime)
+	print_dbg("immVal", immVal)
+	print_dbg("uimm", isa[mne]["uimm"])
+	print_dbg("immBits", immBits)
+	print_dbg("imm0", imm0)
+	print_dbg("imm1", imm1)
 
 	bin = isa[mne]["funct3"] imm0 rs1Prime imm1 rs2Prime opcode
 	print "bin", bin
@@ -3412,14 +3447,21 @@ function decImmBits(immFields, immBits, uimm,	bin) {
 	for(i = 1; i<= len; i++) binArray[i] = 0
 	maxBit = 0
 
-	split(immFields, aimmFields, " ")
-	split(immBits, aimmBits, " ")
+	print_dbg(" decImmBits uimm", uimm)
+	print_dbg(" decImmBits immBits", immBits)
+	print_dbg(" decImmBits immFields", immFields)
+
+	r = split(immFields, aimmFields, " ")
+	print "split", immFields, "in", r
+	rr = split(immBits, aimmBits, " ")
+	print "split", immBits, "in", rr
 
 	for(i = 1; i <= length(aimmFields); i++) {
 		fieldBin = aimmFields[i]
 		fieldBits = aimmBits[i]
 	
 		split(fieldBits, afieldBits, ",")
+		print "+ fieldBits:", fieldBits
 		kk = 1
 		for ( j = 1; j<= length(afieldBits); j++) {
 			z = split(afieldBits[j], abit, "-")
@@ -3432,6 +3474,7 @@ function decImmBits(immFields, immBits, uimm,	bin) {
 				bitStart = abit[1]
 				bitEnd = abit[2]
 				for(l = 1; l <= bitStart-bitEnd + 1; l++) {
+					print "set bit", len - bitStart - 1 + l, "to", int(substr(fieldBin, kk, 1))
 					binArray[len - bitStart - 1 + l] = int(substr(fieldBin, kk, 1))
 					kk++
 				}
@@ -3443,9 +3486,14 @@ function decImmBits(immFields, immBits, uimm,	bin) {
 		bin = bin binArray[i]
 	} 
 	signExtend = (! uimm)
+	print_dbg("signExtend", signExtend)
 	if (signExtend) {
+		print_dbg("max", maxBit)
+		print_dbg("bin", bin)
+		print_dbg("trunc from pos", len-maxBit)
 		bin = substr(bin, len - maxBit)
 	}
+	print_dbg("output bin", bin)
 	return decImm(bin, signExtend)
 }
 function immBitsToString(immBits) {
@@ -4255,8 +4303,19 @@ function decodeCR(bin) {
 	destSrc1 = decReg(rdRs1)
 	src2 = decReg(rs2)
 
+	print_dbg("funct4", funct4)
+	print_dbg("rdRs1", rdRs1)
+	print_dbg("rs2", rs2)
+	print_dbg("opcode", opcode)
+
+	print_dbg("destSrc1", destSrc1)
+	print_dbg("src2", src2)
+
 	destSrc1Val = decImm(rdRs1, false)
 	rdRs1Excl = isa[mne]["rdRs1Excl"]
+
+	print_dbg("destSrc1Val", destSrc1Val)
+	print_dbg("rdRs1Excl", rdRs1Excl)
 
 	if (index(rdRs1Excl, destSrc1Val)) {
 		print "ERROR: Detected", mne, "instruction, but illegal value", destSrc1, "in rd/rs1 field"
@@ -4268,9 +4327,13 @@ function decodeCR(bin) {
 		print "ERROR: Detected", mne, "instruction, but illegal value", src2, "in rs2 field"
 		next
 	}
+
+	print_dbg("src2Val", src2Val)
+	print_dbg("rs2Excl", rs2Excl)
 	
 	destSrc1Name = ""
 	rdRs1Mask = isa[mne]["rdRs1Mask"]
+	print_dbg("rdRs1Mask", rdRs1Mask)
 	switch(rdRs1Mask) {
 		case "01":
 			destSrc1Name = getname("c_rs1")
@@ -4285,6 +4348,7 @@ function decodeCR(bin) {
 	if (rdRs1Excl != "") {
 		destSrc1Name = destSrc1Name "≠" regExclToString(rdRs1Excl)
 	}
+	print_dbg("destSrc1Name", destSrc1Name)
 	
 	src2Name = getname("c_rs2")
 	if (rs2Excl != "") {
@@ -4294,7 +4358,8 @@ function decodeCR(bin) {
 	build_f("opcode", FRAG["OPC"], mne, opcode, getname("c_opcode"))
 	build_f("funct4", FRAG["OPC"], mne, funct4, getname("c_funct4"))
 
-	dynamicRdRs1 = (isa[mne]["rdRs1Val"]) ? false : true
+	dynamicRdRs1 = (isa[mne]["rdRs1Val"] == "")
+	print_dbg("dynamicRdRs1", dynamicRdRs1)
 	if (dynamicRdRs1) {
 		build_f("rd_rs1", FRAG["RD"], destSrc1, rdRs1, destSrc1Name)
 	} else  {
@@ -4426,17 +4491,28 @@ function decodeCSS(bin) {
 	imm = getBits(bin, getpos("c_imm_css"))
 	rs2 = getBits(bin, getpos("c_rs2"))
 
+	print_dbg("funct3", funct3)
+	print_dbg("imm", imm)
+	print_dbg("rs2", rs2)
+
 	immName = ""
 	uimm = isa[mne]["uimm"]
+	print_dbg("uimm", uimm)
 	if (uimm) {
 		immName = "u"
 	}
 	immName = immName getname("c_imm_css")
 	immBits = isa[mne]["immBits"]	
+	print_dbg("immBits", immBits)
 	floatRs2 = (mne ~ /^c\.f/)
+
+	print_dbg("floatRs2", floatRs2)
 	
 	offset = decImmBits(imm, immBits, uimm)
-	src = decReg(Rs2, floatRs2)
+	src = decReg(rs2, floatRs2)
+
+	print_dbg("offset", offset)
+	print_dbg("src", src)
 
 	build_f("opcode", FRAG["OPC"], mne, opcode, getname("c_opcode"))
 	build_f("funct3", FRAG["OPC"], mne, funct3, getname("c_funct3"))
@@ -4746,6 +4822,14 @@ function mneLookupC2(bin) {
 	rs2 = fields["rs2"]
 	rd_rs1 = fields["rd_rs1"]
 	all = XLEN_MASK["all"]
+	
+	print_dbg("funct3", funct3)
+	print_dbg("funct4", funct4)
+	print_dbg("f4", f4)
+	print_dbg("rs2", rs2)
+	print_dbg("rd_rs1", rd_rs1)
+	print_dbg("all", all)
+
 
 	if (typeof(ISA_C2[funct3]) == "string") return ISA_C2[funct3]
 
@@ -4892,6 +4976,7 @@ function decode(bin) {
 	
 		opcode = getBits(bin, getpos("c_opcode"))
 
+		print_dbg("opcode for quadrant", opcode)
 		switch (opcode) {
 			case "00": # C0
 				mne = mneLookupC0(bin)
