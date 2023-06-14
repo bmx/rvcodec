@@ -2953,16 +2953,25 @@ function encodeOP_IMM() {
 	if ( mne ~ /^s[lr][la]i/ ) {
 		shamtwidth = 5
 
+		if (config_isa == "RV32I" || opcode == OPCODE["OP_IMM_32"]) {
+			shamtwidth = getpos1("i_shamt")
+		} else if (config_isa == "RV64I" || opcode == OPCODE["OP_IMM_64"]) {
+			shamtwidth = getpos1("i_shamt_5_0")
+		} else {
+			shamtwidth = getpos1("i_shamt_6_0")
+		}
+
 		if (immediate < 0 || immediate >= lshift(1, shamtwidth)) {
-			print "error, invalid shamt field (out of range):", immediate
+			print "error, invalid shamt field (out of range):", immediate, "max", lshift(1, shamtwidth)
 			next
 		}
+		print_dbg("shamtwidth", shamtwidth)
 		imm_11_7 = "0" isa[mne]["shtyp"] "000"
-		imm_6_0 = encImm(immediate, 7)
+		imm_6_0 = encImm(immediate, getpos1("i_shamt_6_0"))
 		
 		imm = imm_11_7 imm_6_0
 	} else {
-		imm = encImm(immediate, 12)
+		imm = encImm(immediate, getpos1("i_imm_11_0"))
 	}
 	bin = imm rs1 isa[mne]["funct3"] rd opcode
         print "bin", bin
@@ -3566,6 +3575,11 @@ function regExclToString(excl, 	i) {
 function getpos(str) {
 	return FIELDS[str]["pos"]
 }
+function getpos1(str,	pos, apos) {
+	pos = FIELDS[str]["pos"]
+	split(pos, apos, ",")
+	return apos[2]
+}
 function extractRFields(binary, a) {
 	a["rs2"] = getBits(binary, getpos("rs2"))
 	a["rs1"] = getBits(binary, getpos("rs1"))
@@ -3856,6 +3870,7 @@ function decodeOP_IMM(bin) {
 				mne = ISA_OP_IMM_64[funct3]
 			} else if (typeof(ISA_OP_IMM_64[funct3]) == "array") {
 				mne = ISA_OP_IMM_64[funct3][shtyp]
+				shift = 1
 			} else {
 				mne = ""
 			}
@@ -3869,6 +3884,7 @@ function decodeOP_IMM(bin) {
 				mne = ISA_OP_IMM_32[funct3]
 			} else if (typeof(ISA_OP_IMM_32[funct3]) == "array") {
 				mne = ISA_OP_IMM_32[funct3][shtyp]
+				shift = 1
 			} else {
 				mne = ""
 			}
@@ -3882,6 +3898,7 @@ function decodeOP_IMM(bin) {
 				mne = ISA_OP_IMM[funct3]
 			} else if (typeof(ISA_OP_IMM[funct3]) == "array") {
 				mne = ISA_OP_IMM[funct3][shtyp]
+				shift = 1
 			} else {
 				mne = ""
 			}
@@ -3895,12 +3912,7 @@ function decodeOP_IMM(bin) {
 		next
 	}
 
-	if (typeof(mne) != "string") {
-		shift = 1
-		mne = mne[fields["shtyp"]]
-	} else {
-		shift = ( funct3 == isa["slli"]["funct3"])
-	}
+	if (funct3 == isa["slli"]["funct3"]) shift = 1
 
 	src = decReg(rs1)
 	dest = decReg(rd)
@@ -3918,12 +3930,24 @@ function decodeOP_IMM(bin) {
 		shamt_5_0 = shamt_5 shamt_4_0
 		shamt_6_0 = shamt_6 shamt_5_0
 
+		print_dbg("++ shtyp", shtyp)
+		print_dbg("++ shamt_6", shamt_6)
+		print_dbg("++ shamt_5", shamt_5)
+		print_dbg("++ shamt_4_0", shamt_4_0)
+		print_dbg("++ shamt_5_0", shamt_5_0)
+		print_dbg("++ shamt_6_0", shamt_6_0)
+
 		imm_11_7 = "0" shtyp "000"
 		imm_11_6 = imm_11_7 "0"
 		imm_11_5 = imm_11_6 "0"
 
+		print_dbg("++ imm_11_7", imm_11_7)
+		print_dbg("++ imm_11_6", imm_11_6)
+		print_dbg("++ imm_11_5", imm_11_5)
+
 		shamt = decImm(shamt_6_0, 0)
 	
+		print_dbg("++ shamt", shamt)
 		if (op_imm_32) {
 			shamtWitdh = 5
 		} else if (op_imm_64) {

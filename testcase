@@ -58,3 +58,235 @@ C2	RV32I	b01e		c.fsdsp f7, 32
 C2	RV128I	b01e		c.sqsp x7, 32
 C2	RV32I	d01e		c.swsp x7, 32
 I	RV32I	02ee0237	lui x4, 12000
+
+B	RV32I	fa1e89e3	beq x29, x1, -78
+B	RV32I	0911d863	bge x3, x17, 144
+B	RV32I	00c67563	bgeu x12, x12, 10
+B	RV32I	06264863	blt x12, x2, 112
+B	RV32I	fe1066e3	bltu x0, x1, -20
+B	RV32I	0cef9f63	bne x31, x14, 222
+I	RV128I	fdf004db	addid x9, x0, -33
+I	RV128I	4d80f403	ldu x8, 1240(x1)
+I	RV128I	f9cfa48f	lq x9, -100(x31)
+I	RV128I	00c2925b	sllid x4, x5, 12
+I	RV128I	403352db	sraid x5, x6, 3
+I	RV128I	0072d25b	srlid x4, x5, 7
+I	RV32D	ff663407	fld f8, -10(x12)
+I	RV32F	ff30a187	flw f3, -13(x1)
+I	RV32I	f9c30413	addi x8, x6, -100
+I	RV32I	0164f393	andi x7, x9, 22
+I	RV32I	00100073	ebreak
+I	RV32I	00000073	ecall
+I	RV32I	0960000f	fence iw, or
+I	RV32I	07b186e7	jalr x13, x3, 123
+I	RV32I	f1700683	lb x13, -233(x0)
+I	RV32I	0fe64583	lbu x11, 254(x12)
+I	RV32I	29a91883	lh x17, 666(x18)
+I	RV32I	02b4d403	lhu x8, 43(x9)
+I	RV32I	f9cb2a83	lw x21, -100(x22)
+I	RV32I	fee16213	ori x4, x2, -18
+I	RV32I	01659493	slli x9, x11, 22
+I	RV32I	fef6a613	slti x12, x13, -17
+I	RV32I	07dc3b93	sltiu x23, x24, 125
+I	RV32I	402edd93	srai x27, x29, 2
+I	RV128I	466edd93	srai x27, x29, 102
+I	RV32I		srli
+I	RV32I		xori
+I	RV32Q		flq
+I	RV64I		addiw
+I	RV64I		ld
+I	RV64I		lwu
+I	RV64I		slliw
+I	RV64I		sraiw
+I	RV64I		srliw
+I	Zicsr		csrrc
+I	Zicsr		csrrci
+I	Zicsr		csrrs
+I	Zicsr		csrrsi
+I	Zicsr		csrrw
+I	Zicsr		csrrwi
+I	Zifencei 		fence.i
+J	RV32I		jal
+R	RV128A		amoadd.q
+R	RV128A		amoand.q
+R	RV128A		amomax.q
+R	RV128A		amomaxu.q
+R	RV128A		amomin.q
+R	RV128A		amominu.q
+R	RV128A		amoor.q
+R	RV128A		amoswap.q
+R	RV128A		amoxor.q
+R	RV128A		lr.q
+R	RV128A		sc.q
+R	RV128D		fcvt.d.t
+R	RV128D		fcvt.d.tu
+R	RV128D		fcvt.t.d
+R	RV128D		fcvt.tu.d
+R	RV128F		fcvt.s.t
+R	RV128F		fcvt.s.tu
+R	RV128F		fcvt.t.s
+R	RV128F		fcvt.tu.s
+R	RV128I		addd
+R	RV128I		slld
+R	RV128I		srad
+R	RV128I		srld
+R	RV128I		subd
+R	RV128M		divd
+R	RV128M		divud
+R	RV128M		muld
+R	RV128M		remd
+R	RV128M		remud
+R	RV128Q		fcvt.q.t
+R	RV128Q		fcvt.q.tu
+R	RV128Q		fcvt.t.q
+R	RV128Q		fcvt.tu.q
+R	RV128Q		fmv.q.x
+R	RV128Q		fmv.x.q
+R	RV32A		amoadd.w
+R	RV32A		amoand.w
+R	RV32A		amomax.w
+R	RV32A		amomaxu.w
+R	RV32A		amomin.w
+R	RV32A		amominu.w
+R	RV32A		amoor.w
+R	RV32A		amoswap.w
+R	RV32A		amoxor.w
+R	RV32A		lr.w
+R	RV32A		sc.w
+R	RV32D		fadd.d
+R	RV32D		fclass.d
+R	RV32D		fcvt.d.s
+R	RV32D		fcvt.d.w
+R	RV32D		fcvt.d.wu
+R	RV32D		fcvt.s.d
+R	RV32D		fcvt.w.d
+R	RV32D		fcvt.wu.d
+R	RV32D		fdiv.d
+R	RV32D		feq.d
+R	RV32D		fle.d
+R	RV32D		flt.d
+R	RV32D		fmax.d
+R	RV32D		fmin.d
+R	RV32D		fmul.d
+R	RV32D		fsgnj.d
+R	RV32D		fsgnjn.d
+R	RV32D		fsgnjx.d
+R	RV32D		fsqrt.d
+R	RV32D		fsub.d
+R	RV32F		fadd.s
+R	RV32F		fclass.s
+R	RV32F		fcvt.s.w
+R	RV32F		fcvt.s.wu
+R	RV32F		fcvt.w.s
+R	RV32F		fcvt.wu.s
+R	RV32F		fdiv.s
+R	RV32F		feq.s
+R	RV32F		fle.s
+R	RV32F		flt.s
+R	RV32F		fmax.s
+R	RV32F		fmin.s
+R	RV32F		fmul.s
+R	RV32F		fmv.w.x
+R	RV32F		fmv.x.w
+R	RV32F		fsgnj.s
+R	RV32F		fsgnjn.s
+R	RV32F		fsgnjx.s
+R	RV32F		fsqrt.s
+R	RV32F		fsub.s
+R	RV32I		add
+R	RV32I		and
+R	RV32I		or
+R	RV32I		sll
+R	RV32I		slt
+R	RV32I		sltu
+R	RV32I		sra
+R	RV32I		srl
+R	RV32I		sub
+R	RV32I		xor
+R	RV32M		div
+R	RV32M		divu
+R	RV32M		mul
+R	RV32M		mulh
+R	RV32M		mulhsu
+R	RV32M		mulhu
+R	RV32M		rem
+R	RV32M		remu
+R	RV32Q		fadd.q
+R	RV32Q		fclass.q
+R	RV32Q		fcvt.d.q
+R	RV32Q		fcvt.q.d
+R	RV32Q		fcvt.q.s
+R	RV32Q		fcvt.q.w
+R	RV32Q		fcvt.q.wu
+R	RV32Q		fcvt.s.q
+R	RV32Q		fcvt.w.q
+R	RV32Q		fcvt.wu.q
+R	RV32Q		fdiv.q
+R	RV32Q		feq.q
+R	RV32Q		fle.q
+R	RV32Q		flt.q
+R	RV32Q		fmax.q
+R	RV32Q		fmin.q
+R	RV32Q		fmul.q
+R	RV32Q		fsgnj.q
+R	RV32Q		fsgnjn.q
+R	RV32Q		fsgnjx.q
+R	RV32Q		fsqrt.q
+R	RV32Q		fsub.q
+R	RV64A		amoadd.d
+R	RV64A		amoand.d
+R	RV64A		amomax.d
+R	RV64A		amomaxu.d
+R	RV64A		amomin.d
+R	RV64A		amominu.d
+R	RV64A		amoor.d
+R	RV64A		amoswap.d
+R	RV64A		amoxor.d
+R	RV64A		lr.d
+R	RV64A		sc.d
+R	RV64D		fcvt.d.l
+R	RV64D		fcvt.d.lu
+R	RV64D		fcvt.l.d
+R	RV64D		fcvt.lu.d
+R	RV64D		fmv.d.x
+R	RV64D		fmv.x.d
+R	RV64F		fcvt.l.s
+R	RV64F		fcvt.lu.s
+R	RV64F		fcvt.s.l
+R	RV64F		fcvt.s.lu
+R	RV64I		addw
+R	RV64I		sllw
+R	RV64I		sraw
+R	RV64I		srlw
+R	RV64I		subw
+R	RV64M		divuw
+R	RV64M		divw
+R	RV64M		mulw
+R	RV64M		remuw
+R	RV64M		remw
+R	RV64Q		fcvt.l.q
+R	RV64Q		fcvt.lu.q
+R	RV64Q		fcvt.q.l
+R	RV64Q		fcvt.q.lu
+R4	RV32D		fmadd.d
+R4	RV32D		fmsub.d
+R4	RV32D		fnmadd.d
+R4	RV32D		fnmsub.d
+R4	RV32F		fmadd.s
+R4	RV32F		fmsub.s
+R4	RV32F		fnmadd.s
+R4	RV32F		fnmsub.s
+R4	RV32Q		fmadd.q
+R4	RV32Q		fmsub.q
+R4	RV32Q		fnmadd.q
+R4	RV32Q		fnmsub.q
+S	RV128I		sq
+S	RV32D		fsd
+S	RV32F		fsw
+S	RV32I		sb
+S	RV32I		sh
+S	RV32I		sw
+S	RV32Q		fsq
+S	RV64I		sd
+U	RV32I	1fffe797	auipc x15, 131070
+
