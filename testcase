@@ -90,23 +90,25 @@ I	RV32I	fef6a613	slti x12, x13, -17
 I	RV32I	07dc3b93	sltiu x23, x24, 125
 I	RV32I	402edd93	srai x27, x29, 2
 I	RV128I	466edd93	srai x27, x29, 102
-I	RV32I		srli
-I	RV32I		xori
-I	RV32Q		flq
-I	RV64I		addiw
-I	RV64I		ld
-I	RV64I		lwu
-I	RV64I		slliw
-I	RV64I		sraiw
-I	RV64I		srliw
-I	Zicsr		csrrc
-I	Zicsr		csrrci
-I	Zicsr		csrrs
-I	Zicsr		csrrsi
-I	Zicsr		csrrw
-I	Zicsr		csrrwi
-I	Zifencei 		fence.i
-J	RV32I		jal
+I	RV32I	01f1d113	srli x2, x3, 31
+I	RV64I	03f1d113	srli x2, x3, 63
+I	RV128I	07f1d113	srli x2, x3, 127
+I	RV32I	0df34393	xori x7, x6, 223
+I	RV32Q	fea5c587	flq f11, -22(x11)
+I	RV64I	0716059b	addiw x11, x12, 113
+I	RV64I	0de7b703	ld x14, 222(x15)
+I	RV64I	14d8e803	lwu x16, 333(x17)
+I	RV64I	01b0971b	slliw x14, x1, 27
+I	RV64I	416e5f1b	sraiw x30, x28, 22
+I	RV64I	0186559b	srliw x11, x12, 24
+I	Zicsr	c08dbe73	csrrc x28, hpmcounter8, x27
+I	Zicsr	644075f3	csrrci x11, hip, 0
+I	Zicsr	603aaa73	csrrs x20, hideleg, x21
+I	Zicsr	001063f3	csrrsi x7, fflags, 0
+I	Zicsr	60799973	csrrw x18, hgeie, x19
+I	Zicsr	64305af3	csrrwi x21, htval, 0
+I	Zifencei 0000100f	fence.i
+J	RV32I	cdafa5ef	jal x11, -23334
 R	RV128A		amoadd.q
 R	RV128A		amoand.q
 R	RV128A		amomax.q

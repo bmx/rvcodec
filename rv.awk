@@ -25,22 +25,22 @@ BEGIN {
 	XLEN_MASK["rv128"] = 0x04
 	XLEN_MASK["all"] = 0x07
 
-	bits["0"] = "0000"
-	bits["1"] = "0001"
-	bits["2"] = "0010"
-	bits["3"] = "0011"
-	bits["4"] = "0100"
-	bits["5"] = "0101"
-	bits["6"] = "0110"
-	bits["7"] = "0111"
-	bits["8"] = "1000"
-	bits["9"] = "1001"
-	bits["a"] = "1010"
-	bits["b"] = "1011"
-	bits["c"] = "1100"
-	bits["d"] = "1101"
-	bits["e"] = "1110"
-	bits["f"] = "1111"
+	hexbits["0"] = "0000"
+	hexbits["1"] = "0001"
+	hexbits["2"] = "0010"
+	hexbits["3"] = "0011"
+	hexbits["4"] = "0100"
+	hexbits["5"] = "0101"
+	hexbits["6"] = "0110"
+	hexbits["7"] = "0111"
+	hexbits["8"] = "1000"
+	hexbits["9"] = "1001"
+	hexbits["a"] = "1010"
+	hexbits["b"] = "1011"
+	hexbits["c"] = "1100"
+	hexbits["d"] = "1101"
+	hexbits["e"] = "1110"
+	hexbits["f"] = "1111"
 	
 	FRAG["UNSD"] = 1
 	FRAG["CSR"] = 2
@@ -881,8 +881,8 @@ BEGIN {
 	isa["csrrwi"]["fmt"] = "I"
 	isa["csrrsi"]["fmt"] = "I"
 	isa["csrrci"]["fmt"] = "I"
-	isa["csrrs"]["funct3"] = "001"
-	isa["csrrw"]["funct3"] = "010"
+	isa["csrrw"]["funct3"] = "001"
+	isa["csrrs"]["funct3"] = "010"
 	isa["csrrc"]["funct3"] = "011"
 	isa["csrrwi"]["funct3"] = "101"
 	isa["csrrsi"]["funct3"] = "110"
@@ -2776,7 +2776,7 @@ function encImm(inp, len) {
 	hex = sprintf("%08x", inp)
 	str = ""
 	for(i = 1; i < length(hex)+1; i++) {
-		str = str bits[substr(hex, i, 1)]
+		str = str hexbits[substr(hex, i, 1)]
 	}
 	return substr(str, length(str)-len+1)
 }
@@ -2866,13 +2866,12 @@ function encImmBits2(imm, bits) {
 function encCSR(csr) {
 	csrval = CSR[csr]
 	if (!csrval) {
-		csrval = conv_num(csr)
 		if (csrval == 0 && csr != 0) {
 			print "Invalid or unknown CSR name:", csr
 			next
 		}
 	}
-	return encImm(csrVal, 12)
+	return encImm(csrval, 12)
 }
 
 function encodeOP() { 
