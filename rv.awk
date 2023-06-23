@@ -752,6 +752,70 @@ BEGIN {
 	isa["c.swsp"]["xlens"] = "111"
 	isa["c.xor"]["xlens"] = "111"
 
+	# XW extension
+	isa["c.lbu"]["fmt"] = "CL"
+	isa["c.sb"]["fmt"] = "CS"
+	isa["c.lhu"]["fmt"] = "CL"
+	isa["c.sh"]["fmt"] = "CS"
+	isa["c.lbu"]["funct3"] = "001"
+	isa["c.sb"]["funct3"] = "101"
+	isa["c.lhu"]["funct3"] = "001"
+	isa["c.sh"]["funct3"] = "101"
+	isa["c.lbu"]["immBits"] = "0,4-3 2,1"
+	isa["c.sb"]["immBits"] = "0,4-3 2,1"
+	isa["c.lhu"]["immBits"] = "5-3 2,1"
+	isa["c.sh"]["immBits"] = "5-3 2,1"
+	isa["c.lbu"]["isa"] = "XW"
+	isa["c.sb"]["isa"] = "XW"
+	isa["c.lhu"]["isa"] = "XW"
+	isa["c.sh"]["isa"] = "XW"
+	isa["c.lbu"]["opcode"] = C0
+	isa["c.sb"]["opcode"] = C0
+	isa["c.lhu"]["opcode"] = C2
+	isa["c.sh"]["opcode"] = C2
+	isa["c.lbu"]["uimm"] = 1
+	isa["c.sb"]["uimm"] = 1
+	isa["c.lhu"]["uimm"] = 1
+	isa["c.sh"]["uimm"] = 1
+	isa["c.lbu"]["xlens"] = "001"
+	isa["c.sb"]["xlens"] = "001"
+	isa["c.lhu"]["xlens"] = "001"
+	isa["c.sh"]["xlens"] = "001"
+
+	# Unknown XW insns
+	isa["c.lbusp"]["fmt"] = "XWSP"
+	isa["c.sbsp"]["fmt"] = "XWSP"
+	isa["c.lhusp"]["fmt"] = "XWSP"
+	isa["c.shsp"]["fmt"] = "XWSP"
+	isa["c.lbusp"]["funct2"] = "00"
+	isa["c.sbsp"]["funct2"] = "10"
+	isa["c.lhusp"]["funct2"] = "01"
+	isa["c.shsp"]["funct2"] = "11"
+	isa["c.lbusp"]["xwc_funct5"] = "10000"
+	isa["c.sbsp"]["xwc_funct5"] = "10000"
+	isa["c.lhusp"]["xwc_funct5"] = "10000"
+	isa["c.shsp"]["xwc_funct5"] = "10000"
+	isa["c.lbusp"]["immBits"] = "3,0"
+	isa["c.sbsp"]["immBits"] = "3,0"
+	isa["c.lhusp"]["immBits"] = "3,1 4"
+	isa["c.shsp"]["immBits"] = "3,1 4"
+	isa["c.lbusp"]["isa"] = "XW"
+	isa["c.sbsp"]["isa"] = "XW"
+	isa["c.lhusp"]["isa"] = "XW"
+	isa["c.shsp"]["isa"] = "XW"
+	isa["c.lbusp"]["opcode"] = C0
+	isa["c.sbsp"]["opcode"] = C0
+	isa["c.lhusp"]["opcode"] = C0
+	isa["c.shsp"]["opcode"] = C0
+	isa["c.lbusp"]["uimm"] = 1
+	isa["c.sbsp"]["uimm"] = 1
+	isa["c.lhusp"]["uimm"] = 1
+	isa["c.shsp"]["uimm"] = 1
+	isa["c.lbusp"]["xlens"] = "001"
+	isa["c.sbsp"]["xlens"] = "001"
+	isa["c.lhusp"]["xlens"] = "001"
+	isa["c.shsp"]["xlens"] = "001"
+
 	# RV64I instruction set
 	isa["addiw"]["fmt"] = "I"
 	isa["addw"]["fmt"] = "R"
@@ -2514,22 +2578,6 @@ BEGIN {
 	ISA_OP_FP[isa["fcvt.s.d"]["funct5"]][FP_FMT["Q"]][isa["fcvt.q.s"]["rs2"]] = "fcvt.q.s"
 	ISA_OP_FP[isa["fcvt.s.d"]["funct5"]][FP_FMT["Q"]][isa["fcvt.q.d"]["rs2"]] = "fcvt.q.d"
 
-	_ISA_C0[isa["c.addi4spn"]["funct3"]] = "c.addi4spn"
-	_ISA_C0[isa["c.fld"]["funct3"]][1] = "c.fld" 
-	_ISA_C0[isa["c.fld"]["funct3"]][2] = "c.fld" 
-	_ISA_C0[isa["c.fld"]["funct3"]][4] = "c.lq" 
-	_ISA_C0[isa["c.lw"]["funct3"]] = "c.lw"
-	_ISA_C0[isa["c.flw"]["funct3"]][1] = "c.flw" 
-	_ISA_C0[isa["c.flw"]["funct3"]][2] = "c.ld" 
-	_ISA_C0[isa["c.flw"]["funct3"]][4] = "c.ld" 
-	_ISA_C0[isa["c.fsd"]["funct3"]][1] = "c.fsd" 
-	_ISA_C0[isa["c.fsd"]["funct3"]][2] = "c.fsd" 
-	_ISA_C0[isa["c.fsd"]["funct3"]][4] = "c.sq" 
-	_ISA_C0[isa["c.sw"]["funct3"]] = "c.sw"
-	_ISA_C0[isa["c.fsw"]["funct3"]][1] = "c.fsw" 
-	_ISA_C0[isa["c.fsw"]["funct3"]][2] = "c.sd" 
-	_ISA_C0[isa["c.fsw"]["funct3"]][4] = "c.sd" 
-
 	ISA_C0[isa["c.addi4spn"]["funct3"]] = "c.addi4spn"
 	ISA_C0[isa["c.fld"]["funct3"],1] = "c.fld" 
 	ISA_C0[isa["c.fld"]["funct3"],2] = "c.fld" 
@@ -2546,26 +2594,15 @@ BEGIN {
 	ISA_C0[isa["c.fsw"]["funct3"],2] = "c.sd" 
 	ISA_C0[isa["c.fsw"]["funct3"],4] = "c.sd" 
 
-	_ISA_C1[isa["c.nop"]["funct3"]][7][isa["c.nop"]["rdRs1Val"]] = "c.nop"
-	_ISA_C1[isa["c.nop"]["funct3"]][7]["default"] = "c.addi"
-	_ISA_C1[isa["c.jal"]["funct3"]][1] = "c.jal"
-	_ISA_C1[isa["c.jal"]["funct3"]][2] = "c.addiw"
-	_ISA_C1[isa["c.jal"]["funct3"]][4] = "c.addiw"
-	_ISA_C1[isa["c.li"]["funct3"]] = "c.li"
-	_ISA_C1[isa["c.addi16sp"]["funct3"]][7][isa["c.addi16sp"]["rdRs1Val"]] = "c.addi16sp"
-	_ISA_C1[isa["c.addi16sp"]["funct3"]][7]["default"] = "c.lui"
-	_ISA_C1[isa["c.srli"]["funct3"]][7]["default"][isa["c.srli"]["funct2"]] = "c.srli"
-	_ISA_C1[isa["c.srli"]["funct3"]][7]["default"][isa["c.srai"]["funct2"]] = "c.srai"
-	_ISA_C1[isa["c.srli"]["funct3"]][7]["default"][isa["c.andi"]["funct2"]] = "c.andi"
-	_ISA_C1[isa["c.srli"]["funct3"]][7]["11"][substr(isa["c.sub"]["funct6"],4,1) isa["c.sub"]["funct2"]] = "c.sub"
-	_ISA_C1[isa["c.srli"]["funct3"]][7]["11"][substr(isa["c.xor"]["funct6"],4,1) isa["c.xor"]["funct2"]] = "c.xor"
-	_ISA_C1[isa["c.srli"]["funct3"]][7]["11"][substr(isa["c.or"]["funct6"],4,1) isa["c.or"]["funct2"]] = "c.or"
-	_ISA_C1[isa["c.srli"]["funct3"]][7]["11"][substr(isa["c.and"]["funct6"],4,1) isa["c.and"]["funct2"]] = "c.and"
-	_ISA_C1[isa["c.srli"]["funct3"]][7]["11"][substr(isa["c.subw"]["funct6"],4,1) isa["c.subw"]["funct2"]] = "c.subw"
-	_ISA_C1[isa["c.srli"]["funct3"]][7]["11"][substr(isa["c.addw"]["funct6"],4,1) isa["c.addw"]["funct2"]] = "c.addw"
-	_ISA_C1[isa["c.j"]["funct3"]] = "c.j"
-	_ISA_C1[isa["c.beqz"]["funct3"]] = "c.beqz"
-	_ISA_C1[isa["c.bnez"]["funct3"]] = "c.bnez"
+	ISA_C0[isa["c.lbu"]["funct3"],8] = "c.lbu"
+	ISA_C0[isa["c.sb"]["funct3"],8] = "c.sb"
+	ISA_C0["100",1,"10000","00"] = "c.lbusp"
+	ISA_C0["100",1,"10000","01"] = "c.lhusp"
+	ISA_C0["100",1,"10000","10"] = "c.sbsp"
+	ISA_C0["100",1,"10000","11"] = "c.shsp"
+
+	ISA_C2[isa["c.lhu"]["funct3"],8] = "c.lhu"
+	ISA_C2[isa["c.sh"]["funct3"],8] = "c.sh"
 
 	ISA_C1[isa["c.nop"]["funct3"],7,isa["c.nop"]["rdRs1Val"] ] = "c.nop"
 	ISA_C1[isa["c.nop"]["funct3"],7,"default"] = "c.addi"
@@ -3092,9 +3129,46 @@ function encodeJAL() {
         print "bin", bin
         printf "hex %08x\n", b2n(bin)
 }
+function encodeAMO() { 
+	print "in encodeAMO" 
+
+	if (mne ~ /^lr\./) {
+		dest = tokens[2]
+		addr = tokens[3]
+		src = "x0"
+	} else {
+		dest = tokens[2]
+		addr = tokens[4]
+		src = tokens[3]
+	}
+
+	rd = encReg(dest)
+	rs1 = encReg(addr)
+	rs2 = encReg(src)
+	aq = "0"
+	rl = "0"
+
+	bin = isa[mne]["funct5"] aq rl rs2 rs1 isa[mne]["funct3"] rd opcode
+	print "bin", bin
+	printf "hex %08x\n", b2n(bin)
+}
 function encodeR4() { 
 	print "in encodeR4" 
+	dest = tokens[2]
+	src1 = tokens[3]
+	src2 = tokens[4]
+	src3 = tokens[5]
 	
+	rd = encReg(dest, true)
+	rs1 = encReg(src1, true)
+	rs2 = encReg(src2, true)
+	rs3 = encReg(src3, true)
+	fmt = isa[mne]["fp_fmt"]
+	rm = "111"
+
+	bin = rs3 fmt rs2 rs1 rm rd opcode
+	print "bin", bin
+	printf "hex %08x\n", b2n(bin)
 }
 function encodeCR() { 
 	print "in encodeCR" 
@@ -3400,12 +3474,13 @@ function encode(str) {
 	} else {
 		if (opcode == OP || opcode == OP_32 || opcode == OP_64) encodeOP()
 		else if (opcode == OP_FP) encodeOP_FP()
+		else if (opcode == AMO) encodeAMO()
 		else if (opcode == JALR) encodeJALR()
 		else if (opcode == LOAD || opcode == LOAD_FP) encodeLOAD()
 		else if (opcode == OP_IMM || opcode == OP_IMM_32 || opcode == OP_IMM_64) encodeOP_IMM()
 		else if (opcode == MISC_MEM) encodeMISC_MEM()
 		else if (opcode == SYSTEM) encodeSYSTEM()
-		else if (opcode == STORE || opcode == STORE_32) encodeSTORE()
+		else if (opcode == STORE || opcode == STORE_FP) encodeSTORE()
 		else if (opcode == BRANCH) encodeBRANCH()
 		else if (opcode == LUI || opcode == AUIPC) encodeUType()
 		else if (opcode == JAL) encodeJAL()
@@ -3460,16 +3535,13 @@ function decImmBits(immFields, immBits, uimm,	bin) {
 	print_dbg(" decImmBits immFields", immFields)
 
 	r = split(immFields, aimmFields, " ")
-	print "split", immFields, "in", r
 	rr = split(immBits, aimmBits, " ")
-	print "split", immBits, "in", rr
 
 	for(i = 1; i <= length(aimmFields); i++) {
 		fieldBin = aimmFields[i]
 		fieldBits = aimmBits[i]
 	
 		split(fieldBits, afieldBits, ",")
-		print "+ fieldBits:", fieldBits
 		kk = 1
 		for ( j = 1; j<= length(afieldBits); j++) {
 			z = split(afieldBits[j], abit, "-")
@@ -3482,7 +3554,6 @@ function decImmBits(immFields, immBits, uimm,	bin) {
 				bitStart = abit[1]
 				bitEnd = abit[2]
 				for(l = 1; l <= bitStart-bitEnd + 1; l++) {
-					print "set bit", len - bitStart - 1 + l, "to", int(substr(fieldBin, kk, 1))
 					binArray[len - bitStart - 1 + l] = int(substr(fieldBin, kk, 1))
 					kk++
 				}
@@ -3621,7 +3692,6 @@ function extractBFields(binary, a) {
 	a["imm_11"] = getBits(binary, getpos("b_imm_11"))
 }
 function extractCLookupFields(binary, a) {
-	print "binary", binary
 	a["funct6"] = getBits(binary, getpos("c_funct6"))
 	a["funct4"] = getBits(binary, getpos("c_funct4"))
 	a["funct3"] = getBits(binary, getpos("c_funct3"))
@@ -3756,10 +3826,23 @@ function decodeAMO(bin) {
 		next
 	}
 
-	lr = (mme ~ /^lr\./)
+	lr = (mne ~ /^lr\./)
 	dest = decReg(rd)
 	addr = decReg(rs1)
 	src = lr ? "n/a" : decReg(rs2)
+
+	print_dbg("funct5", funct5)
+	print_dbg("aq", aq)
+	print_dbg("rl", rl)
+	print_dbg("rs2", rs2)
+	print_dbg("rs1", rs1)
+	print_dbg("funct3", funct3)
+	print_dbg("rd", rd)
+	print_dbg("mne", mne)
+	print_dbg("lr", funct5)
+	print_dbg("dest", funct5)
+	print_dbg("addr", funct5)
+	print_dbg("src", funct5)
 	
 	build_f("opcode", FRAG["OPC"] , mne , opcode, getname("opcode"))
 	build_f("rd", FRAG["RD"], dest, rd, getname("rd"))
@@ -4794,7 +4877,8 @@ function mneLookupC0(bin) {
 	extractCLookupFields(bin, fields)
 	funct3 = fields["funct3"]
 	
-	if (typeof(ISA_C0[funct3]) == "string") return ISA_C0[funct3]
+	if (class != "XW"  && typeof(ISA_C0[funct3]) == "string") return ISA_C0[funct3]
+	if (class == "XW") this_xlens=8
 	if (typeof(ISA_C0[funct3,this_xlens]) == "string") return ISA_C0[funct3,this_xlens]
 	if (typeof(ISA_C0[funct3,XLEN_MASK["all"]]) == "string") return ISA_C0[funct3,XLEN_MASK["all"]]
 	return mne
@@ -4854,7 +4938,8 @@ function mneLookupC2(bin) {
 	print_dbg("all", all)
 
 
-	if (typeof(ISA_C2[funct3]) == "string") return ISA_C2[funct3]
+	if (class != "XW"  && typeof(ISA_C2[funct3]) == "string") return ISA_C2[funct3]
+	if (class == "XW") this_xlens=8
 
 	if (typeof(ISA_C2[funct3,this_xlens]) == "string") return ISA_C2[funct3,this_xlens]
 	if (typeof(ISA_C2[funct3,all]) == "string") return ISA_C2[funct3,all]
