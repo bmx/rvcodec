@@ -1,0 +1,47 @@
+Heavily based on rvcodecjs, this is a rewrite in awk (gnu awk)
+
+This look is used to encode or decode risc-v instructions.
+
+Examples:
+  awk -f rv.awk <<< 0x1210
+or
+  awk -f rv.awk <<< 1210
+
+1210
+ISA RV32C
+RESP: c.addi4spn x12, 288
+
+
+  awk -f rv.awk <<< "c.addi4spn x12, 288"
+
+bin 0001001000010000
+hex 1210
+
+  or with a complete file of instructions, or hexdump
+
+  awk -f rv.awk < filename
+
+
+different parameters can be used:
+  awk -f rv.awk [ -v dbg=1 ] [ -v class="XW" ] [ -v config_isa="RV64I" ]
+
+xw class is the wch xw extension:
+
+awk -f rv.awk <<< a000
+config_isa AUTO
+config_abi 0
+ISA RV32DC
+RESP: c.fsd f8, 0(x8)
+
+awk -f rv.awk -v class="XW" <<< a000
+config_isa AUTO
+config_abi 0
+ISA RV32XW
+RESP: c.sb x8, 0(x8)
+
+One instruction can't be dermined as hex or name: addd
+so if you want to decode addd, please use 0xaddd instead.
+
+The whole rv insns have been tested (testfile) using random parameters.
+
+
