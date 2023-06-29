@@ -99,6 +99,7 @@ I	RV64I	14d8e803	lwu x16, 333(x17)
 I	RV64I	01b0971b	slliw x14, x1, 27
 I	RV64I	416e5f1b	sraiw x30, x28, 22
 I	RV64I	0186559b	srliw x11, x12, 24
+I	Zicsr 	c0001073	csrrw x0, cycle, x0
 I	Zicsr	c08dbe73	csrrc x28, hpmcounter8, x27
 I	Zicsr	644075f3	csrrci x11, hip, 0
 I	Zicsr	603aaa73	csrrs x20, hideleg, x21

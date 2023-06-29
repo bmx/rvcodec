@@ -2674,36 +2674,41 @@ function print_dbg(txt, val, lvl) {
 	if (dbg >= lvl) printf("-- %s %s\n", txt, val) #> "/dev/stderr"
 }
 function parse_input(input) {
-	print "input", input
+	print_dbg("input", input)
 
-	# is it 0xCAFEBABE
-	try = strtonum(input)
-	if (sprintf( "0x%04x", try) == input || sprintf( "0x%04X", try) == input) {
-		num_ok=1
-	}
-	if (sprintf( "0x%08x", try) == input || sprintf( "0x%08X", try) == input) {
-		num_ok=1
-	}
-	if (sprintf( "0x%016x", try) == input || sprintf( "0x%016X", try) == input) {
-		num_ok=1
-	}
-	# is it CAFEBABE
-	try = strtonum("0x" input)
-	if (sprintf( "%04x", try ) == input || sprintf( "%04X", try) == input) {
-		num_ok=1
-	}
-	if (sprintf( "%08x", try ) == input || sprintf( "%08X", try) == input) {
-		num_ok=1
-	}
-	if (sprintf( "%016x", try ) == input || sprintf( "%016X", try) == input) {
-		num_ok=1
-	}
-	if (num_ok && valid_hex_len[length(input)]) {
-		#print "decode", try
-		decode(n2b(try,32))
-	} else {
-		#print "encode", input
+	if (typeof(isa[tolower(input)]) == "array") {
 		encode(tolower(input))
+	} else {
+		# is it 0xCAFEBABE
+		try = strtonum(input)
+		if (sprintf( "0x%04x", try) == input || sprintf( "0x%04X", try) == input) {
+			print_dbg("match 0x%04x", try)
+			num_ok=1
+		}
+		else if (sprintf( "0x%08x", try) == input || sprintf( "0x%08X", try) == input) {
+			num_ok=1
+		}
+		else if (sprintf( "0x%016x", try) == input || sprintf( "0x%016X", try) == input) {
+			num_ok=1
+		}
+		else {
+			# is it CAFEBABE
+			try = strtonum("0x" input)
+			if (sprintf( "%04x", try ) == input || sprintf( "%04X", try) == input) {
+				num_ok=1
+			} 
+			else if (sprintf( "%08x", try ) == input || sprintf( "%08X", try) == input) {
+				num_ok=1
+			}
+			else if (sprintf( "%016x", try ) == input || sprintf( "%016X", try) == input) {
+				num_ok=1
+			}
+		}
+		if (num_ok && valid_hex_len[length(input)]) {
+			decode(n2b(try,32))
+		} else {
+			encode(tolower(input))
+		}
 	}
 }
 function xlenLookupGen(str) {
@@ -2774,9 +2779,6 @@ function n2b(val, width) {
 }
 function b2n(b, 	hex) {
 	hex=0
-	print_dbg("b2n input b", b, 2)
-	print_dbg("b2n input b len", length(b), 2)
-	print_dbg("b2n initial hex", hex, 2)
 	binlen = length(b)
         for(i = 0 ;i < binlen; i++) {
                 if (substr(b, binlen-i, 1) == "1") hex = or(hex, lshift(1, i))
@@ -2786,6 +2788,7 @@ function b2n(b, 	hex) {
 }
 function encReg(reg, flt) {
 	oreg = reg
+	if (typeof(reg) == "unassigned") return "00000"
 	first = substr(reg, 1, 1)
 	switch(first) {
 		case "x":
@@ -2818,6 +2821,7 @@ function encImm(inp, len) {
 	return substr(str, length(str)-len+1)
 }
 function encmem(data, 	bits) {
+	if (!data) data = "iorw"
 	bits = ""
 	access[0] = "i"
 	access[1] = "o"
@@ -2881,26 +2885,8 @@ function encImmBits(imm, bits) {
         return bin
 }
 
-function encImmBits2(imm, bits) {
-	len = 18
-	binFull = encImm(imm, len)
-	bin = ""
-
-	if (substr(bits, 1,1) == "{") {
-		bits = substr(bits, 2, length(bits)-2)
-	}
-	if (substr(bits, 1,1) == "<") {
-		bits = substr(bits, 2, length(bits)-2)
-	}
-	n = split(bits, abits, ".")
-	if (n == 1) {
-		bin = bin substr(binFull, len - abits[1], 1)
-	} else {
-		bin = bin substr(binFull, len - abits[1], len - abits[2])
-	}
-	return bin
-}
 function encCSR(csr) {
+	if (!csr) csr = "cycle"
 	csrval = CSR[csr]
 	if (!csrval) {
 		if (csrval == 0 && csr != 0) {
@@ -2911,20 +2897,21 @@ function encCSR(csr) {
 	return encImm(csrval, 12)
 }
 
-function encodeOP() { 
-	print "in encodeOP" 
+function encodeOP() {
+	print_dbg("in encodeOP") 
 	dest = tokens[2]
 	src1 = tokens[3]
 	src2 = tokens[4]
 	rd = encReg(dest)
 	rs1 = encReg(src1)
 	rs2 = encReg(src2)
+	print_dbg("rd", rd)
+	print_dbg("rs1", rs1)
+	print_dbg("rs2", rs2)
 	bin = isa[mne]["funct7"] rs2 rs1 isa[mne]["funct3"] rd opcode
-	print "bin", bin
-	printf "hex %08x\n", b2n(bin)
 }
-function encodeOP_FP() { 
-	print "in encodeOP_FP" 
+function encodeOP_FP() {
+	print_dbg("in encodeOP_FP") 
 	dest = tokens[2]
 	src1 = tokens[3]
 	src2 = tokens[4]
@@ -2950,11 +2937,9 @@ function encodeOP_FP() {
 	rm = (funct3 ? funct3 : "111")
 
 	bin = funct5 isa[mne]["fp_fmt"] rs2 rs1 rm rd opcode
-	print "bin", bin
-	printf "hex %08x\n", b2n(bin)
 }
-function encodeJALR() { 
-	print "in encodeJALR" 
+function encodeJALR() {
+	print_dbg("in encodeJALR") 
 	dest = tokens[2]
 	base = tokens[3]
 	offset = tokens[4]
@@ -2962,12 +2947,9 @@ function encodeJALR() {
 	rs1 = encReg(base)
 	imm = encImm(offset, 12)
 	bin = imm rs1 isa[mne]["funct3"] rd opcode
-	print "bin", bin
-	printf "hex %08x\n", b2n(bin)
-	
 }
-function encodeLOAD() { 
-	print "in encodeLOAD" 
+function encodeLOAD() {
+	print_dbg("in encodeLOAD") 
 	dest = tokens[2]
 	offset = tokens[3]
 	base = tokens[4]
@@ -2975,11 +2957,9 @@ function encodeLOAD() {
 	rs1 = encReg(base)
 	imm = encImm(offset, 12)
 	bin = imm rs1 isa[mne]["funct3"] rd opcode
-	print "bin", bin                                                                                                                      
-        printf "hex %08x\n", b2n(bin)                                                                                                         
 }
-function encodeOP_IMM() { 
-	print "in encodeOP_IMM" 
+function encodeOP_IMM() {
+	print_dbg("in encodeOP_IMM") 
 	dest = tokens[2]
 	src = tokens[3]
 	immediate = tokens[4]
@@ -3010,12 +2990,9 @@ function encodeOP_IMM() {
 		imm = encImm(immediate, getpos1("i_imm_11_0"))
 	}
 	bin = imm rs1 isa[mne]["funct3"] rd opcode
-        print "bin", bin
-        printf "hex %08x\n", b2n(bin)
-	
 }
-function encodeMISC_MEM() { 
-	print "in encodeMISC_MEM" 
+function encodeMISC_MEM() {
+	print_dbg("in encodeMISC_MEM") 
 	rs1 = "00000"
 	rd =  "00000"
 	imm = "000000000000"
@@ -3036,12 +3013,10 @@ function encodeMISC_MEM() {
 		imm = "0000" pred succ
 	}
 	bin = imm rs1 isa[mne]["funct3"] rd opcode
-        print "bin", bin
-        printf "hex %08x\n", b2n(bin)
 }
 
-function encodeSYSTEM() { 
-	print "in encodeSYSTEM" 
+function encodeSYSTEM() {
+	print_dbg("in encodeSYSTEM") 
 	if (isa[mne]["isa"] == "Zicsr") {
 		dest = tokens[2]
 		csr = tokens[3]
@@ -3055,12 +3030,16 @@ function encodeSYSTEM() {
 		rd = "00000"
 		imm = isa[mne]["funct12"]
 	}
+	print_dbg("dest", dest)
+	print_dbg("csr", csr)
+	print_dbg("src", src)
+	print_dbg("rd", rd)
+	print_dbg("imm", imm)
+	print_dbg("rs1", rs1)
 	bin = imm rs1 isa[mne]["funct3"] rd opcode
-        print "bin", bin
-        printf "hex %08x\n", b2n(bin)
 }
-function encodeSTORE() { 
-	print "in encodeSTORE" 
+function encodeSTORE() {
+	print_dbg("in encodeSTORE") 
 	src = tokens[2]
 	offset = tokens[3]
 	base = tokens[4]
@@ -3073,11 +3052,9 @@ function encodeSTORE() {
 	imm_11_5 = substr(imm, 0, len_11_5)
 	imm_4_0 = substr(imm, len_11_5+1, len_11_5+len_4_0)
 	bin = imm_11_5 rs2 rs1 isa[mne]["funct3"] imm_4_0 opcode
-	print "bin", bin
-	printf "hex %08x\n", b2n(bin)
 }
-function encodeBRANCH() { 
-	print "in encodeBRANCH" 
+function encodeBRANCH() {
+	print_dbg("in encodeBRANCH") 
 	src1 = tokens[2]
 	src2 = tokens[3]
 	offset = tokens[4]
@@ -3095,21 +3072,17 @@ function encodeBRANCH() {
 	imm_4_1 = substr(imm, len_12 + len_11 + len_10_5 + 1, len_4_1)
 
 	bin = imm_12 imm_10_5 rs2 rs1 isa[mne]["funct3"] imm_4_1 imm_11 opcode
-	print "bin", bin
-	printf "hex %08x\n", b2n(bin)
 }
-function encodeUType() { 
-	print "in encodeUType" 
+function encodeUType() {
+	print_dbg("in encodeUType") 
 	dest = tokens[2]
 	immediate = tokens[3]
 	rd = encReg(dest)
 	imm_31_12 = encImm(immediate, 20)
 	bin = imm_31_12 rd opcode
-	print "bin", bin
-	printf "hex %08x\n", b2n(bin)
 }
-function encodeJAL() { 
-	print "in encodeJAL"
+function encodeJAL() {
+	print_dbg("in encodeJAL")
 	dest = tokens[2]
 	offset = tokens[3]
 	
@@ -3126,11 +3099,9 @@ function encodeJAL() {
 	imm_10_1 = substr(imm, len_20+len_19_12+len_11+1, len_10_1)
 
 	bin = imm_20 imm_10_1 imm_11 imm_19_12 rd opcode
-        print "bin", bin
-        printf "hex %08x\n", b2n(bin)
 }
-function encodeAMO() { 
-	print "in encodeAMO" 
+function encodeAMO() {
+	print_dbg("in encodeAMO") 
 
 	if (mne ~ /^lr\./) {
 		dest = tokens[2]
@@ -3149,11 +3120,9 @@ function encodeAMO() {
 	rl = "0"
 
 	bin = isa[mne]["funct5"] aq rl rs2 rs1 isa[mne]["funct3"] rd opcode
-	print "bin", bin
-	printf "hex %08x\n", b2n(bin)
 }
-function encodeR4() { 
-	print "in encodeR4" 
+function encodeR4() {
+	print_dbg("in encodeR4") 
 	dest = tokens[2]
 	src1 = tokens[3]
 	src2 = tokens[4]
@@ -3167,11 +3136,9 @@ function encodeR4() {
 	rm = "111"
 
 	bin = rs3 fmt rs2 rs1 rm rd opcode
-	print "bin", bin
-	printf "hex %08x\n", b2n(bin)
 }
-function encodeCR() { 
-	print "in encodeCR" 
+function encodeCR() {
+	print_dbg("in encodeCR") 
 	src1 = tokens[2]
 	src2 = tokens[3]
 	rdRs1Val = isa[mne]["rdRs1Val"]
@@ -3216,11 +3183,9 @@ function encodeCR() {
 	}
 
 	bin = isa[mne]["funct4"] rdRs1 rs2 opcode
-	print "bin", bin
-	printf "hex %04x\n", b2n(bin)
 }
-function encodeCI() { 
-	print "in encodeCI" 
+function encodeCI() {
+	print_dbg("in encodeCI") 
 	skipRdRs1 = (isa[mne]["rdRs1Val"] != "")
 	print_dbg("typof", typeof(isa[mne]["rdRs1Val"]))
 	src1 = tokens[2]
@@ -3265,12 +3230,9 @@ function encodeCI() {
 	imm1 = encImmBits(immVal, immBitsArr[2])
 
         bin = isa[mne]["funct3"] imm0 rdRs1 imm1 opcode
-        print "bin", bin
-        printf "hex %04x\n", b2n(bin)
-
 }
-function encodeCSS() { 
-	print "in encodeCSS" 
+function encodeCSS() {
+	print_dbg("in encodeCSS") 
 	src = tokens[2]
 	offset = tokens[3]
 	floatRs2 = ( mne ~ /^c\.f/ )
@@ -3287,11 +3249,9 @@ function encodeCSS() {
 	imm = encImmBits(immVal, immBits)
 
 	bin = isa[mne]["funct3"] imm rs2 opcode
-	print "bin", bin
-	printf "hex %04x\n", b2n(bin)
 }
-function encodeCIW() { 
-	print "in encodeCIW" 
+function encodeCIW() {
+	print_dbg("in encodeCIW") 
 	dest = tokens[2]
 	immediate = tokens[3]
 	rdPrime = encRegPrime(dest, false)
@@ -3315,11 +3275,9 @@ function encodeCIW() {
 	imm = encImmBits(immVal, immBits)
 
 	bin = isa[mne]["funct3"] imm rdPrime opcode
-	print "bin", bin
-        printf "hex %04x\n", b2n(bin)
 }
-function encodeCL() { 
-	print "in encodeCL" 
+function encodeCL() {
+	print_dbg("in encodeCL") 
 	dest = tokens[2]
 	offset = tokens[3]
 	base = tokens[4]
@@ -3342,11 +3300,9 @@ function encodeCL() {
 	imm1 = encImmBits(immVal, abits[2])
 
 	bin = isa[mne]["funct3"] imm0 rs1Prime imm1 rdPrime opcode
-	print "bin", bin
-        printf "hex %04x\n", b2n(bin)
 }
-function encodeCS() { 
-	print "in encodeCS" 
+function encodeCS() {
+	print_dbg("in encodeCS") 
 	src = tokens[2]
         immediate = tokens[3]
         base = tokens[4]
@@ -3381,11 +3337,9 @@ function encodeCS() {
 	print_dbg("imm1", imm1)
 
 	bin = isa[mne]["funct3"] imm0 rs1Prime imm1 rs2Prime opcode
-	print "bin", bin
-        printf "hex %04x\n", b2n(bin)
 }
-function encodeCA() { 
-	print "in encodeCA" 
+function encodeCA() {
+	print_dbg("in encodeCA") 
 	destSrc1 = tokens[2]
 	src2 = tokens[3]
 
@@ -3393,11 +3347,9 @@ function encodeCA() {
 	rs2Prime = encRegPrime(src2)
 
 	bin = isa[mne]["funct6"] rdRs1Prime isa[mne]["funct2"] rs2Prime opcode
-        print "bin", bin
-        printf "hex %04x\n", b2n(bin)
 }
-function encodeCB() { 
-	print "in encodeCB" 
+function encodeCB() {
+	print_dbg("in encodeCB") 
 	destSrc1 = tokens[2]
 	immediate = tokens[3]
 	rdRs1Prime = encRegPrime(destSrc1)
@@ -3425,17 +3377,13 @@ function encodeCB() {
 	if (!funct2) funct2 = ""
 
         bin = isa[mne]["funct3"] imm0 funct2 rdRs1Prime imm1 opcode
-        print "bin", bin
-        printf "hex %04x\n", b2n(bin)
 }
-function encodeCJ() { 
-	print "in encodeCJ" 
+function encodeCJ() {
+	print_dbg("in encodeCJ") 
 	immediate = conv_num(tokens[2])
 	jumpTarget = encImmBits(immediate, isa[mne]["immBits"])
 	
 	bin = isa[mne]["funct3"] jumpTarget opcode
-        print "bin", bin
-        printf "hex %04x\n", b2n(bin)
 }
 
 function encode(str) {
@@ -3447,7 +3395,7 @@ function encode(str) {
 		next
 	}
 
-	if (length(opcode) == 2) { 
+	if (length(opcode) == 2) {
 		fmt = isa[mne]["fmt"]
 		switch(fmt) {
 			case "CR":
@@ -3490,6 +3438,9 @@ function encode(str) {
 			next
 		}
 	}
+	print "bin", bin
+	printf "hex %04x\n", b2n(bin)
+
 }
 function getBits(binary, pos) {
 	split(pos, apos, ",")
@@ -3701,8 +3652,8 @@ function extractCLookupFields(binary, a) {
 	a["rs2"] = getBits(binary, getpos("c_rs2"))
 }
 
-function decodeOP(bin) { 
-	print "decodeOP"
+function decodeOP(bin) {
+	print_dbg("decodeOP")
 	extractRFields(bin, fields)
 	funct7 = fields["funct7"]
 	funct3 = fields["funct3"]
@@ -3744,8 +3695,8 @@ function decodeOP(bin) {
 	push_asm(f["rs2"])
 
 }
-function decodeOP_FP(bin) { 
-	print "decodeOP_FP" 
+function decodeOP_FP(bin) {
+	print_dbg("decodeOP_FP") 
         extractRFields(bin, fields)                                                                                                                     
         funct5 = fields["funct5"]                                                                                                                       
         funct3 = fields["funct3"]                                                                                                                       
@@ -3809,8 +3760,8 @@ function decodeOP_FP(bin) {
 	}
 		
 }
-function decodeAMO(bin) { 
-	print "decodeAMO" 
+function decodeAMO(bin) {
+	print_dbg("decodeAMO") 
 	extractRFields(bin, fields)
 	funct5 = fields["funct5"]
 	aq = fields["aq"]
@@ -3865,8 +3816,8 @@ function decodeAMO(bin) {
 function getname(str) {
 	return FIELDS[str]["name"]
 }
-function decodeJALR(bin) { 
-	print "decodeJALR" 
+function decodeJALR(bin) {
+	print_dbg("decodeJALR") 
 	extractIFields(bin, fields)
 	imm = fields["imm"]
 	rs1 = fields["rs1"]
@@ -3892,8 +3843,8 @@ function decodeJALR(bin) {
 
 
 }
-function decodeLOAD(bin) { 
-	print "decodeLOAD" 
+function decodeLOAD(bin) {
+	print_dbg("decodeLOAD") 
 	extractIFields(bin, fields)
 	imm = fields["imm"]
 	rs1 = fields["rs1"]
@@ -3926,8 +3877,8 @@ function decodeLOAD(bin) {
 
 }
 
-function decodeOP_IMM(bin) { 
-	print "decodeOP_IMM" 
+function decodeOP_IMM(bin) {
+	print_dbg("decodeOP_IMM") 
 	extractIFields(bin, fields)
 	imm = fields["imm"]
 	rs1 = fields["rs1"]
@@ -4091,8 +4042,8 @@ function decodeOP_IMM(bin) {
 
 	
 }
-function decodeMISC_MEM(bin) { 
-	print "decodeMISC_MEM" 
+function decodeMISC_MEM(bin) {
+	print_dbg("decodeMISC_MEM") 
 	extractIFields(bin, fields)
 	imm = fields["imm"]
 	fm = fields["fm"]
@@ -4156,8 +4107,8 @@ function decodeMISC_MEM(bin) {
 	}
 	
 }
-function decodeSYSTEM(bin) { 
-	print "decodeSYSTEM" 
+function decodeSYSTEM(bin) {
+	print_dbg("decodeSYSTEM") 
 	extractIFields(bin, fields)
 	funct12 = fields["imm"]
 	rs1 = fields["rs1"]
@@ -4230,8 +4181,8 @@ function decodeSYSTEM(bin) {
 	}
 		
 }
-function decodeSTORE(bin) { 
-	print "decodeSTORE" 
+function decodeSTORE(bin) {
+	print_dbg("decodeSTORE") 
 	extractSFields(bin, fields)
 	imm_11_5 = fields["imm_11_5"]
 	rs2 = fields["rs2"]
@@ -4266,8 +4217,8 @@ function decodeSTORE(bin) {
 
 
 }
-function decodeBRANCH(bin) { 
-	print "decodeBRANCH" 
+function decodeBRANCH(bin) {
+	print_dbg("decodeBRANCH") 
 	extractBFields(bin, fields)
 	imm_12 = fields["imm_12"]
 	imm_10_5 = fields["imm_10_5"]
@@ -4305,8 +4256,8 @@ function decodeBRANCH(bin) {
 	push_asm(f["imm"])
 
 }
-function decodeUType(bin) { 
-	print "decodeUType" 
+function decodeUType(bin) {
+	print_dbg("decodeUType") 
 	imm_31_12 = getBits(bin, getpos("u_imm_31_12"))
 	rd = getBits(bin, getpos("rd"))
 
@@ -4324,8 +4275,8 @@ function decodeUType(bin) {
 	push_asm(f["imm_31_12"])
 
 }
-function decodeJAL(bin) { 
-	print "decodeJAL" 
+function decodeJAL(bin) {
+	print_dbg("decodeJAL") 
 	imm_20 = getBits(bin, getpos("j_imm_20"))
 	imm_10_1 = getBits(bin, getpos("j_imm_10_1"))
 	imm_11 = getBits(bin, getpos("j_imm_11"))
@@ -4352,8 +4303,8 @@ function decodeJAL(bin) {
         push_asm(f["imm"])
 
 }
-function decodeR4(bin) { 
-	print "decodeR4" 
+function decodeR4(bin) {
+	print_dbg("decodeR4") 
 	extractRFields(bin, fields)
 	rs3 = fields["funct5"]
 	fmt = fields["fmt"]
@@ -4399,8 +4350,8 @@ function decodeR4(bin) {
 
 }
 
-function decodeCR(bin) { 
-	print "decodeCR" 
+function decodeCR(bin) {
+	print_dbg("decodeCR") 
 	funct4 = getBits(bin, getpos("c_funct4"))
 	rdRs1 = getBits(bin, getpos("c_rd_rs1"))
 	rs2 = getBits(bin, getpos("c_rs2"))
@@ -4490,8 +4441,8 @@ function decodeCR(bin) {
 		
 		
 }
-function decodeCI(bin, 		immVal,imm0,imm1) { 
-	print "decodeCI" 
+function decodeCI(bin, 		immVal,imm0,imm1) {
+	print_dbg("decodeCI") 
 	funct3 = getBits(bin, getpos("c_funct3"))
 	imm0 = getBits(bin, getpos("c_imm_ci_0"))
 	rdRs1 = getBits(bin, getpos("c_rd_rs1"))
@@ -4591,8 +4542,8 @@ function decodeCI(bin, 		immVal,imm0,imm1) {
 	}
 		
 }
-function decodeCSS(bin) { 
-	print "decodeCSS"
+function decodeCSS(bin) {
+	print_dbg("decodeCSS")
 	funct3 = getBits(bin, getpos("c_funct3"))
 	imm = getBits(bin, getpos("c_imm_css"))
 	rs2 = getBits(bin, getpos("c_rs2"))
@@ -4630,8 +4581,8 @@ function decodeCSS(bin) {
 	push_asm(f["imm"])
 	
 }
-function decodeCIW(bin) { 
-	print "decodeCIW" 
+function decodeCIW(bin) {
+	print_dbg("decodeCIW") 
 	funct3 = getBits(bin, getpos("c_funct3"))
 	imm = getBits(bin, getpos("c_imm_ciw"))
 	rdPrime = getBits(bin, getpos("c_rd_prime"))
@@ -4667,8 +4618,8 @@ function decodeCIW(bin) {
 
 		
 }
-function decodeCL(bin) { 
-	print "decodeCL" 
+function decodeCL(bin) {
+	print_dbg("decodeCL") 
 	funct3 = getBits(bin, getpos("c_funct3"))
 	imm0 = getBits(bin, getpos("c_imm_cl_0"))
 	rs1Prime = getBits(bin, getpos("c_rs1_prime"))
@@ -4707,8 +4658,8 @@ function decodeCL(bin) {
 	push_asm(f["rs1_prime"])
 
 }
-function decodeCS(bin) { 
-	print "decodeCS" 
+function decodeCS(bin) {
+	print_dbg("decodeCS") 
 	funct3 = getBits(bin, getpos("c_funct3"))
 	imm0 = getBits(bin, getpos("c_imm_cs_0"))
 	rs1Prime = getBits(bin, getpos("c_rs1_prime"))
@@ -4748,8 +4699,8 @@ function decodeCS(bin) {
 
 	
 }
-function decodeCA(bin) { 
-	print "decodeCA" 
+function decodeCA(bin) {
+	print_dbg("decodeCA") 
 	funct6 = getBits(bin, getpos("c_funct6"))
 	rdRs1Prime = getBits(bin, getpos("c_rd_rs1_prime"))
 	funct2 = getBits(bin, getpos("c_funct2"))
@@ -4773,8 +4724,8 @@ function decodeCA(bin) {
 	push_asm(f["rs2_prime"])
 
 }
-function decodeCB(bin) { 
-	print "decodeCB" 
+function decodeCB(bin) {
+	print_dbg("decodeCB") 
 	funct3 = getBits(bin, getpos("c_funct3"))
 	imm0 = getBits(bin, getpos("c_imm_cb_0"))
 	shamt0 = getBits(bin, getpos("c_shamt_0"))
@@ -4856,8 +4807,8 @@ function decodeCB(bin) {
 		
 	}
 }
-function decodeCJ(bin) { 
-	print "decodeCJ" 
+function decodeCJ(bin) {
+	print_dbg("decodeCJ") 
 	funct3 = getBits(bin, getpos("c_funct3"))
 	imm = getBits(bin, getpos("c_imm_cj"))
 	opcode = getBits(bin, getpos("c_opcode"))
@@ -4976,7 +4927,7 @@ function build_f(col, id, asm, bits, field, mem) {
 	f[col]["asm"] = asm
 	f[col]["bits"] = bits
 	f[col]["field"] = field
-	if (mem) { 
+	if (mem) {
 		f[col]["mem"] = 1
 	}
 }
@@ -5016,7 +4967,8 @@ function decode(bin) {
 	delete asmFrags
 	frag_index = 0
 	opcode = getBits(bin, FIELDS["opcode"]["pos"])
-	#print "opcode", opcode
+	print_dbg("decode", bin)
+	print_dbg("opcode", opcode)
 
 	# 32-bits opcodes
 	#print substr(opcode, length(opcode)-1)
